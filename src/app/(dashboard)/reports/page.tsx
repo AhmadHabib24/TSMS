@@ -35,12 +35,12 @@ export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState<'sales' | 'staff' | 'bills' | 'pnl' | 'inventory' | 'discounts'>('pnl');
   
   // Data States
-  const [bills, setBills] = useState([]);
-  const [staffPerformance, setStaffPerformance] = useState([]);
+  const [bills, setBills] = useState<any[]>([]);
+  const [staffPerformance, setStaffPerformance] = useState<any[]>([]);
   const [salesReport, setSalesReport] = useState<any>(null);
   const [pnlReport, setPnlReport] = useState<any>(null);
   const [inventoryReport, setInventoryReport] = useState<any>(null);
-  const [discountReport, setDiscountReport] = useState([]);
+  const [discountReport, setDiscountReport] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Sales Date Filters

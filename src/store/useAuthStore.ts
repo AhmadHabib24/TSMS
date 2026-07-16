@@ -5,7 +5,7 @@ interface User {
   name: string;
   email: string;
   role_id?: number;
-  role?: { name: string };
+  role?: { name: string; permissions?: Record<string, string[]> };
 }
 
 interface AuthState {
