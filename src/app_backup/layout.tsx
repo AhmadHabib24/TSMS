@@ -18,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body suppressHydrationWarning className={`${outfit.variable} antialiased flex flex-col min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]`}>
+    <html lang="en" className="dark">
+      <body className={`${outfit.variable} antialiased flex flex-col min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]`}>
         <SettingsProvider>
           <ClientI18nProvider>
             {children}
