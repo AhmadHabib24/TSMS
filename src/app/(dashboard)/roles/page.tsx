@@ -76,15 +76,15 @@ export default function RolesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold flex items-center gap-3"><Settings className="text-[var(--color-gold)]" size={32} /> Roles</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3"><Settings className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">Roles</span></h1>
         {can('roles', 'add') && (
-          <button onClick={() => openModal()} className="bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors"><Plus size={20} /> Add New</button>
+          <button onClick={() => openModal()} className="w-full sm:w-auto justify-center bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors"><Plus size={20} /> Add New</button>
         )}
       </div>
-      <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 overflow-x-auto">
-        <table className="w-full text-left">
-          <thead><tr className="border-b border-[var(--color-border)] text-gray-400"><th>Role Name</th><th>Actions</th></tr></thead>
+      <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 overflow-x-auto">
+        <table className="w-full text-left whitespace-nowrap [&_td]:pr-4 [&_th]:pr-4">
+          <thead><tr className="border-b border-[var(--color-border)] text-gray-400"><th className="pb-3">Role Name</th><th className="pb-3">Actions</th></tr></thead>
           <tbody className="divide-y divide-[var(--color-border)]">
             {data.map((item: any) => (
               <tr key={item.id} className="hover:bg-[var(--color-background)] transition-colors">
@@ -105,9 +105,9 @@ export default function RolesPage() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-4xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
               <h2 className="text-xl font-bold">{editingId ? 'Edit Role' : 'Add New Role'}</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
             </div>
@@ -121,9 +121,9 @@ export default function RolesPage() {
                 <h3 className="text-lg font-bold mb-4">Permissions Matrix</h3>
                 <div className="grid grid-cols-1 gap-4">
                   {MODULES.map(module => (
-                    <div key={module} className="bg-[var(--color-background)] p-4 rounded-lg border border-[var(--color-border)] flex items-center justify-between">
-                      <span className="font-bold capitalize w-32">{module}</span>
-                      <div className="flex gap-6">
+                    <div key={module} className="bg-[var(--color-background)] p-3 sm:p-4 rounded-lg border border-[var(--color-border)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+                      <span className="font-bold capitalize w-full sm:w-32">{module.replace('_', ' ')}</span>
+                      <div className="flex flex-wrap gap-4 sm:gap-6">
                         {ACTIONS.map(action => {
                           const isChecked = formData.permissions[module]?.includes(action) || false;
                           const disabled = formData.name === 'Admin';

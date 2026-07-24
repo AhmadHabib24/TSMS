@@ -105,9 +105,9 @@ export default function CustomersPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-3xl font-bold flex items-center gap-3"><Users className="text-[var(--color-gold)]" size={32} /> Customers</h1>
+        <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3"><Users className="text-[var(--color-gold)] w-6 h-6 md:w-8 md:h-8" /> Customers</h1>
         
-        <div className="flex w-full md:w-auto gap-4">
+        <div className="flex flex-col sm:flex-row w-full md:w-auto gap-3 sm:gap-4">
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3 top-3 text-gray-400" size={18} />
             <input 
@@ -115,39 +115,39 @@ export default function CustomersPage() {
               onChange={e => setSearch(e.target.value)}
               type="text" 
               placeholder="Search by name or mobile..." 
-              className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 pl-10 px-4 focus:border-[var(--color-gold)] outline-none" 
+              className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 pl-10 px-4 focus:border-[var(--color-gold)] outline-none text-sm sm:text-base" 
             />
           </div>
           {can('customers', 'add') && (
-            <button onClick={() => openModal(null, 'profile')} className="shrink-0 bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors">
+            <button onClick={() => openModal(null, 'profile')} className="shrink-0 w-full sm:w-auto justify-center bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors text-sm sm:text-base">
               <Plus size={20} /> Add New
             </button>
           )}
         </div>
       </div>
       
-      <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 overflow-x-auto">
-        <table className="w-full text-left">
-          <thead><tr className="border-b border-[var(--color-border)] text-gray-400"><th>Image</th><th>Name</th><th>Mobile</th><th>Actions</th></tr></thead>
+      <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 overflow-x-auto custom-scrollbar">
+        <table className="w-full text-left whitespace-nowrap min-w-[500px]">
+          <thead><tr className="border-b border-[var(--color-border)] text-gray-400"><th className="pb-3">Image</th><th className="pb-3">Name</th><th className="pb-3">Mobile</th><th className="pb-3">Actions</th></tr></thead>
           <tbody className="divide-y divide-[var(--color-border)]">
             {filteredData.map((item: any) => (
               <tr key={item.id} className="hover:bg-[var(--color-background)] transition-colors">
-                <td className="py-4">
+                <td className="py-3 sm:py-4 pr-4">
                   {item.image_path ? (
-                    <img src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${item.image_path}`} alt="img" className="w-12 h-12 rounded-full object-cover border border-[var(--color-gold)]" />
+                    <img src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${item.image_path}`} alt="img" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-[var(--color-gold)]" />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-[var(--color-border)] flex items-center justify-center text-gray-400"><ImageIcon size={20}/></div>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--color-border)] flex items-center justify-center text-gray-400"><ImageIcon size={18} className="sm:w-5 sm:h-5"/></div>
                   )}
                 </td>
-                <td className="py-4 font-bold">{item.name}</td>
-                <td className="py-4 text-gray-400">{item.mobile}</td>
-                <td className="py-4 flex gap-3">
-                  <button onClick={() => openModal(item, 'history')} className="text-gray-400 hover:text-[var(--color-gold)] transition-colors flex items-center gap-1 text-sm bg-black/20 px-3 py-1 rounded-full border border-[var(--color-border)]"><Eye size={16}/> Profile</button>
+                <td className="py-3 sm:py-4 pr-4 font-bold">{item.name}</td>
+                <td className="py-3 sm:py-4 pr-4 text-gray-400">{item.mobile}</td>
+                <td className="py-3 sm:py-4 flex flex-wrap gap-2 sm:gap-3 items-center min-w-[150px]">
+                  <button onClick={() => openModal(item, 'history')} className="text-gray-400 hover:text-[var(--color-gold)] transition-colors flex items-center gap-1 text-xs sm:text-sm bg-black/20 px-2 sm:px-3 py-1 rounded-full border border-[var(--color-border)]"><Eye size={14} className="sm:w-4 sm:h-4"/> Profile</button>
                   {can('customers', 'edit') && (
-                    <button onClick={() => openModal(item, 'profile')} className="text-gray-400 hover:text-white transition-colors p-1"><Edit size={18}/></button>
+                    <button onClick={() => openModal(item, 'profile')} className="text-gray-400 hover:text-white transition-colors p-1"><Edit size={16} className="sm:w-[18px] sm:h-[18px]"/></button>
                   )}
                   {can('customers', 'delete') && (
-                    <button onClick={() => handleDelete(item.id)} className="text-red-500/70 hover:text-red-500 transition-colors p-1"><Trash2 size={18}/></button>
+                    <button onClick={() => handleDelete(item.id)} className="text-red-500/70 hover:text-red-500 transition-colors p-1"><Trash2 size={16} className="sm:w-[18px] sm:h-[18px]"/></button>
                   )}
                 </td>
               </tr>
@@ -158,40 +158,40 @@ export default function CustomersPage() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
             
-            <div className="p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)] shrink-0">
-              <h2 className="text-2xl font-bold">{editingId ? (customerProfile?.customer?.name || formData.name) : 'Add New Customer'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+            <div className="p-4 sm:p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)] shrink-0 gap-2">
+              <h2 className="text-lg sm:text-2xl font-bold truncate pr-2">{editingId ? (customerProfile?.customer?.name || formData.name) : 'Add New Customer'}</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
 
             {editingId && (
-              <div className="flex border-b border-[var(--color-border)] px-6 shrink-0 bg-[var(--color-background)]">
-                <button onClick={() => setActiveTab('profile')} className={`py-4 px-6 font-semibold border-b-2 transition-colors ${activeTab === 'profile' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>Edit Details</button>
-                <button onClick={() => setActiveTab('history')} className={`py-4 px-6 font-semibold border-b-2 transition-colors ${activeTab === 'history' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>History & Favorites</button>
+              <div className="flex border-b border-[var(--color-border)] px-2 sm:px-6 shrink-0 bg-[var(--color-background)] overflow-x-auto custom-scrollbar">
+                <button onClick={() => setActiveTab('profile')} className={`py-3 sm:py-4 px-4 sm:px-6 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'profile' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>Edit Details</button>
+                <button onClick={() => setActiveTab('history')} className={`py-3 sm:py-4 px-4 sm:px-6 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'history' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>History & Favorites</button>
               </div>
             )}
 
-            <div className="p-6 overflow-y-auto grow">
+            <div className="p-4 sm:p-6 overflow-y-auto grow custom-scrollbar">
               {activeTab === 'profile' && (
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Image (Optional)</label>
-                    <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files ? e.target.files[0] : null)} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[var(--color-gold)] file:text-black hover:file:bg-[var(--color-gold-hover)]" />
+                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Image (Optional)</label>
+                    <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files ? e.target.files[0] : null)} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-xs sm:text-sm file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-[var(--color-gold)] file:text-black hover:file:bg-[var(--color-gold-hover)]" />
                   </div>
                   
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Full Name</label>
-                    <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none" />
+                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Full Name</label>
+                    <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 focus:border-[var(--color-gold)] outline-none text-sm sm:text-base" />
                   </div>
                   
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Mobile Number</label>
-                    <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none" />
+                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Mobile Number</label>
+                    <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 focus:border-[var(--color-gold)] outline-none text-sm sm:text-base" />
                   </div>
                   
-                  <button type="submit" className="w-full bg-[var(--color-gold)] text-black py-3 rounded-lg font-bold mt-4 hover:bg-[var(--color-gold-hover)] transition-colors">
+                  <button type="submit" className="w-full bg-[var(--color-gold)] text-black py-2.5 sm:py-3 rounded-lg font-bold mt-2 sm:mt-4 hover:bg-[var(--color-gold-hover)] transition-colors text-sm sm:text-base">
                     {editingId ? 'Save Changes' : 'Create Customer'}
                   </button>
                 </form>
@@ -205,33 +205,33 @@ export default function CustomersPage() {
                     <div className="space-y-8 animate-in fade-in duration-300">
                       
                       {/* Stats Section */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-[var(--color-background)] border border-[var(--color-border)] p-4 rounded-xl text-center">
-                          <div className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">Total Visits</div>
-                          <div className="text-2xl font-bold text-white">{customerProfile.customer?.visit_count || 0}</div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                        <div className="bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl text-center">
+                          <div className="text-gray-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-1">Total Visits</div>
+                          <div className="text-xl sm:text-2xl font-bold text-white">{customerProfile.customer?.visit_count || 0}</div>
                         </div>
-                        <div className="bg-[var(--color-background)] border border-[var(--color-border)] p-4 rounded-xl text-center">
-                          <div className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">Total Spend</div>
-                          <div className="text-2xl font-bold text-[var(--color-gold)]">₨ {Number(customerProfile.customer?.total_spend || 0).toLocaleString()}</div>
+                        <div className="bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl text-center">
+                          <div className="text-gray-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-1">Total Spend</div>
+                          <div className="text-xl sm:text-2xl font-bold text-[var(--color-gold)]">₨ {Number(customerProfile.customer?.total_spend || 0).toLocaleString()}</div>
                         </div>
-                        <div className="bg-[var(--color-background)] border border-[var(--color-border)] p-4 rounded-xl text-center md:col-span-2 flex flex-col justify-center">
-                          <div className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">Last Visit</div>
-                          <div className="text-md font-bold text-white mt-1">
+                        <div className="col-span-2 bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl text-center flex flex-col justify-center">
+                          <div className="text-gray-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-1">Last Visit</div>
+                          <div className="text-sm sm:text-md font-bold text-white mt-1">
                             {customerProfile.customer?.bills?.length > 0 
-                              ? new Date(customerProfile.customer.bills[0].created_at).toLocaleString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' }) 
+                              ? new Date(customerProfile.customer.bills[0].created_at).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' }) 
                               : 'No visits yet'}
                           </div>
                         </div>
                       </div>
 
                       {/* Favorites Section */}
-                      <div>
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-4"><Star size={16} className="text-[var(--color-gold)]"/> Favorite Services</h3>
+                      <div className="mt-6">
+                        <h3 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3 sm:mb-4"><Star size={16} className="text-[var(--color-gold)] w-4 h-4"/> Favorite Services</h3>
                         {customerProfile.favorites?.length > 0 ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                             {customerProfile.favorites.map((fav: any) => (
-                              <div key={fav.service.id} className="bg-[var(--color-background)] border border-[var(--color-border)] p-4 rounded-xl text-center">
-                                <div className="font-bold text-white mb-1">{fav.service.name}</div>
+                              <div key={fav.service.id} className="bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl text-center">
+                                <div className="font-bold text-white mb-1 text-sm sm:text-base truncate">{fav.service.name}</div>
                                 <div className="text-xs text-[var(--color-gold)]">{fav.count} {fav.count === 1 ? 'visit' : 'visits'}</div>
                               </div>
                             ))}
@@ -242,20 +242,25 @@ export default function CustomersPage() {
                       </div>
 
                       {/* History Section */}
-                      <div>
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-4"><Clock size={16}/> Past Bills</h3>
-                        <div className="space-y-4">
+                      <div className="mt-6">
+                        <h3 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3 sm:mb-4"><Clock size={16} className="w-4 h-4"/> Past Bills</h3>
+                        <div className="space-y-3 sm:space-y-4">
                           {customerProfile.customer?.bills?.length > 0 ? (
                             customerProfile.customer.bills.map((bill: any) => (
-                              <div key={bill.id} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[var(--color-gold)] transition-colors">
-                                <div>
-                                  <div className="text-xs text-gray-400 mb-1">{new Date(bill.created_at).toLocaleString()}</div>
-                                  <div className="font-medium text-sm">Served by: <span className="text-white">{bill.employee?.name || 'Unknown'}</span></div>
+                              <div key={bill.id} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:border-[var(--color-gold)] transition-colors">
+                                <div className="flex justify-between sm:block items-start sm:items-stretch">
+                                  <div>
+                                    <div className="text-xs text-gray-400 mb-1">{new Date(bill.created_at).toLocaleString()}</div>
+                                    <div className="font-medium text-sm">Served by: <span className="text-white">{bill.employee?.name || 'Unknown'}</span></div>
+                                  </div>
+                                  <div className="font-bold text-[var(--color-gold)] whitespace-nowrap sm:hidden">
+                                    ₨ {bill.total_amount}
+                                  </div>
                                 </div>
-                                <div className="flex-1 bg-black/20 p-2 rounded-lg text-sm border border-[var(--color-border)]">
+                                <div className="flex-1 bg-black/20 p-2 rounded-lg text-xs sm:text-sm border border-[var(--color-border)] break-words">
                                   {bill.items?.map((i: any) => i.service?.name).join(', ') || 'No items'}
                                 </div>
-                                <div className="font-bold text-[var(--color-gold)] whitespace-nowrap">
+                                <div className="font-bold text-[var(--color-gold)] whitespace-nowrap hidden sm:block">
                                   ₨ {bill.total_amount}
                                 </div>
                               </div>

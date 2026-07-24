@@ -147,35 +147,35 @@ export default function EmployeesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--color-border)] pb-4">
-        <h1 className="text-3xl font-bold flex items-center gap-3"><Briefcase className="text-[var(--color-gold)]" size={32} /> Employee Hub</h1>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-[var(--color-border)] pb-4">
+        <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3"><Briefcase className="text-[var(--color-gold)] w-6 h-6 md:w-8 md:h-8" /> Employee Hub</h1>
         
-        <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg">
-          <button onClick={() => setActiveTab('directory')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 ${activeTab === 'directory' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+        <div className="flex flex-col sm:flex-row bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg w-full lg:w-auto">
+          <button onClick={() => setActiveTab('directory')} className={`w-full sm:w-auto justify-center px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 text-sm md:text-base ${activeTab === 'directory' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
             Staff Directory
           </button>
-          <button onClick={() => setActiveTab('salary')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 ${activeTab === 'salary' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
-            <Banknote size={18} /> Salary Management
+          <button onClick={() => setActiveTab('salary')} className={`w-full sm:w-auto justify-center px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 text-sm md:text-base ${activeTab === 'salary' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+            <Banknote size={16} className="md:w-[18px] md:h-[18px]" /> Salary Management
           </button>
         </div>
       </div>
 
       {activeTab === 'directory' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex w-full md:w-auto gap-4 justify-between">
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+          <div className="flex flex-col sm:flex-row w-full gap-3 sm:gap-4 justify-between">
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-3 top-2.5 sm:top-3 text-gray-400 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
               <input 
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 type="text" 
                 placeholder="Search staff..." 
-                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 pl-10 px-4 focus:border-[var(--color-gold)] outline-none" 
+                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 pl-9 sm:pl-10 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" 
               />
             </div>
             {can('employees', 'add') && (
-              <button onClick={() => openEmployeeModal()} className="shrink-0 bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors">
-                <Plus size={20} /> Add New
+              <button onClick={() => openEmployeeModal()} className="w-full sm:w-auto shrink-0 justify-center bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors text-sm sm:text-base">
+                <Plus size={18} className="sm:w-5 sm:h-5" /> Add New
               </button>
             )}
           </div>
@@ -193,15 +193,15 @@ export default function EmployeesPage() {
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-4 mb-4">
+                  <div className="flex items-center gap-3 sm:gap-4 mb-4">
                     {item.image_path ? (
-                      <img src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${item.image_path}`} alt="img" className="w-16 h-16 rounded-full object-cover border-2 border-[var(--color-gold)]" />
+                      <img src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${item.image_path}`} alt="img" className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-[var(--color-gold)] shrink-0" />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-[var(--color-background)] border-2 border-[var(--color-border)] flex items-center justify-center text-gray-400"><ImageIcon size={24}/></div>
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--color-background)] border-2 border-[var(--color-border)] flex items-center justify-center text-gray-400 shrink-0"><ImageIcon size={20} className="sm:w-6 sm:h-6"/></div>
                     )}
-                    <div>
-                      <h3 className="text-xl font-bold text-white">{item.name}</h3>
-                      <p className="text-sm text-[var(--color-gold)] font-medium uppercase tracking-wider">{item.designation || 'Staff'}</p>
+                    <div className="min-w-0">
+                      <h3 className="text-lg sm:text-xl font-bold text-white truncate">{item.name}</h3>
+                      <p className="text-xs sm:text-sm text-[var(--color-gold)] font-medium uppercase tracking-wider truncate">{item.designation || 'Staff'}</p>
                     </div>
                   </div>
                   
@@ -237,21 +237,21 @@ export default function EmployeesPage() {
 
       {activeTab === 'salary' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-400 font-bold uppercase tracking-wider text-xs">Salary Month</label>
-              <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-4 py-2 flex items-center gap-2">
-                <Calendar size={18} className="text-[var(--color-gold)]" />
-                <input type="month" value={salaryMonth} onChange={e => setSalaryMonth(e.target.value)} className="bg-transparent text-white font-bold outline-none" />
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full md:w-auto">
+              <label className="text-gray-400 font-bold uppercase tracking-wider text-xs sm:text-sm">Salary Month</label>
+              <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-3 py-2 sm:px-4 flex items-center gap-2 w-full sm:w-auto">
+                <Calendar size={16} className="text-[var(--color-gold)] sm:w-[18px] sm:h-[18px]" />
+                <input type="month" value={salaryMonth} onChange={e => setSalaryMonth(e.target.value)} className="bg-transparent text-white font-bold outline-none text-sm sm:text-base w-full" />
               </div>
             </div>
-            <button onClick={generateSalaries} disabled={isGenerating} className="bg-[var(--color-gold)] text-black px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors disabled:opacity-50">
-              <Play size={18} /> {isGenerating ? 'Generating...' : 'Generate Drafts for Month'}
+            <button onClick={generateSalaries} disabled={isGenerating} className="w-full md:w-auto justify-center bg-[var(--color-gold)] text-black px-4 sm:px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors disabled:opacity-50 text-sm sm:text-base">
+              <Play size={16} className="sm:w-[18px] sm:h-[18px]" /> {isGenerating ? 'Generating...' : 'Generate Drafts for Month'}
             </button>
           </div>
 
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl overflow-x-auto">
-            <table className="w-full text-left whitespace-nowrap">
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left whitespace-nowrap min-w-[800px]">
               <thead>
                 <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm uppercase tracking-wider bg-black/30">
                   <th className="py-4 px-6 font-bold">Employee</th>
@@ -310,54 +310,54 @@ export default function EmployeesPage() {
 
       {/* Directory Employee Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)] shrink-0">
-              <h2 className="text-2xl font-bold">{editingId ? 'Edit Employee Profile' : 'Add New Staff Member'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+            <div className="p-4 sm:p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)] shrink-0">
+              <h2 className="text-lg sm:text-2xl font-bold truncate pr-2">{editingId ? 'Edit Employee Profile' : 'Add New Staff Member'}</h2>
+              <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
-            <div className="p-6 overflow-y-auto grow">
-              <form onSubmit={handleEmployeeSubmit} className="space-y-6">
+            <div className="p-4 sm:p-6 overflow-y-auto grow custom-scrollbar">
+              <form onSubmit={handleEmployeeSubmit} className="space-y-4 sm:space-y-6">
                 
-                <div className="bg-[var(--color-background)] p-4 rounded-xl border border-[var(--color-border)] flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-[var(--color-panel)] flex items-center justify-center border border-[var(--color-border)] shrink-0">
-                    <ImageIcon size={24} className="text-gray-400" />
+                <div className="bg-[var(--color-background)] p-3 sm:p-4 rounded-xl border border-[var(--color-border)] flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full overflow-hidden">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--color-panel)] flex items-center justify-center border border-[var(--color-border)] shrink-0">
+                    <ImageIcon size={20} className="sm:w-6 sm:h-6 text-gray-400" />
                   </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-bold text-gray-300 mb-1">Profile Photo (Optional)</label>
-                    <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files ? e.target.files[0] : null)} className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-[var(--color-gold)] file:text-black hover:file:bg-[var(--color-gold-hover)] cursor-pointer" />
+                  <div className="flex-1 min-w-0 w-full overflow-hidden">
+                    <label className="block text-xs sm:text-sm font-bold text-gray-300 mb-1">Profile Photo (Optional)</label>
+                    <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files ? e.target.files[0] : null)} className="w-full text-xs sm:text-sm file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-bold file:bg-[var(--color-gold)] file:text-black hover:file:bg-[var(--color-gold-hover)] cursor-pointer truncate" />
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Full Name</label>
-                    <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none" placeholder="e.g. Ali Khan" />
+                    <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-gray-400 mb-1 sm:mb-2">Full Name</label>
+                    <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" placeholder="e.g. Ali Khan" />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Designation</label>
-                    <input required value={formData.designation} onChange={e => setFormData({...formData, designation: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none" placeholder="e.g. Senior Barber" />
+                    <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-gray-400 mb-1 sm:mb-2">Designation</label>
+                    <input required value={formData.designation} onChange={e => setFormData({...formData, designation: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" placeholder="e.g. Senior Barber" />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Mobile Number</label>
-                    <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none" placeholder="0300 1234567" />
+                    <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-gray-400 mb-1 sm:mb-2">Mobile Number</label>
+                    <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" placeholder="0300 1234567" />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">CNIC</label>
-                    <input value={formData.cnic} onChange={e => setFormData({...formData, cnic: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none" placeholder="12345-1234567-1" />
+                    <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-gray-400 mb-1 sm:mb-2">CNIC</label>
+                    <input value={formData.cnic} onChange={e => setFormData({...formData, cnic: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" placeholder="12345-1234567-1" />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Joining Date</label>
-                    <input type="date" value={formData.joining_date} onChange={e => setFormData({...formData, joining_date: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white" />
+                    <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-gray-400 mb-1 sm:mb-2">Joining Date</label>
+                    <input type="date" value={formData.joining_date} onChange={e => setFormData({...formData, joining_date: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none text-white" />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Base Salary (₨)</label>
-                    <input value={formData.base_salary} onChange={e => setFormData({...formData, base_salary: e.target.value})} type="number" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none" placeholder="0" />
+                    <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-gray-400 mb-1 sm:mb-2">Base Salary (₨)</label>
+                    <input value={formData.base_salary} onChange={e => setFormData({...formData, base_salary: e.target.value})} type="number" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" placeholder="0" />
                   </div>
                 </div>
                 
-                <div className="pt-4 mt-6 border-t border-[var(--color-border)]">
-                  <button type="submit" className="w-full bg-[var(--color-gold)] text-black py-4 rounded-xl font-bold text-lg hover:bg-[var(--color-gold-hover)] transition-transform hover:scale-[1.01] shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                <div className="pt-4 mt-4 sm:mt-6 border-t border-[var(--color-border)]">
+                  <button type="submit" className="w-full bg-[var(--color-gold)] text-black py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-[var(--color-gold-hover)] transition-transform hover:scale-[1.01] shadow-[0_0_15px_rgba(212,175,55,0.2)]">
                     {editingId ? 'Save Profile Changes' : 'Create Staff Profile'}
                   </button>
                 </div>
@@ -369,48 +369,50 @@ export default function EmployeesPage() {
 
       {/* Salary Edit Modal */}
       {isSalaryModalOpen && editingSalary && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)]">
-              <h2 className="text-xl font-bold flex flex-col">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+            <div className="p-4 sm:p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)] shrink-0">
+              <h2 className="text-lg sm:text-xl font-bold flex flex-col pr-2">
                 <span>Adjust Salary</span>
-                <span className="text-[var(--color-gold)] text-sm">{editingSalary.employee?.name} - {salaryMonth}</span>
+                <span className="text-[var(--color-gold)] text-xs sm:text-sm truncate">{editingSalary.employee?.name} - {salaryMonth}</span>
               </h2>
-              <button onClick={() => setIsSalaryModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              <button type="button" onClick={() => setIsSalaryModalOpen(false)} className="text-gray-400 hover:text-white shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
             
-            <form onSubmit={handleSalarySubmit} className="p-6 space-y-4">
-              <div className="bg-black/30 p-4 rounded-lg flex justify-between items-center border border-[var(--color-border)]">
-                <span className="text-gray-400 font-bold uppercase tracking-wider text-xs">Base Salary</span>
-                <span className="text-lg font-bold">₨ {editingSalary.amount}</span>
-              </div>
+            <div className="overflow-y-auto grow custom-scrollbar p-4 sm:p-6">
+              <form onSubmit={handleSalarySubmit} className="space-y-3 sm:space-y-4">
+                <div className="bg-black/30 p-3 sm:p-4 rounded-lg flex justify-between items-center border border-[var(--color-border)]">
+                  <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px] sm:text-xs">Base Salary</span>
+                  <span className="text-base sm:text-lg font-bold">₨ {editingSalary.amount}</span>
+                </div>
 
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-bold text-green-400 mb-2">+ Commission (₨)</label>
-                <input type="number" min="0" value={salaryForm.commission} onChange={e => setSalaryForm({...salaryForm, commission: e.target.value})} className="w-full bg-[var(--color-background)] border border-green-500/30 rounded-lg py-3 px-4 focus:border-green-500 outline-none" />
-              </div>
+                <div>
+                  <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-green-400 mb-1 sm:mb-2">+ Commission (₨)</label>
+                  <input type="number" min="0" value={salaryForm.commission} onChange={e => setSalaryForm({...salaryForm, commission: e.target.value})} className="w-full bg-[var(--color-background)] border border-green-500/30 rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-green-500 outline-none" />
+                </div>
 
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-bold text-blue-400 mb-2">+ Bonus (₨)</label>
-                <input type="number" min="0" value={salaryForm.bonus} onChange={e => setSalaryForm({...salaryForm, bonus: e.target.value})} className="w-full bg-[var(--color-background)] border border-blue-500/30 rounded-lg py-3 px-4 focus:border-blue-500 outline-none" />
-              </div>
+                <div>
+                  <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-blue-400 mb-1 sm:mb-2">+ Bonus (₨)</label>
+                  <input type="number" min="0" value={salaryForm.bonus} onChange={e => setSalaryForm({...salaryForm, bonus: e.target.value})} className="w-full bg-[var(--color-background)] border border-blue-500/30 rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-blue-500 outline-none" />
+                </div>
 
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-bold text-red-400 mb-2">- Advance Deduction (₨)</label>
-                <input type="number" min="0" value={salaryForm.advance_deduction} onChange={e => setSalaryForm({...salaryForm, advance_deduction: e.target.value})} className="w-full bg-[var(--color-background)] border border-red-500/30 rounded-lg py-3 px-4 focus:border-red-500 outline-none" />
-              </div>
+                <div>
+                  <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-red-400 mb-1 sm:mb-2">- Advance Deduction (₨)</label>
+                  <input type="number" min="0" value={salaryForm.advance_deduction} onChange={e => setSalaryForm({...salaryForm, advance_deduction: e.target.value})} className="w-full bg-[var(--color-background)] border border-red-500/30 rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-red-500 outline-none" />
+                </div>
 
-              <div className="pt-2">
-                <label className="flex items-center gap-3 p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:bg-[var(--color-background)] transition-colors">
-                  <input type="checkbox" checked={salaryForm.is_paid} onChange={e => setSalaryForm({...salaryForm, is_paid: e.target.checked})} className="w-5 h-5 accent-[var(--color-gold)]" />
-                  <span className="font-bold">Mark as Paid</span>
-                </label>
-              </div>
+                <div className="pt-2">
+                  <label className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:bg-[var(--color-background)] transition-colors">
+                    <input type="checkbox" checked={salaryForm.is_paid} onChange={e => setSalaryForm({...salaryForm, is_paid: e.target.checked})} className="w-4 h-4 sm:w-5 sm:h-5 accent-[var(--color-gold)] shrink-0" />
+                    <span className="font-bold text-sm sm:text-base">Mark as Paid</span>
+                  </label>
+                </div>
 
-              <button type="submit" className="w-full bg-[var(--color-gold)] text-black py-4 rounded-xl font-bold text-lg hover:bg-[var(--color-gold-hover)] mt-4">
-                Save & Update
-              </button>
-            </form>
+                <button type="submit" className="w-full bg-[var(--color-gold)] text-black py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-[var(--color-gold-hover)] mt-2 sm:mt-4">
+                  Save & Update
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}

@@ -45,40 +45,16 @@ export default function Dashboard() {
     discounts: []
   } as any);
 
-  const fetchAllData = async () => {
-    try {
-      const [
-        custRes,
-        billRes,
-        pnlRes,
-        invRes,
-        empRes,
-        salesRes,
-        discRes
-      ] = await Promise.all([
-        api.get('/customers'),
-        api.get('/bills'),
-        api.get('/reports/pnl-report'),
-        api.get('/reports/inventory-report'),
-        api.get('/reports/employee-performance'),
-        api.get('/reports/sales-report'),
-        api.get('/reports/discount-report')
-      ]);
-
-      setData({
-        customers: custRes.data,
-        bills: billRes.data,
-        pnl: pnlRes.data,
-        inventory: invRes.data,
-        employees: empRes.data,
-        sales: salesRes.data,
-        discounts: discRes.data
-      });
-    } catch (err) {
-      console.error("Failed to load dashboard data", err);
-    } finally {
-      setLoading(false);
-    }
+  const fetchAllData = () => {
+    setLoading(false);
+    
+    api.get('/customers').then(res => setData((prev: any) => ({ ...prev, customers: res.data }))).catch(console.error);
+    api.get('/bills').then(res => setData((prev: any) => ({ ...prev, bills: res.data }))).catch(console.error);
+    api.get('/reports/pnl-report').then(res => setData((prev: any) => ({ ...prev, pnl: res.data }))).catch(console.error);
+    api.get('/reports/inventory-report').then(res => setData((prev: any) => ({ ...prev, inventory: res.data }))).catch(console.error);
+    api.get('/reports/employee-performance').then(res => setData((prev: any) => ({ ...prev, employees: res.data }))).catch(console.error);
+    api.get('/reports/sales-report').then(res => setData((prev: any) => ({ ...prev, sales: res.data }))).catch(console.error);
+    api.get('/reports/discount-report').then(res => setData((prev: any) => ({ ...prev, discounts: res.data }))).catch(console.error);
   };
 
   // Initial load
@@ -125,12 +101,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
       </div>
 
       {/* Row 1: Top 4 Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard title="Total Customers" value={customers.length} icon={<Users size={24} />} />
         <StatCard title="Total Revenue" value={`₨ ${pnl?.total_income?.toLocaleString() ?? 0}`} icon={<DollarSign size={24} />} />
         <StatCard title="Total Expenses" value={`₨ ${pnl?.total_expenses?.toLocaleString() ?? 0}`} icon={<ArrowDownRight size={24} />} />
@@ -138,71 +114,71 @@ export default function Dashboard() {
       </div>
 
       {/* Row 2: Overviews (2 per row) */}
-      <h2 className="text-xl font-bold mt-10 border-b border-[var(--color-border)] pb-2">Quick Report Overviews</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <h2 className="text-lg sm:text-xl font-bold mt-8 sm:mt-10 border-b border-[var(--color-border)] pb-2">Quick Report Overviews</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Inventory Overview */}
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><ShoppingCart size={24}/></div>
-            <h3 className="text-lg font-semibold">Inventory Overview</h3>
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4">
+            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6"/></div>
+            <h3 className="text-base sm:text-lg font-semibold">Inventory Overview</h3>
           </div>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div><p className="text-gray-400 text-sm">Total Items</p><p className="text-xl font-bold">{inventory?.total_unique_items || 0}</p></div>
-            <div><p className="text-gray-400 text-sm">Total Stock</p><p className="text-xl font-bold">{inventory?.total_stock || 0}</p></div>
-            <div><p className="text-red-400 text-sm">Low Stock</p><p className="text-xl font-bold text-red-500">{inventory?.low_stock_count || 0}</p></div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
+            <div><p className="text-gray-400 text-xs sm:text-sm">Total Items</p><p className="text-lg sm:text-xl font-bold">{inventory?.total_unique_items || 0}</p></div>
+            <div><p className="text-gray-400 text-xs sm:text-sm">Total Stock</p><p className="text-lg sm:text-xl font-bold">{inventory?.total_stock || 0}</p></div>
+            <div><p className="text-red-400 text-xs sm:text-sm">Low Stock</p><p className="text-lg sm:text-xl font-bold text-red-500">{inventory?.low_stock_count || 0}</p></div>
           </div>
         </div>
 
         {/* Employee Performance Overview */}
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><UserCheck size={24}/></div>
-            <h3 className="text-lg font-semibold">Top Employee</h3>
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4">
+            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><UserCheck className="w-5 h-5 sm:w-6 sm:h-6"/></div>
+            <h3 className="text-base sm:text-lg font-semibold">Top Employee</h3>
           </div>
           {topEmployee ? (
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
               <div>
-                <p className="font-bold text-lg">{topEmployee.name}</p>
-                <p className="text-sm text-gray-400">{topEmployee.designation}</p>
+                <p className="font-bold text-base sm:text-lg">{topEmployee.name}</p>
+                <p className="text-xs sm:text-sm text-gray-400">{topEmployee.designation}</p>
               </div>
-              <div className="text-right">
-                <p className="text-gray-400 text-sm">Revenue Generated</p>
-                <p className="text-xl font-bold text-[var(--color-gold)]">₨ {topEmployee.revenue.toLocaleString()}</p>
+              <div className="sm:text-right">
+                <p className="text-gray-400 text-xs sm:text-sm">Revenue Generated</p>
+                <p className="text-lg sm:text-xl font-bold text-[var(--color-gold)]">₨ {topEmployee.revenue.toLocaleString()}</p>
               </div>
             </div>
           ) : <p className="text-gray-500 text-sm">No employee data</p>}
         </div>
 
         {/* Sales Overview */}
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><DollarSign size={24}/></div>
-            <h3 className="text-lg font-semibold">Sales Overview</h3>
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4">
+            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><DollarSign className="w-5 h-5 sm:w-6 sm:h-6"/></div>
+            <h3 className="text-base sm:text-lg font-semibold">Sales Overview</h3>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div><p className="text-gray-400 text-sm">Total Bills Generated</p><p className="text-xl font-bold">{bills.length}</p></div>
-            <div><p className="text-gray-400 text-sm">Average Bill Size</p><p className="text-xl font-bold">₨ {bills.length ? Math.round(pnl?.total_sales / bills.length).toLocaleString() : 0}</p></div>
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 text-center">
+            <div><p className="text-gray-400 text-xs sm:text-sm">Total Bills Generated</p><p className="text-lg sm:text-xl font-bold">{bills.length}</p></div>
+            <div><p className="text-gray-400 text-xs sm:text-sm">Average Bill Size</p><p className="text-lg sm:text-xl font-bold">₨ {bills.length ? Math.round(pnl?.total_sales / bills.length).toLocaleString() : 0}</p></div>
           </div>
         </div>
 
         {/* Discount Overview */}
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><Percent size={24}/></div>
-            <h3 className="text-lg font-semibold">Discount Overview</h3>
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4">
+            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><Percent className="w-5 h-5 sm:w-6 sm:h-6"/></div>
+            <h3 className="text-base sm:text-lg font-semibold">Discount Overview</h3>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div><p className="text-gray-400 text-sm">Bills with Discount</p><p className="text-xl font-bold">{discounts.length}</p></div>
-            <div><p className="text-gray-400 text-sm">Total Discount Given</p><p className="text-xl font-bold text-yellow-500">₨ {discounts.reduce((sum: number, b: any) => sum + (Number(b.discount_amount) || 0), 0).toLocaleString()}</p></div>
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 text-center">
+            <div><p className="text-gray-400 text-xs sm:text-sm">Bills with Discount</p><p className="text-lg sm:text-xl font-bold">{discounts.length}</p></div>
+            <div><p className="text-gray-400 text-xs sm:text-sm">Total Discount Given</p><p className="text-lg sm:text-xl font-bold text-yellow-500">₨ {discounts.reduce((sum: number, b: any) => sum + (Number(b.discount_amount) || 0), 0).toLocaleString()}</p></div>
           </div>
         </div>
       </div>
 
       {/* Row 3: Recent Customers & Recent Bills */}
-      <h2 className="text-xl font-bold mt-10 border-b border-[var(--color-border)] pb-2">Recent Activity</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 overflow-hidden flex flex-col h-96">
-          <h3 className="text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent 10 Customers</h3>
+      <h2 className="text-lg sm:text-xl font-bold mt-8 sm:mt-10 border-b border-[var(--color-border)] pb-2">Recent Activity</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 overflow-hidden flex flex-col h-96">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent 10 Customers</h3>
           <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar">
             <div className="space-y-3">
               {recentCustomers.map((c: any) => (
@@ -219,8 +195,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 overflow-hidden flex flex-col h-96">
-          <h3 className="text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent 10 Bills</h3>
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 overflow-hidden flex flex-col h-96">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent 10 Bills</h3>
           <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar">
             <div className="space-y-3">
               {recentBills.map((b: any) => (
@@ -242,12 +218,12 @@ export default function Dashboard() {
       </div>
 
       {/* Row 4: Charts */}
-      <h2 className="text-xl font-bold mt-10 border-b border-[var(--color-border)] pb-2">Analytics Visualizations</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <h2 className="text-lg sm:text-xl font-bold mt-8 sm:mt-10 border-b border-[var(--color-border)] pb-2">Analytics Visualizations</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         
         {/* Sales Trend (Line Chart) */}
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 h-96">
-          <h3 className="text-lg font-semibold mb-4">Monthly Sales Trend</h3>
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Monthly Sales Trend</h3>
           <div className="h-full pb-8">
             <Line 
               data={{
@@ -267,8 +243,8 @@ export default function Dashboard() {
         </div>
 
         {/* Expenses Pie Chart */}
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 h-96">
-          <h3 className="text-lg font-semibold mb-4">Expenses by Category</h3>
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Expenses by Category</h3>
           <div className="h-full pb-8 flex justify-center">
             <Pie 
               data={{
@@ -285,8 +261,8 @@ export default function Dashboard() {
         </div>
 
         {/* Employee Revenue Bar Chart */}
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 h-96">
-          <h3 className="text-lg font-semibold mb-4">Revenue by Employee</h3>
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Revenue by Employee</h3>
           <div className="h-full pb-8">
             <Bar 
               data={{
@@ -304,8 +280,8 @@ export default function Dashboard() {
         </div>
 
         {/* Top Inventory Bar Chart */}
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 h-96">
-          <h3 className="text-lg font-semibold mb-4">Top Consumed Inventory</h3>
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Top Consumed Inventory</h3>
           <div className="h-full pb-8">
             <Bar 
               data={{
@@ -330,17 +306,17 @@ export default function Dashboard() {
 
 function StatCard({ title, value, icon, trend }: { title: string, value: string | number, icon: React.ReactNode, trend?: string }) {
   return (
-    <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 flex flex-col justify-between group hover:border-[var(--color-gold)] transition-colors">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-gray-400 font-medium">{title}</h3>
-        <div className="text-[var(--color-gold)] p-2 rounded-lg bg-[var(--color-gold)]/10 group-hover:bg-[var(--color-gold)] group-hover:text-black transition-colors">
+    <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 flex flex-col justify-between group hover:border-[var(--color-gold)] transition-colors">
+      <div className="flex items-center justify-between mb-2 sm:mb-4">
+        <h3 className="text-gray-400 font-medium text-xs sm:text-sm md:text-base">{title}</h3>
+        <div className="text-[var(--color-gold)] p-1.5 sm:p-2 rounded-lg bg-[var(--color-gold)]/10 group-hover:bg-[var(--color-gold)] group-hover:text-black transition-colors">
           {icon}
         </div>
       </div>
       <div>
-        <div className="text-3xl font-bold">{value}</div>
+        <div className="text-xl sm:text-2xl md:text-3xl font-bold break-words">{value}</div>
         {trend && (
-          <div className={`text-sm mt-2 ${trend.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
+          <div className={`text-xs sm:text-sm mt-2 ${trend.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
             {trend} from yesterday
           </div>
         )}

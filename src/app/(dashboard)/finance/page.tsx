@@ -86,24 +86,24 @@ export default function FinancePage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-3xl font-bold flex items-center gap-3"><DollarSign className="text-[var(--color-gold)]" size={32} /> Finance Module</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3"><DollarSign className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">Finance Module</span></h1>
         
-        <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg">
+        <div className="flex flex-col sm:flex-row w-full md:w-auto bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg gap-1 sm:gap-0">
           <button 
             onClick={() => setActiveTab('expenses')} 
-            className={`px-6 py-2 rounded-md font-bold transition-all ${activeTab === 'expenses' ? 'bg-red-500 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+            className={`flex-1 flex justify-center px-3 sm:px-6 py-2 rounded-md text-sm sm:text-base font-bold transition-all whitespace-nowrap ${activeTab === 'expenses' ? 'bg-red-500 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
           >
             Expenses
           </button>
           <button 
             onClick={() => setActiveTab('income')} 
-            className={`px-6 py-2 rounded-md font-bold transition-all ${activeTab === 'income' ? 'bg-green-500 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+            className={`flex-1 flex justify-center px-3 sm:px-6 py-2 rounded-md text-sm sm:text-base font-bold transition-all whitespace-nowrap ${activeTab === 'income' ? 'bg-green-500 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
           >
             Manual Income
           </button>
         </div>
         
-        <button onClick={() => openModal()} className="bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors">
+        <button onClick={() => openModal()} className="w-full sm:w-auto justify-center bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors">
           <Plus size={20} /> Add {activeTab === 'expenses' ? 'Expense' : 'Income'}
         </button>
       </div>
@@ -113,7 +113,7 @@ export default function FinancePage() {
           <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin"></div></div>
         ) : (
           <div className="overflow-x-auto w-full custom-scrollbar">
-<table className="w-full text-left">
+            <table className="w-full text-left whitespace-nowrap [&_td]:pr-4 [&_th]:pr-4">
             <thead>
               <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm uppercase tracking-wider">
                 <th className="py-4 px-6 font-bold">Date</th>
@@ -149,7 +149,7 @@ export default function FinancePage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)]">
+            <div className="p-4 sm:p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)]">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 {activeTab === 'expenses' ? <TrendingDown className="text-red-500"/> : <TrendingUp className="text-green-500"/>}
                 {editingId ? 'Edit Record' : 'Add New Record'}
@@ -157,7 +157,7 @@ export default function FinancePage() {
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Date</label>
                 <input required type="date" value={formData.expense_date || formData.income_date || ''} onChange={e => activeTab === 'expenses' ? setFormData({...formData, expense_date: e.target.value}) : setFormData({...formData, income_date: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white" />
