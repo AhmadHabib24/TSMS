@@ -242,7 +242,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 border-b border-[var(--color-border)] pb-4">
-        <h1 className="text-3xl font-bold flex items-center gap-3 shrink-0"><FileText className="text-[var(--color-gold)]" size={32} /> Reports & Analytics</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3 shrink-0"><FileText className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">Reports & Analytics</span></h1>
         
         <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto w-full xl:w-auto shrink-0">
           <button onClick={() => setActiveTab('pnl')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'pnl' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
@@ -267,23 +267,23 @@ export default function ReportsPage() {
       </div>
 
       {(activeTab === 'sales' || activeTab === 'pnl' || activeTab === 'inventory' || activeTab === 'discounts') && (
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 flex flex-col xl:flex-row gap-6 justify-between items-start xl:items-center animate-in fade-in duration-500">
-          <div className="flex flex-wrap gap-2">
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 flex flex-col xl:flex-row gap-4 sm:gap-6 justify-between items-start xl:items-center animate-in fade-in duration-500">
+          <div className="flex flex-wrap gap-2 w-full xl:w-auto">
             {['today', 'yesterday', 'week', 'month', 'all'].map(f => (
-              <button key={f} onClick={() => setDateFilter(f)} className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-colors ${dateFilter === f ? 'bg-white text-black' : 'bg-black/30 text-gray-400 border border-[var(--color-border)] hover:border-white'}`}>
+              <button key={f} onClick={() => setDateFilter(f)} className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold capitalize transition-colors ${dateFilter === f ? 'bg-white text-black' : 'bg-black/30 text-gray-400 border border-[var(--color-border)] hover:border-white'}`}>
                 {f === 'week' ? 'This Week' : f === 'month' ? 'This Month' : f === 'all' ? 'All Time' : f}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-3 w-full xl:w-auto">
-            <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-4 py-2 flex items-center gap-2">
-              <Calendar size={16} className="text-[var(--color-gold)]"/>
-              <input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setDateFilter('custom'); }} className="bg-transparent text-sm text-white outline-none" />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:w-auto">
+            <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-4 py-2 flex items-center gap-2 w-full sm:w-auto">
+              <Calendar size={16} className="text-[var(--color-gold)] shrink-0"/>
+              <input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setDateFilter('custom'); }} className="bg-transparent w-full text-sm text-white outline-none" />
             </div>
-            <span className="text-gray-500 font-bold">TO</span>
-            <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-4 py-2 flex items-center gap-2">
-              <Calendar size={16} className="text-[var(--color-gold)]"/>
-              <input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setDateFilter('custom'); }} className="bg-transparent text-sm text-white outline-none" />
+            <span className="text-gray-500 font-bold text-center">TO</span>
+            <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-4 py-2 flex items-center gap-2 w-full sm:w-auto">
+              <Calendar size={16} className="text-[var(--color-gold)] shrink-0"/>
+              <input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setDateFilter('custom'); }} className="bg-transparent w-full text-sm text-white outline-none" />
             </div>
           </div>
         </div>
@@ -517,8 +517,8 @@ export default function ReportsPage() {
           </div>
         </div>
       ) : activeTab === 'discounts' ? (
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <table className="w-full text-left">
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-auto">
+          <table className="w-full text-left whitespace-nowrap [&_td]:pr-4 [&_th]:pr-4">
             <thead>
               <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm">
                 <th className="py-3">Bill #</th>
@@ -547,8 +547,8 @@ export default function ReportsPage() {
           </table>
         </div>
       ) : (
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <table className="w-full text-left">
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-auto">
+          <table className="w-full text-left whitespace-nowrap [&_td]:pr-4 [&_th]:pr-4">
             <thead><tr className="border-b border-[var(--color-border)] text-gray-400"><th>Bill #</th><th>Date</th><th>Customer</th><th>Employee</th><th>Total</th><th>Method</th><th>Action</th></tr></thead>
             <tbody className="divide-y divide-[var(--color-border)]">
               {bills.map((b: any) => (

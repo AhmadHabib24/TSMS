@@ -9,14 +9,14 @@ export default function QuickBilling() {
   const [customers, setCustomers] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [services, setServices] = useState([]);
-  
+
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [selectedServices, setSelectedServices] = useState<any[]>([]);
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [discount, setDiscount] = useState<number | ''>('');
   const [discountReason, setDiscountReason] = useState('');
-  
+
   const [search, setSearch] = useState('');
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
   const [newCustName, setNewCustName] = useState('');
@@ -35,9 +35,9 @@ export default function QuickBilling() {
   const subtotal = selectedServices.reduce((sum, s) => sum + Number(s.price), 0);
   const discountAmount = Number(discount) || 0;
   const total = subtotal - discountAmount;
-  
-  const filteredCustomers = customers.filter((c: any) => 
-    c.name.toLowerCase().includes(search.toLowerCase()) || 
+
+  const filteredCustomers = customers.filter((c: any) =>
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
     (c.mobile && c.mobile.includes(search))
   );
 
@@ -77,42 +77,43 @@ export default function QuickBilling() {
 
   return (
     <>
-      <div className="max-w-6xl mx-auto space-y-6 no-print">
+      {/* mx-auto */}
+      <div className="max-w-6xl  space-y-4 md:space-y-6 no-print">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Quick Billing</h1>
-            <p className="text-gray-400">Generate a bill in under 30 seconds</p>
+            <h1 className="text-2xl md:text-3xl font-bold">Quick Billing</h1>
+            <p className="text-sm md:text-base text-gray-400">Generate a bill in under 30 seconds</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left Column - Workflow */}
-          <div className="lg:col-span-2 space-y-6">
-            
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
+
             {/* Step 1: Customer */}
-            <div className={`p-6 rounded-xl border transition-all duration-300 ${step === 1 ? 'border-[var(--color-gold)] bg-[var(--color-panel)] shadow-[0_0_15px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] opacity-60'}`}>
-              <div className="flex justify-between items-center mb-4">
+            <div className={`p-4 md:p-6 rounded-xl border transition-all duration-300 ${step === 1 ? 'border-[var(--color-gold)] bg-[var(--color-panel)] shadow-[0_0_15px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] opacity-60'}`}>
+              <div className="flex flex-wrap gap-2 justify-between items-center mb-4">
                 <h2 className="text-xl font-bold flex items-center">
                   <span className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 transition-colors ${step === 1 ? 'bg-[var(--color-gold)] text-black' : 'bg-[var(--color-border)] text-gray-400'}`}>1</span>
                   Select Customer
                 </h2>
                 {step === 1 && !isAddingCustomer && (
-                  <button onClick={() => setIsAddingCustomer(true)} className="text-[var(--color-gold)] hover:text-white flex items-center gap-1 text-sm font-bold bg-[var(--color-gold)]/10 px-3 py-1.5 rounded-lg"><UserPlus size={16}/> Add New</button>
+                  <button onClick={() => setIsAddingCustomer(true)} className="text-[var(--color-gold)] hover:text-white flex items-center gap-1 text-sm font-bold bg-[var(--color-gold)]/10 px-3 py-1.5 rounded-lg"><UserPlus size={16} /> Add New</button>
                 )}
               </div>
-              
+
               {step === 1 && (
                 <div className="animate-in fade-in slide-in-from-top-2 duration-300">
                   {isAddingCustomer ? (
                     <form onSubmit={handleAddCustomer} className="bg-[var(--color-background)] p-4 rounded-xl border border-[var(--color-border)] space-y-4">
                       <h3 className="font-bold text-sm text-gray-400 uppercase tracking-wider">New Customer</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        <input required value={newCustName} onChange={e => setNewCustName(e.target.value)} type="text" placeholder="Full Name" className="w-full bg-[var(--color-panel)] border border-[var(--color-border)] rounded-lg py-2 px-3 focus:border-[var(--color-gold)] outline-none" />
-                        <input required value={newCustMobile} onChange={e => setNewCustMobile(e.target.value)} type="text" placeholder="Mobile Number" className="w-full bg-[var(--color-panel)] border border-[var(--color-border)] rounded-lg py-2 px-3 focus:border-[var(--color-gold)] outline-none" />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <input required value={newCustName} onChange={e => setNewCustName(e.target.value)} type="text" placeholder="Full Name" className="w-full bg-[var(--color-panel)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm focus:border-[var(--color-gold)] outline-none" />
+                        <input required value={newCustMobile} onChange={e => setNewCustMobile(e.target.value)} type="text" placeholder="Mobile Number" className="w-full bg-[var(--color-panel)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm focus:border-[var(--color-gold)] outline-none" />
                       </div>
-                      <div className="flex gap-3">
-                        <button type="submit" className="flex-1 bg-[var(--color-gold)] text-black py-2 rounded-lg font-bold hover:bg-[var(--color-gold-hover)] transition-colors">Save & Continue</button>
-                        <button type="button" onClick={() => setIsAddingCustomer(false)} className="px-4 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-panel)]">Cancel</button>
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                        <button type="submit" className="flex-1 bg-[var(--color-gold)] text-black py-2 rounded-lg font-bold hover:bg-[var(--color-gold-hover)] transition-colors text-sm sm:text-base">Save & Continue</button>
+                        <button type="button" onClick={() => setIsAddingCustomer(false)} className="px-4 py-2 sm:py-0 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-panel)] text-sm sm:text-base">Cancel</button>
                       </div>
                     </form>
                   ) : (
@@ -135,23 +136,23 @@ export default function QuickBilling() {
                   )}
                 </div>
               )}
-              
+
               {step > 1 && (
-                <div className="ml-11 mt-2 text-gray-400 flex justify-between items-center">
-                  <span>{selectedCustomer ? `${selectedCustomer.name} (${selectedCustomer.mobile})` : 'Walk-in Customer'}</span>
-                  <button onClick={() => setStep(1)} className="text-[var(--color-gold)] text-sm hover:underline">Change</button>
+                <div className="ml-0 sm:ml-11 mt-3 sm:mt-2 text-sm sm:text-base text-gray-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <span className="break-all">{selectedCustomer ? `${selectedCustomer.name} (${selectedCustomer.mobile})` : 'Walk-in Customer'}</span>
+                  <button onClick={() => setStep(1)} className="text-[var(--color-gold)] text-sm hover:underline shrink-0">Change</button>
                 </div>
               )}
             </div>
 
             {/* Step 2: Employee */}
-            <div className={`p-6 rounded-xl border transition-all duration-300 ${step === 2 ? 'border-[var(--color-gold)] bg-[var(--color-panel)] shadow-[0_0_15px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] opacity-60'}`}>
+            <div className={`p-4 md:p-6 rounded-xl border transition-all duration-300 ${step === 2 ? 'border-[var(--color-gold)] bg-[var(--color-panel)] shadow-[0_0_15px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] opacity-60'}`}>
               <h2 className="text-xl font-bold mb-4 flex items-center">
                 <span className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 transition-colors ${step === 2 ? 'bg-[var(--color-gold)] text-black' : 'bg-[var(--color-border)] text-gray-400'}`}>2</span>
                 Select Employee
               </h2>
               {step === 2 && (
-                <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
                   {employees.map((emp: any) => (
                     <div key={emp.id} onClick={() => { setSelectedEmployee(emp); setStep(3); }} className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] transition-colors flex items-center justify-between bg-[var(--color-background)]">
                       <div>
@@ -163,31 +164,31 @@ export default function QuickBilling() {
                 </div>
               )}
               {step > 2 && (
-                <div className="ml-11 mt-2 text-gray-400 flex justify-between items-center">
+                <div className="ml-0 sm:ml-11 mt-3 sm:mt-2 text-sm sm:text-base text-gray-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                   <span>{selectedEmployee?.name}</span>
-                  <button onClick={() => setStep(2)} className="text-[var(--color-gold)] text-sm hover:underline">Change</button>
+                  <button onClick={() => setStep(2)} className="text-[var(--color-gold)] text-sm hover:underline shrink-0">Change</button>
                 </div>
               )}
             </div>
 
             {/* Step 3: Services */}
-            <div className={`p-6 rounded-xl border transition-all duration-300 ${step === 3 ? 'border-[var(--color-gold)] bg-[var(--color-panel)] shadow-[0_0_15px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] opacity-60'}`}>
+            <div className={`p-4 md:p-6 rounded-xl border transition-all duration-300 ${step === 3 ? 'border-[var(--color-gold)] bg-[var(--color-panel)] shadow-[0_0_15px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] opacity-60'}`}>
               <h2 className="text-xl font-bold mb-4 flex items-center">
                 <span className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 transition-colors ${step === 3 ? 'bg-[var(--color-gold)] text-black' : 'bg-[var(--color-border)] text-gray-400'}`}>3</span>
                 Select Services
               </h2>
               {step === 3 && (
-                <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 animate-in fade-in slide-in-from-top-2 duration-300 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                   {services.map((srv: any) => (
-                    <div 
-                      key={srv.id} 
+                    <div
+                      key={srv.id}
                       onClick={() => {
                         if (selectedServices.find(s => s.id === srv.id)) {
                           setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
                         } else {
                           setSelectedServices([...selectedServices, srv]);
                         }
-                      }} 
+                      }}
                       className={`p-4 border rounded-lg cursor-pointer transition-all flex items-center justify-between ${selectedServices.find(s => s.id === srv.id) ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)] shadow-md transform scale-[1.02]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)] hover:bg-[var(--color-panel)]'}`}
                     >
                       <div className="font-bold">{srv.name}</div>
@@ -200,9 +201,9 @@ export default function QuickBilling() {
           </div>
 
           {/* Right Column - Receipt Preview */}
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 h-fit sticky top-24 shadow-2xl flex flex-col">
-            <h3 className="text-lg font-bold text-center border-b border-[var(--color-border)] pb-4 mb-4 uppercase tracking-widest text-gray-400">Bill Summary</h3>
-            
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-fit relative lg:sticky top-24 shadow-2xl flex flex-col mt-4 lg:mt-0">
+            <h3 className="text-base sm:text-lg font-bold text-center border-b border-[var(--color-border)] pb-4 mb-4 uppercase tracking-widest text-gray-400">Bill Summary</h3>
+
             <div className="space-y-4 mb-6">
               <div className="flex justify-between text-sm items-center">
                 <span className="text-gray-400">Customer:</span>
@@ -227,27 +228,27 @@ export default function QuickBilling() {
             </div>
 
             {selectedServices.length > 0 && (
-              <div className="border-t border-b border-[var(--color-border)] py-4 mb-6 space-y-2">
-                <div className="flex justify-between items-center text-gray-400 text-sm">
+              <div className="border-t border-b border-[var(--color-border)] py-4 mb-6 space-y-3 sm:space-y-2">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-gray-400 text-sm gap-1">
                   <span>Subtotal</span>
-                  <span>₨ {subtotal}</span>
+                  <span className="font-bold sm:font-normal text-white sm:text-gray-400">₨ {subtotal}</span>
                 </div>
-                <div className="flex justify-between items-center text-gray-400 text-sm">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-gray-400 text-sm gap-2 sm:gap-1">
                   <span>Discount</span>
-                  <input type="number" value={discount} onChange={e => setDiscount(Number(e.target.value))} placeholder="0" className="w-20 bg-[var(--color-background)] border border-[var(--color-border)] rounded py-1 px-2 text-right text-white focus:border-[var(--color-gold)] outline-none" />
+                  <input type="number" value={discount} onChange={e => setDiscount(Number(e.target.value))} placeholder="0" className="w-full sm:w-20 bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 sm:py-1 px-2 text-left sm:text-right text-white focus:border-[var(--color-gold)] outline-none" />
                 </div>
                 {discountAmount > 0 && (
                   <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                    <input 
-                      type="text" 
-                      value={discountReason} 
-                      onChange={e => setDiscountReason(e.target.value)} 
-                      placeholder="Reason for discount..." 
-                      className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 px-3 mt-2 text-sm text-white focus:border-[var(--color-gold)] outline-none" 
+                    <input
+                      type="text"
+                      value={discountReason}
+                      onChange={e => setDiscountReason(e.target.value)}
+                      placeholder="Reason for discount..."
+                      className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 px-3 mt-2 text-sm text-white focus:border-[var(--color-gold)] outline-none"
                     />
                   </div>
                 )}
-                <div className="flex justify-between items-center text-2xl font-bold text-[var(--color-gold)] pt-2 border-t border-[var(--color-border)] mt-2">
+                <div className="flex justify-between items-center text-xl sm:text-2xl font-bold text-[var(--color-gold)] pt-3 sm:pt-2 border-t border-[var(--color-border)] mt-3 sm:mt-2">
                   <span>TOTAL</span>
                   <span>₨ {total}</span>
                 </div>
@@ -257,21 +258,21 @@ export default function QuickBilling() {
             {/* Payment Method */}
             <div className="mb-6">
               <label className="block text-xs font-bold uppercase text-gray-400 mb-3 tracking-wider">Payment Method</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1 sm:gap-2">
                 <button onClick={() => setPaymentMethod('Cash')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-sm border transition-colors ${paymentMethod === 'Cash' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
-                  <Banknote size={18}/> Cash
+                  <Banknote size={18} /> Cash
                 </button>
                 <button onClick={() => setPaymentMethod('Card')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-sm border transition-colors ${paymentMethod === 'Card' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
-                  <CreditCard size={18}/> Card
+                  <CreditCard size={18} /> Card
                 </button>
                 <button onClick={() => setPaymentMethod('Online')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-sm border transition-colors ${paymentMethod === 'Online' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
-                  <Smartphone size={18}/> Online
+                  <Smartphone size={18} /> Online
                 </button>
               </div>
             </div>
 
             <div className="space-y-3 mt-auto">
-              <button 
+              <button
                 disabled={selectedServices.length === 0 || !selectedEmployee || (discountAmount > 0 && !discountReason.trim())}
                 onClick={async () => {
                   try {
@@ -285,7 +286,7 @@ export default function QuickBilling() {
                     };
                     const res = await api.post('/bills', payload);
                     toast.success('Bill Saved Successfully!');
-                    
+
                     // Show print modal instead of resetting immediately
                     setSavedBill({
                       ...res.data,
@@ -310,19 +311,19 @@ export default function QuickBilling() {
       {/* Print Options Modal */}
       {savedBill && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md p-8 text-center shadow-2xl">
-            <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check size={32} />
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md p-6 sm:p-8 text-center shadow-2xl">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check size={24} className="sm:w-8 sm:h-8" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Bill Saved Successfully!</h2>
-            <p className="text-gray-400 mb-8">Bill #INV{String(savedBill.id).padStart(4, '0')} • Total: ₨ {savedBill.total}</p>
-            
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">Bill Saved Successfully!</h2>
+            <p className="text-sm sm:text-base text-gray-400 mb-6 sm:mb-8">Bill #INV{String(savedBill.id).padStart(4, '0')} • Total: ₨ {savedBill.total}</p>
+
             <div className="space-y-4">
               <button onClick={() => { window.open(`/receipt/${savedBill.id}`, '_blank'); resetForm(); }} className="w-full bg-[var(--color-gold)] text-black py-4 rounded-xl font-bold text-lg hover:bg-[var(--color-gold-hover)] transition-colors flex items-center justify-center border-2 border-transparent">
                 <Printer className="mr-2" size={24} /> View & Print Receipt
               </button>
             </div>
-            
+
             <button onClick={resetForm} className="mt-8 text-gray-500 hover:text-white underline">
               Skip & Create New Bill
             </button>

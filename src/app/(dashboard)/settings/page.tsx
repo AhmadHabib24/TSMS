@@ -179,10 +179,10 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--color-border)] pb-4">
-        <h1 className="text-3xl font-bold flex items-center gap-3"><Settings className="text-[var(--color-gold)]" size={32} /> System Settings</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--color-border)] pb-4 w-full">
+        <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3"><Settings className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">System Settings</span></h1>
         
-        <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto max-w-full">
+        <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto w-full custom-scrollbar">
           <button onClick={() => setActiveTab('general_settings')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'general_settings' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
             <Palette size={18} /> General Settings
           </button>
@@ -198,7 +198,7 @@ export default function SettingsPage() {
         </div>
         
         {activeTab !== 'print_settings' && activeTab !== 'general_settings' && canAdd && (
-          <button onClick={() => openModal()} className="bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors shrink-0">
+          <button onClick={() => openModal()} className="w-full sm:w-auto justify-center bg-[var(--color-gold)] text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors shrink-0">
             <Plus size={20} /> Add Category
           </button>
         )}
@@ -217,42 +217,42 @@ export default function SettingsPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-6 pt-4 border-t border-[var(--color-border)]">
-                <div className="flex gap-4 items-center">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
                   <div className="w-16 h-16 rounded-xl bg-black border border-[var(--color-border)] flex items-center justify-center overflow-hidden shrink-0">
                     {darkLogoPreview ? <img src={darkLogoPreview} alt="Dark Logo" className="w-full h-full object-contain p-1" /> : <ImageIcon size={24} className="text-gray-500"/>}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 w-full">
                     <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-1">Dark Logo (For light backgrounds)</label>
                     <input type="file" accept="image/*" onChange={e => {
                       const file = e.target.files?.[0];
                       if(file) { setDarkLogoFile(file); setDarkLogoPreview(URL.createObjectURL(file)); }
-                    }} className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-white hover:file:bg-gray-700 cursor-pointer text-gray-400" />
+                    }} className="w-full overflow-hidden text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-white hover:file:bg-gray-700 cursor-pointer text-gray-400" />
                   </div>
                 </div>
 
-                <div className="flex gap-4 items-center">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
                   <div className="w-16 h-16 rounded-xl bg-white border border-[var(--color-border)] flex items-center justify-center overflow-hidden shrink-0">
                     {lightLogoPreview ? <img src={lightLogoPreview} alt="Light Logo" className="w-full h-full object-contain p-1" /> : <ImageIcon size={24} className="text-gray-500"/>}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 w-full">
                     <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-1">Light Logo (For dark backgrounds)</label>
                     <input type="file" accept="image/*" onChange={e => {
                       const file = e.target.files?.[0];
                       if(file) { setLightLogoFile(file); setLightLogoPreview(URL.createObjectURL(file)); }
-                    }} className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-white hover:file:bg-gray-700 cursor-pointer text-gray-400" />
+                    }} className="w-full overflow-hidden text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-white hover:file:bg-gray-700 cursor-pointer text-gray-400" />
                   </div>
                 </div>
 
-                <div className="flex gap-4 items-center">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
                   <div className="w-16 h-16 rounded-xl bg-black border border-[var(--color-border)] flex items-center justify-center overflow-hidden shrink-0">
                     {faviconPreview ? <img src={faviconPreview} alt="Favicon" className="w-full h-full object-contain p-1" /> : <ImageIcon size={24} className="text-gray-500"/>}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 w-full">
                     <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-1">Favicon (Browser Tab Icon)</label>
                     <input type="file" accept="image/*" onChange={e => {
                       const file = e.target.files?.[0];
                       if(file) { setFaviconFile(file); setFaviconPreview(URL.createObjectURL(file)); }
-                    }} className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-white hover:file:bg-gray-700 cursor-pointer text-gray-400" />
+                    }} className="w-full overflow-hidden text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-white hover:file:bg-gray-700 cursor-pointer text-gray-400" />
                   </div>
                 </div>
               </div>
@@ -300,13 +300,13 @@ export default function SettingsPage() {
             <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 space-y-6">
               <h2 className="text-xl font-bold border-b border-[var(--color-border)] pb-2 flex items-center gap-2"><Settings size={20} className="text-[var(--color-gold)]"/> Receipt Details</h2>
               
-              <div className="flex gap-4 items-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
                 <div className="w-20 h-20 rounded-xl bg-black/50 border border-[var(--color-border)] flex items-center justify-center overflow-hidden shrink-0">
                   {logoPreview ? <img src={logoPreview} alt="Logo" className="w-full h-full object-contain" /> : <ImageIcon size={32} className="text-gray-500"/>}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 w-full">
                   <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Salon Logo</label>
-                  <input type="file" accept="image/*" onChange={handleLogoChange} className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-[var(--color-gold)] file:text-black hover:file:bg-[var(--color-gold-hover)] cursor-pointer" />
+                  <input type="file" accept="image/*" onChange={handleLogoChange} className="w-full overflow-hidden text-sm file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-[var(--color-gold)] file:text-black hover:file:bg-[var(--color-gold-hover)] cursor-pointer" />
                 </div>
               </div>
 
@@ -361,11 +361,11 @@ export default function SettingsPage() {
           </form>
         </div>
       ) : (
-        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 overflow-x-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 overflow-x-auto custom-scrollbar animate-in fade-in slide-in-from-bottom-4 duration-500">
           {isLoading ? (
             <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin"></div></div>
           ) : (
-            <table className="w-full text-left">
+            <table className="w-full text-left whitespace-nowrap [&_td]:pr-4 [&_th]:pr-4">
               <thead>
                 <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm uppercase tracking-wider">
                   <th className="py-4 px-6 font-bold">Category Name</th>
@@ -375,17 +375,21 @@ export default function SettingsPage() {
               <tbody className="divide-y divide-[var(--color-border)]">
                 {data.map((item: any) => (
                   <tr key={item.id} className="hover:bg-[var(--color-background)] transition-colors">
-                    <td className="py-4 px-6 font-bold text-white flex items-center gap-2">
-                      {activeTab === 'service_categories' ? <Layers className="text-[var(--color-gold)]" size={16}/> : <TrendingDown className="text-red-500" size={16}/>}
-                      {item.name}
+                    <td className="py-4 px-6 font-bold text-white">
+                      <div className="flex items-center gap-2">
+                        {activeTab === 'service_categories' ? <Layers className="text-[var(--color-gold)]" size={16}/> : <TrendingDown className="text-red-500" size={16}/>}
+                        {item.name}
+                      </div>
                     </td>
-                    <td className="py-4 px-6 flex justify-end gap-2">
-                      {canEdit && (
-                        <button onClick={() => openModal(item)} className="p-2 bg-black/50 text-white rounded hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={16}/></button>
-                      )}
-                      {canDelete && (
-                        <button onClick={() => handleDelete(item.id)} className="p-2 bg-black/50 text-white rounded hover:bg-red-500 transition-colors"><Trash2 size={16}/></button>
-                      )}
+                    <td className="py-4 px-6">
+                      <div className="flex justify-end gap-2">
+                        {canEdit && (
+                          <button onClick={() => openModal(item)} className="p-2 bg-black/50 text-white rounded hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={16}/></button>
+                        )}
+                        {canDelete && (
+                          <button onClick={() => handleDelete(item.id)} className="p-2 bg-black/50 text-white rounded hover:bg-red-500 transition-colors"><Trash2 size={16}/></button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -398,8 +402,8 @@ export default function SettingsPage() {
 
       {isModalOpen && activeTab !== 'print_settings' && activeTab !== 'general_settings' && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md p-6">
-            <div className="flex justify-between items-center mb-6">
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md p-4 sm:p-6">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 {activeTab === 'service_categories' ? <Layers className="text-[var(--color-gold)]"/> : <TrendingDown className="text-red-500"/>}
                 {editingId ? 'Edit Category' : 'Add New Category'}
