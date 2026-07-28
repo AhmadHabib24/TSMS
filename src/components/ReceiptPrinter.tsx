@@ -59,7 +59,10 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
           <tbody className="divide-y divide-gray-200">
             {bill.items?.map((item: any) => (
               <tr key={item.id}>
-                <td className="py-4 px-2 font-medium">{item.service?.name}</td>
+                <td className="py-4 px-2 font-medium">
+                  {item.service?.category ? `${item.service.category.name} - ` : ''}
+                  {item.service?.name}
+                </td>
                 <td className="py-4 px-2 text-right text-gray-900">₨ {item.price}</td>
               </tr>
             ))}
@@ -76,7 +79,7 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
             </div>
             <div className="flex justify-between text-gray-600">
               <span>Discount</span>
-              <span>- ₨ {bill.discount}</span>
+              <span>- ₨ {bill.discount_amount}</span>
             </div>
             <div className="flex justify-between text-2xl font-black text-gray-900 pt-2 border-t border-gray-200">
               <span>Total</span>
@@ -85,10 +88,19 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
           </div>
         </div>
 
+        {bill.payment_status === 'pending' && (
+          <div className="mt-6 mb-2 text-center font-bold text-lg text-red-600 uppercase border-2 border-red-600 p-2 rounded">
+            Payment Status: Pending / Unpaid
+          </div>
+        )}
+
         {/* Footer */}
         <div className="mt-16 text-center text-gray-500 text-sm border-t border-gray-200 pt-8">
           <p className="font-bold text-gray-900 mb-1">{settings.footer_text}</p>
-          <p>Generated on {new Date().toLocaleString()}</p>
+          <p className="mb-6">Generated on {new Date().toLocaleString()}</p>
+          <div className="text-[10px] text-gray-400 mt-4 border-t border-gray-100 pt-2">
+            &copy; {new Date().getFullYear()} Designed & Developed by Tecveq | WhatsApp: +92 307 331 9555
+          </div>
         </div>
       </div>
     );
@@ -114,7 +126,7 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
           <div className="font-bold text-xs uppercase border-b border-black pb-1 mb-2">Services</div>
           {bill.items?.map((item: any) => (
             <div key={item.id} className="flex justify-between mb-1 text-xs">
-              <span>{item.service?.name}</span>
+              <span>{item.service?.category ? `${item.service.category.name} - ` : ''}{item.service?.name}</span>
               <span>{item.price}</span>
             </div>
           ))}
@@ -122,13 +134,23 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
 
         <div className="border-t border-black pt-2 space-y-1 text-xs">
           <div className="flex justify-between"><span>Subtotal:</span> <span>{bill.subtotal}</span></div>
-          <div className="flex justify-between"><span>Discount:</span> <span>{bill.discount}</span></div>
+          <div className="flex justify-between"><span>Discount:</span> <span>{bill.discount_amount}</span></div>
           <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t border-black"><span>Total:</span> <span>₨ {bill.total}</span></div>
         </div>
 
+        {bill.payment_status === 'pending' && (
+          <div className="mt-2 text-center font-bold uppercase border-t border-b border-black py-1">
+            ** PAYMENT PENDING / UNPAID **
+          </div>
+        )}
+
         <div className="mt-8 text-xs text-center border-t border-black pt-2">
           {settings.footer_text && <div className="font-bold mb-1">{settings.footer_text}</div>}
-          <div className="text-[10px]">Thank you!</div>
+          <div className="text-[10px] mb-4">Thank you!</div>
+          <div className="text-[8px] text-gray-500 mt-2">
+            &copy; {new Date().getFullYear()} Designed & Developed by Tecveq<br/>
+            WhatsApp: +92 307 331 9555
+          </div>
         </div>
       </div>
     );
@@ -160,7 +182,10 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
         <tbody>
           {bill.items?.map((item: any) => (
             <tr key={item.id}>
-              <td className="py-1">{item.service?.name}</td>
+              <td className="py-1">
+                {item.service?.category ? `${item.service.category.name} - ` : ''}
+                {item.service?.name}
+              </td>
               <td className="py-1 text-right">{item.price}</td>
             </tr>
           ))}
@@ -170,13 +195,23 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
 
       <div className="text-right text-xs space-y-1 mb-4 border-t border-dashed border-black pt-2">
         <div>Subtotal: ₨ {bill.subtotal}</div>
-        <div>Discount: - ₨ {bill.discount}</div>
+        <div>Discount: - ₨ {bill.discount_amount}</div>
         <div className="text-xl font-bold mt-2 pt-2 border-t border-black">Total: ₨ {bill.total}</div>
       </div>
 
+      {bill.payment_status === 'pending' && (
+        <div className="text-center font-bold uppercase mt-2 pt-2 border-t border-black">
+          ** PAYMENT PENDING / UNPAID **
+        </div>
+      )}
+
       <div className="mt-6 text-xs text-center">
         {settings.footer_text && <div className="mb-2">{settings.footer_text}</div>}
-        <div>*** PLEASE COME AGAIN ***</div>
+        <div className="mb-4">*** PLEASE COME AGAIN ***</div>
+        <div className="text-[8px] text-gray-500 mt-2">
+          &copy; {new Date().getFullYear()} Designed & Developed by Tecveq<br/>
+          WhatsApp: +92 307 331 9555
+        </div>
       </div>
     </div>
   );

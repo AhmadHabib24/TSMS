@@ -1,14 +1,19 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { Search, Plus, Check, Printer, UserPlus, CreditCard, Banknote, Smartphone, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Plus, Check, Printer, UserPlus, CreditCard, Banknote, Smartphone, X, Clock, Scissors, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity } from 'lucide-react';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
+
+const AVAILABLE_ICONS: Record<string, any> = {
+  Scissors, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity
+};
 
 export default function QuickBilling() {
   const [step, setStep] = useState(1);
   const [customers, setCustomers] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
@@ -30,6 +35,7 @@ export default function QuickBilling() {
     api.get('/customers').then(res => setCustomers(res.data)).catch(err => console.error(err));
     api.get('/employees').then(res => setEmployees(res.data)).catch(err => console.error(err));
     api.get('/services').then(res => setServices(res.data)).catch(err => console.error(err));
+    api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.error(err));
   }, []);
 
   const subtotal = selectedServices.reduce((sum, s) => sum + Number(s.price), 0);
@@ -38,7 +44,7 @@ export default function QuickBilling() {
 
   const filteredCustomers = customers.filter((c: any) =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
-    (c.mobile && c.mobile.includes(search))
+    (c.mobile && String(c.mobile).includes(search))
   );
 
   const handleAddCustomer = async (e: React.FormEvent) => {
@@ -98,7 +104,7 @@ export default function QuickBilling() {
                   Select Customer
                 </h2>
                 {step === 1 && !isAddingCustomer && (
-                  <button onClick={() => setIsAddingCustomer(true)} className="text-[var(--color-gold)] hover:text-white flex items-center gap-1 text-sm font-bold bg-[var(--color-gold)]/10 px-3 py-1.5 rounded-lg"><UserPlus size={16} /> Add New</button>
+                  <button onClick={() => setIsAddingCustomer(true)} className="text-[var(--color-gold)] hover:text-[var(--color-foreground)] flex items-center gap-1 text-sm font-bold bg-[var(--color-gold)]/10 px-3 py-1.5 rounded-lg"><UserPlus size={16} /> Add New</button>
                 )}
               </div>
 
@@ -120,11 +126,32 @@ export default function QuickBilling() {
                     <div className="space-y-4">
                       <div className="relative">
                         <Search className="absolute left-3 top-3 text-gray-400" size={20} />
-                        <input value={search} onChange={e => setSearch(e.target.value)} type="text" placeholder="Search by mobile number or name..." className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 pl-10 px-4 focus:outline-none focus:border-[var(--color-gold)] transition-colors" />
+                        <input 
+                          value={search} 
+                          onChange={e => setSearch(e.target.value)} 
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              if (filteredCustomers.length > 0) {
+                                setSelectedCustomer(filteredCustomers[0]);
+                                setStep(2);
+                              }
+                            }
+                          }}
+                          type="text" 
+                          placeholder="Search by mobile number or name..." 
+                          className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 pl-10 px-4 focus:outline-none focus:border-[var(--color-gold)] transition-colors" 
+                        />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                         {filteredCustomers.map((cust: any) => (
-                          <div key={cust.id} onClick={() => { setSelectedCustomer(cust); setStep(2); }} className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] transition-colors bg-[var(--color-background)]">
+                          <div 
+                            key={cust.id} 
+                            tabIndex={0}
+                            onClick={() => { setSelectedCustomer(cust); setStep(2); }} 
+                            onKeyDown={(e) => { if(e.key === 'Enter') { setSelectedCustomer(cust); setStep(2); } }}
+                            className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] focus:border-[var(--color-gold)] focus:outline-none transition-colors bg-[var(--color-background)]"
+                          >
                             <div className="font-bold">{cust.name}</div>
                             <div className="text-sm text-gray-400">{cust.mobile}</div>
                           </div>
@@ -154,7 +181,13 @@ export default function QuickBilling() {
               {step === 2 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
                   {employees.map((emp: any) => (
-                    <div key={emp.id} onClick={() => { setSelectedEmployee(emp); setStep(3); }} className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] transition-colors flex items-center justify-between bg-[var(--color-background)]">
+                    <div 
+                      key={emp.id} 
+                      tabIndex={0}
+                      onClick={() => { setSelectedEmployee(emp); setStep(3); }} 
+                      onKeyDown={(e) => { if(e.key === 'Enter') { setSelectedEmployee(emp); setStep(3); } }}
+                      className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] focus:border-[var(--color-gold)] focus:outline-none transition-colors flex items-center justify-between bg-[var(--color-background)]"
+                    >
                       <div>
                         <div className="font-bold">{emp.name}</div>
                         <div className="text-sm text-[var(--color-gold)]">{emp.designation || 'Staff'}</div>
@@ -178,23 +211,95 @@ export default function QuickBilling() {
                 Select Services
               </h2>
               {step === 3 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 animate-in fade-in slide-in-from-top-2 duration-300 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-                  {services.map((srv: any) => (
-                    <div
-                      key={srv.id}
-                      onClick={() => {
-                        if (selectedServices.find(s => s.id === srv.id)) {
-                          setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
-                        } else {
-                          setSelectedServices([...selectedServices, srv]);
-                        }
-                      }}
-                      className={`p-4 border rounded-lg cursor-pointer transition-all flex items-center justify-between ${selectedServices.find(s => s.id === srv.id) ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)] shadow-md transform scale-[1.02]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)] hover:bg-[var(--color-panel)]'}`}
-                    >
-                      <div className="font-bold">{srv.name}</div>
-                      <div className={selectedServices.find(s => s.id === srv.id) ? 'font-bold' : ''}>₨ {srv.price}</div>
-                    </div>
-                  ))}
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                  {categories.map((cat: any) => {
+                    const catServices = services.filter((s: any) => s.service_category_id === cat.id);
+                    const hasSub = cat.children && cat.children.length > 0;
+                    if (catServices.length === 0 && !hasSub) return null;
+                    
+                    return (
+                      <div key={cat.id} className="mb-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl overflow-hidden">
+                        <div className="bg-black/30 p-3 font-bold text-[var(--color-gold)] border-b border-[var(--color-border)] uppercase tracking-widest text-xs">
+                          {cat.name}
+                        </div>
+                        <div className="p-2 space-y-2">
+                          {/* Services directly under parent category */}
+                          {catServices.map((srv: any) => {
+                            const isSelected = !!selectedServices.find(s => s.id === srv.id);
+                            const toggleSelection = () => {
+                              if (isSelected) setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
+                              else setSelectedServices([...selectedServices, srv]);
+                            };
+                            return (
+                              <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)]'}`}>
+                                <div className="font-bold text-sm flex items-center gap-2">
+                                  {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 14 }) : null}
+                                  {srv.name}
+                                </div>
+                                <div className={`text-sm ${isSelected ? 'font-bold' : ''}`}>₨ {srv.price}</div>
+                              </div>
+                            );
+                          })}
+                          
+                          {/* Sub Categories */}
+                          {cat.children && cat.children.map((sub: any) => {
+                            const subServices = services.filter((s: any) => s.service_category_id === sub.id);
+                            if (subServices.length === 0) return null;
+                            return (
+                              <div key={sub.id} className="mt-2 ml-4">
+                                <div className="text-xs font-bold text-gray-400 mb-2 border-b border-[var(--color-border)] pb-1">↳ {sub.name}</div>
+                                <div className="space-y-2">
+                                  {subServices.map((srv: any) => {
+                                    const isSelected = !!selectedServices.find(s => s.id === srv.id);
+                                    const toggleSelection = () => {
+                                      if (isSelected) setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
+                                      else setSelectedServices([...selectedServices, srv]);
+                                    };
+                                    return (
+                                      <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)]'}`}>
+                                        <div className="font-bold text-sm flex items-center gap-2">
+                                          {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 14 }) : null}
+                                          {srv.name}
+                                        </div>
+                                        <div className={`text-sm ${isSelected ? 'font-bold' : ''}`}>₨ {srv.price}</div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Uncategorized */}
+                  {services.filter((s: any) => !s.service_category_id).length > 0 && (
+                     <div className="mb-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl overflow-hidden">
+                        <div className="bg-black/30 p-3 font-bold text-gray-400 border-b border-[var(--color-border)] uppercase tracking-widest text-xs">
+                          Uncategorized
+                        </div>
+                        <div className="p-2 space-y-2">
+                          {services.filter((s: any) => !s.service_category_id).map((srv: any) => {
+                            const isSelected = !!selectedServices.find(s => s.id === srv.id);
+                            const toggleSelection = () => {
+                              if (isSelected) setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
+                              else setSelectedServices([...selectedServices, srv]);
+                            };
+                            return (
+                              <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)]'}`}>
+                                <div className="font-bold text-sm flex items-center gap-2">
+                                  {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 14 }) : null}
+                                  {srv.name}
+                                </div>
+                                <div className={`text-sm ${isSelected ? 'font-bold' : ''}`}>₨ {srv.price}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                  )}
                 </div>
               )}
             </div>
@@ -207,7 +312,7 @@ export default function QuickBilling() {
             <div className="space-y-4 mb-6">
               <div className="flex justify-between text-sm items-center">
                 <span className="text-gray-400">Customer:</span>
-                <span className="font-medium text-white bg-[var(--color-background)] px-3 py-1 rounded-full border border-[var(--color-border)]">{selectedCustomer ? selectedCustomer.name : 'Walk-in'}</span>
+                <span className="font-medium text-[var(--color-foreground)] bg-[var(--color-background)] px-3 py-1 rounded-full border border-[var(--color-border)]">{selectedCustomer ? selectedCustomer.name : 'Walk-in'}</span>
               </div>
               <div className="flex justify-between text-sm items-center">
                 <span className="text-gray-400">Employee:</span>
@@ -217,7 +322,7 @@ export default function QuickBilling() {
 
             <div className="space-y-3 mb-4 border-t border-[var(--color-border)] pt-4 min-h-[100px]">
               {selectedServices.map(srv => (
-                <div key={srv.id} className="flex justify-between text-white text-sm">
+                <div key={srv.id} className="flex justify-between text-[var(--color-foreground)] text-sm">
                   <span>{srv.name}</span>
                   <span className="text-gray-300">₨ {srv.price}</span>
                 </div>
@@ -231,11 +336,11 @@ export default function QuickBilling() {
               <div className="border-t border-b border-[var(--color-border)] py-4 mb-6 space-y-3 sm:space-y-2">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-gray-400 text-sm gap-1">
                   <span>Subtotal</span>
-                  <span className="font-bold sm:font-normal text-white sm:text-gray-400">₨ {subtotal}</span>
+                  <span className="font-bold sm:font-normal text-[var(--color-foreground)] sm:text-gray-400">₨ {subtotal}</span>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-gray-400 text-sm gap-2 sm:gap-1">
                   <span>Discount</span>
-                  <input type="number" value={discount} onChange={e => setDiscount(Number(e.target.value))} placeholder="0" className="w-full sm:w-20 bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 sm:py-1 px-2 text-left sm:text-right text-white focus:border-[var(--color-gold)] outline-none" />
+                  <input type="number" value={discount} onChange={e => setDiscount(Number(e.target.value))} placeholder="0" className="w-full sm:w-20 bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 sm:py-1 px-2 text-left sm:text-right text-[var(--color-foreground)] focus:border-[var(--color-gold)] outline-none" />
                 </div>
                 {discountAmount > 0 && (
                   <div className="animate-in fade-in slide-in-from-top-2 duration-300">
@@ -244,7 +349,7 @@ export default function QuickBilling() {
                       value={discountReason}
                       onChange={e => setDiscountReason(e.target.value)}
                       placeholder="Reason for discount..."
-                      className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 px-3 mt-2 text-sm text-white focus:border-[var(--color-gold)] outline-none"
+                      className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 px-3 mt-2 text-sm text-[var(--color-foreground)] focus:border-[var(--color-gold)] outline-none"
                     />
                   </div>
                 )}
@@ -258,28 +363,41 @@ export default function QuickBilling() {
             {/* Payment Method */}
             <div className="mb-6">
               <label className="block text-xs font-bold uppercase text-gray-400 mb-3 tracking-wider">Payment Method</label>
-              <div className="grid grid-cols-3 gap-1 sm:gap-2">
-                <button onClick={() => setPaymentMethod('Cash')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-sm border transition-colors ${paymentMethod === 'Cash' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
-                  <Banknote size={18} /> Cash
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <button onClick={() => setPaymentMethod('Cash')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Cash' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
+                  <Banknote size={16} /> Cash
                 </button>
-                <button onClick={() => setPaymentMethod('Card')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-sm border transition-colors ${paymentMethod === 'Card' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
-                  <CreditCard size={18} /> Card
+                <button onClick={() => setPaymentMethod('Card')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Card' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
+                  <CreditCard size={16} /> Card
                 </button>
-                <button onClick={() => setPaymentMethod('Online')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-sm border transition-colors ${paymentMethod === 'Online' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
-                  <Smartphone size={18} /> Online
+                <button onClick={() => setPaymentMethod('Online')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Online' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
+                  <Smartphone size={16} /> Online
+                </button>
+                <button onClick={() => setPaymentMethod('Jazz Cash')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Jazz Cash' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
+                  <Smartphone size={16} /> Jazz Cash
+                </button>
+                <button onClick={() => setPaymentMethod('POS Meezan')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'POS Meezan' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
+                  <CreditCard size={16} /> POS Meezan
+                </button>
+                <button onClick={() => setPaymentMethod('UBL')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'UBL' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
+                  <CreditCard size={16} /> UBL
+                </button>
+                <button onClick={() => setPaymentMethod('Udhar')} className={`col-span-2 sm:col-span-3 py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Udhar' ? 'bg-orange-500 text-black border-orange-500 font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-orange-500 hover:text-orange-500'}`}>
+                  <Clock size={16} /> Udhar (Pending)
                 </button>
               </div>
             </div>
 
             <div className="space-y-3 mt-auto">
               <button
-                disabled={selectedServices.length === 0 || !selectedEmployee || (discountAmount > 0 && !discountReason.trim())}
+                disabled={selectedServices.length === 0 || !selectedEmployee}
                 onClick={async () => {
                   try {
                     const payload = {
                       customer_id: selectedCustomer?.id,
                       employee_id: selectedEmployee?.id,
                       payment_method: paymentMethod.toLowerCase(),
+                      payment_status: paymentMethod === 'Udhar' ? 'pending' : 'paid',
                       discount_amount: discountAmount,
                       discount_reason: discountReason,
                       items: selectedServices.map(s => ({ service_id: s.id, price: s.price }))
@@ -324,7 +442,7 @@ export default function QuickBilling() {
               </button>
             </div>
 
-            <button onClick={resetForm} className="mt-8 text-gray-500 hover:text-white underline">
+            <button onClick={resetForm} className="mt-8 text-gray-500 hover:text-[var(--color-foreground)] underline">
               Skip & Create New Bill
             </button>
           </div>

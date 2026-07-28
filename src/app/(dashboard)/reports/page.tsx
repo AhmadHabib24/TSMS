@@ -32,7 +32,7 @@ ChartJS.register(
 );
 
 export default function ReportsPage() {
-  const [activeTab, setActiveTab] = useState<'sales' | 'staff' | 'bills' | 'pnl' | 'inventory' | 'discounts'>('pnl');
+  const [activeTab, setActiveTab] = useState<'sales' | 'staff' | 'bills' | 'pnl' | 'inventory' | 'discounts' | 'udhar'>('pnl');
   
   // Data States
   const [bills, setBills] = useState<any[]>([]);
@@ -41,6 +41,7 @@ export default function ReportsPage() {
   const [pnlReport, setPnlReport] = useState<any>(null);
   const [inventoryReport, setInventoryReport] = useState<any>(null);
   const [discountReport, setDiscountReport] = useState<any[]>([]);
+  const [udharReport, setUdharReport] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Sales Date Filters
@@ -69,6 +70,11 @@ export default function ReportsPage() {
       fetchInventoryReport();
     } else if (activeTab === 'discounts') {
       fetchDiscountReport();
+    } else if (activeTab === 'udhar') {
+      api.get('/reports/udhar-report').then(res => {
+        setUdharReport(res.data);
+        setIsLoading(false);
+      });
     }
   }, [activeTab]);
 
@@ -245,23 +251,26 @@ export default function ReportsPage() {
         <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3 shrink-0"><FileText className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">Reports & Analytics</span></h1>
         
         <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto w-full xl:w-auto shrink-0">
-          <button onClick={() => setActiveTab('pnl')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'pnl' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('pnl')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'pnl' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             Profit & Loss
           </button>
-          <button onClick={() => setActiveTab('sales')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'sales' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('sales')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'sales' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             Sales Report
           </button>
-          <button onClick={() => setActiveTab('inventory')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'inventory' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('inventory')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'inventory' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             Inventory
           </button>
-          <button onClick={() => setActiveTab('staff')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'staff' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('staff')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'staff' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             Staff Performance
           </button>
-          <button onClick={() => setActiveTab('bills')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'bills' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('bills')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'bills' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             Recent Bills
           </button>
-          <button onClick={() => setActiveTab('discounts')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'discounts' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('discounts')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'discounts' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             Discounts
+          </button>
+          <button onClick={() => setActiveTab('udhar')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'udhar' ? 'bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]' : 'text-gray-400 hover:text-orange-400'}`}>
+            <AlertTriangle size={16} className={activeTab === 'udhar' ? 'text-black' : ''} /> Udhar Report
           </button>
         </div>
       </div>
@@ -278,12 +287,12 @@ export default function ReportsPage() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:w-auto">
             <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-4 py-2 flex items-center gap-2 w-full sm:w-auto">
               <Calendar size={16} className="text-[var(--color-gold)] shrink-0"/>
-              <input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setDateFilter('custom'); }} className="bg-transparent w-full text-sm text-white outline-none" />
+              <input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setDateFilter('custom'); }} className="bg-transparent w-full text-sm text-[var(--color-foreground)] outline-none" />
             </div>
             <span className="text-gray-500 font-bold text-center">TO</span>
             <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-4 py-2 flex items-center gap-2 w-full sm:w-auto">
               <Calendar size={16} className="text-[var(--color-gold)] shrink-0"/>
-              <input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setDateFilter('custom'); }} className="bg-transparent w-full text-sm text-white outline-none" />
+              <input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setDateFilter('custom'); }} className="bg-transparent w-full text-sm text-[var(--color-foreground)] outline-none" />
             </div>
           </div>
         </div>
@@ -298,14 +307,14 @@ export default function ReportsPage() {
             <div className="bg-[var(--color-panel)] border border-green-500/30 rounded-xl p-6 shadow-[0_0_15px_rgba(16,185,129,0.05)] relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform"><TrendingUp size={120} /></div>
               <div className="text-green-500 font-bold uppercase tracking-widest text-xs mb-1">Total Income</div>
-              <div className="text-3xl font-black text-white mb-2">₨ {pnlReport?.total_income || 0}</div>
+              <div className="text-3xl font-black text-[var(--color-foreground)] mb-2">₨ {pnlReport?.total_income || 0}</div>
               <div className="text-xs text-gray-400">Sales: ₨ {pnlReport?.total_sales || 0} <br/> Manual: ₨ {pnlReport?.total_manual_income || 0}</div>
             </div>
 
             <div className="bg-[var(--color-panel)] border border-red-500/30 rounded-xl p-6 shadow-[0_0_15px_rgba(239,68,68,0.05)] relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform"><TrendingDown size={120} /></div>
               <div className="text-red-500 font-bold uppercase tracking-widest text-xs mb-1">Total Expenses</div>
-              <div className="text-3xl font-black text-white mb-2">₨ {pnlReport?.total_expenses || 0}</div>
+              <div className="text-3xl font-black text-[var(--color-foreground)] mb-2">₨ {pnlReport?.total_expenses || 0}</div>
               <div className="text-xs text-gray-400">Across {pnlReport?.expenses_by_category?.length || 0} categories</div>
             </div>
 
@@ -313,7 +322,7 @@ export default function ReportsPage() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className={`font-bold uppercase tracking-widest text-xs mb-1 ${(pnlReport?.net_profit || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>Net Profit</div>
-                  <div className="text-4xl font-black text-white">₨ {pnlReport?.net_profit || 0}</div>
+                  <div className="text-4xl font-black text-[var(--color-foreground)]">₨ {pnlReport?.net_profit || 0}</div>
                 </div>
                 <DollarSign size={32} className={(pnlReport?.net_profit || 0) >= 0 ? 'text-green-500' : 'text-red-500'} />
               </div>
@@ -374,19 +383,19 @@ export default function ReportsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 flex flex-col items-center justify-center text-center">
               <Package size={48} className="text-blue-500 mb-4" />
-              <div className="text-4xl font-black text-white">{inventoryReport?.total_unique_items || 0}</div>
+              <div className="text-4xl font-black text-[var(--color-foreground)]">{inventoryReport?.total_unique_items || 0}</div>
               <div className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-2">Total Unique Products</div>
             </div>
             
             <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 flex flex-col items-center justify-center text-center">
               <Activity size={48} className="text-[var(--color-gold)] mb-4" />
-              <div className="text-4xl font-black text-white">{inventoryReport?.total_stock || 0}</div>
+              <div className="text-4xl font-black text-[var(--color-foreground)]">{inventoryReport?.total_stock || 0}</div>
               <div className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-2">Total Items in Stock</div>
             </div>
 
             <div className={`bg-[var(--color-panel)] rounded-xl p-6 flex flex-col items-center justify-center text-center ${inventoryReport?.low_stock_count > 0 ? 'border border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.1)]' : 'border border-[var(--color-border)]'}`}>
               <AlertTriangle size={48} className={inventoryReport?.low_stock_count > 0 ? 'text-red-500 mb-4' : 'text-gray-600 mb-4'} />
-              <div className={`text-4xl font-black ${inventoryReport?.low_stock_count > 0 ? 'text-red-500' : 'text-white'}`}>{inventoryReport?.low_stock_count || 0}</div>
+              <div className={`text-4xl font-black ${inventoryReport?.low_stock_count > 0 ? 'text-red-500' : 'text-[var(--color-foreground)]'}`}>{inventoryReport?.low_stock_count || 0}</div>
               <div className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-2">Low Stock Alerts</div>
             </div>
           </div>
@@ -398,7 +407,7 @@ export default function ReportsPage() {
                 <div className="space-y-4">
                   {inventoryReport.top_consumed.map((item: any, i: number) => (
                     <div key={i} className="flex justify-between items-center border-b border-[var(--color-border)] pb-3 last:border-0 last:pb-0">
-                      <div className="font-bold text-white">{item.name}</div>
+                      <div className="font-bold text-[var(--color-foreground)]">{item.name}</div>
                       <div className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm font-bold">-{item.amount_consumed} units</div>
                     </div>
                   ))}
@@ -415,7 +424,7 @@ export default function ReportsPage() {
                   {inventoryReport.low_stock_items.map((item: any, i: number) => (
                     <div key={i} className="flex justify-between items-center border-b border-[var(--color-border)] pb-3 last:border-0 last:pb-0">
                       <div>
-                        <div className="font-bold text-white">{item.name}</div>
+                        <div className="font-bold text-[var(--color-foreground)]">{item.name}</div>
                         <div className="text-xs text-gray-500">Threshold: {item.low_stock_threshold}</div>
                       </div>
                       <div className="text-red-500 font-black text-xl">{item.stock_level} left</div>
@@ -437,7 +446,7 @@ export default function ReportsPage() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="text-yellow-500 font-bold uppercase tracking-widest text-xs mb-1">Top Performer</div>
-                  <div className="text-2xl font-black text-white">{staffPerformance[0]?.name || '--'}</div>
+                  <div className="text-2xl font-black text-[var(--color-foreground)]">{staffPerformance[0]?.name || '--'}</div>
                 </div>
                 <Trophy size={32} className="text-yellow-500" />
               </div>
@@ -448,7 +457,7 @@ export default function ReportsPage() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-1">Total Team Revenue</div>
-                  <div className="text-2xl font-black text-white">₨ {staffPerformance.reduce((acc, curr: any) => acc + curr.revenue, 0)}</div>
+                  <div className="text-2xl font-black text-[var(--color-foreground)]">₨ {staffPerformance.reduce((acc, curr: any) => acc + curr.revenue, 0)}</div>
                 </div>
                 <DollarSign size={32} className="text-[var(--color-gold)]" />
               </div>
@@ -459,7 +468,7 @@ export default function ReportsPage() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-1">Total Customers Served</div>
-                  <div className="text-2xl font-black text-white">{staffPerformance.reduce((acc, curr: any) => acc + curr.customers_served, 0)}</div>
+                  <div className="text-2xl font-black text-[var(--color-foreground)]">{staffPerformance.reduce((acc, curr: any) => acc + curr.customers_served, 0)}</div>
                 </div>
                 <Users size={32} className="text-blue-500" />
               </div>
@@ -488,7 +497,7 @@ export default function ReportsPage() {
                       <td className="py-4 px-6">
                         {index === 0 ? <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-black font-black">1</div> : 
                          index === 1 ? <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-black font-black">2</div> :
-                         index === 2 ? <div className="w-8 h-8 rounded-full bg-orange-700 flex items-center justify-center text-white font-black">3</div> :
+                         index === 2 ? <div className="w-8 h-8 rounded-full bg-orange-700 flex items-center justify-center text-[var(--color-foreground)] font-black">3</div> :
                          <div className="w-8 h-8 flex items-center justify-center text-gray-500 font-bold">{index + 1}</div>}
                       </td>
                       <td className="py-4 px-6 flex items-center gap-3">
@@ -498,7 +507,7 @@ export default function ReportsPage() {
                           <div className="w-10 h-10 rounded-full bg-[var(--color-background)] flex items-center justify-center text-gray-400 border border-[var(--color-border)]"><ImageIcon size={16}/></div>
                         )}
                         <div>
-                          <div className={`font-bold ${index === 0 ? 'text-yellow-500' : 'text-white'}`}>{emp.name}</div>
+                          <div className={`font-bold ${index === 0 ? 'text-yellow-500' : 'text-[var(--color-foreground)]'}`}>{emp.name}</div>
                           <div className="text-xs text-gray-400">{emp.designation || 'Staff'}</div>
                         </div>
                       </td>
@@ -536,13 +545,50 @@ export default function ReportsPage() {
                   <td className="py-4 font-bold text-gray-300">#INV{String(d.id).padStart(4, '0')}</td>
                   <td className="py-4 text-gray-400 text-sm">{new Date(d.created_at).toLocaleString()}</td>
                   <td className="py-4">{d.customer ? d.customer.name : 'Walk-in'}</td>
-                  <td className="py-4 text-white">₨ {d.subtotal}</td>
+                  <td className="py-4 text-[var(--color-foreground)]">₨ {d.subtotal}</td>
                   <td className="py-4 text-yellow-500 font-bold">- ₨ {d.discount_amount}</td>
                   <td className="py-4 italic text-gray-400">{d.discount_reason || 'N/A'}</td>
                   <td className="py-4">{d.authorizedBy ? d.authorizedBy.name : '--'}</td>
                 </tr>
               ))}
               {discountReport.length === 0 && <tr><td colSpan={7} className="py-12 text-center text-gray-500">No discounts given in this period.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      ) : activeTab === 'udhar' ? (
+        <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-auto">
+          <div className="mb-6 bg-gradient-to-r from-orange-500/10 to-transparent p-4 rounded-lg border-l-4 border-orange-500">
+            <h3 className="font-bold text-orange-500 flex items-center gap-2 mb-1"><AlertTriangle size={18}/> AI Predictive Udhar Analysis</h3>
+            <p className="text-sm text-gray-400">Our system analyzes past payment patterns to predict when pending payments are likely to be cleared.</p>
+          </div>
+          <table className="w-full text-left whitespace-nowrap [&_td]:pr-4 [&_th]:pr-4">
+            <thead>
+              <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm uppercase tracking-wider">
+                <th className="py-3">Customer</th>
+                <th className="py-3">Historical Udhar</th>
+                <th className="py-3 text-green-500">Cleared</th>
+                <th className="py-3 text-orange-500 font-bold">Pending Amount</th>
+                <th className="py-3 text-[var(--color-gold)]">AI Prediction</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--color-border)]">
+              {udharReport.map((u: any) => (
+                <tr key={u.id} className="hover:bg-[var(--color-background)]">
+                  <td className="py-4">
+                    <div className="font-bold text-[var(--color-foreground)]">{u.name}</div>
+                    <div className="text-xs text-gray-400">{u.mobile}</div>
+                  </td>
+                  <td className="py-4 text-gray-400">₨ {u.historical_udhar.toLocaleString()}</td>
+                  <td className="py-4 text-green-500">₨ {u.paid_udhar.toLocaleString()}</td>
+                  <td className="py-4 font-black text-orange-500 text-lg">₨ {u.pending_udhar.toLocaleString()}</td>
+                  <td className="py-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${u.prediction.includes('Overdue') ? 'bg-red-500/10 text-red-500 border-red-500/20' : u.prediction.includes('Expected') ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-[var(--color-gold)]/10 text-[var(--color-gold)] border-[var(--color-gold)]/20'}`}>
+                      {u.prediction}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {udharReport.length === 0 && <tr><td colSpan={5} className="py-12 text-center text-gray-500">No udhar records found.</td></tr>}
             </tbody>
           </table>
         </div>

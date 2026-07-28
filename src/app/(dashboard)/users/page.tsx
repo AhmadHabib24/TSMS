@@ -79,7 +79,7 @@ export default function UsersPage() {
                 <td className="py-4 text-[var(--color-gold)]">{item.role?.name || 'No Role'}</td>
                 <td className="py-4 flex gap-3">
                   {can('users', 'edit') && (
-                    <button onClick={() => openModal(item)} className="text-gray-400 hover:text-white transition-colors"><Edit size={18}/></button>
+                    <button onClick={() => openModal(item)} className="text-gray-400 hover:text-[var(--color-foreground)] transition-colors"><Edit size={18}/></button>
                   )}
                   {can('users', 'delete') && item.id !== user?.id && (
                     <button onClick={() => handleDelete(item.id)} className="text-red-500/70 hover:text-red-500 transition-colors"><Trash2 size={18}/></button>
@@ -97,7 +97,7 @@ export default function UsersPage() {
           <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4 sm:mb-6">
               <h2 className="text-xl font-bold">{editingId ? 'Edit User' : 'Add New User'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-[var(--color-foreground)]"><X size={24} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

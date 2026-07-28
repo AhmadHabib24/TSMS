@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/axios';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSettings } from '@/providers/SettingsProvider';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const login = useAuthStore(state => state.login);
   const router = useRouter();
+  const { settings } = useSettings();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +20,7 @@ export default function LoginPage() {
     try {
       const res = await api.post('/auth/login', { email, password });
       login(res.data.access_token, res.data.user);
-      toast.success('Welcome back to Playboy Salon!');
+      toast.success(`Welcome back to ${settings.app_name}!`);
       router.push('/dashboard');
     } catch (err) {
       toast.error('Invalid credentials. Please try again.');
@@ -34,7 +36,7 @@ export default function LoginPage() {
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--color-gold)] to-transparent"></div>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold tracking-widest text-[var(--color-gold)] uppercase mb-2">Playboy Salon</h1>
+          <h1 className="text-3xl font-bold tracking-widest text-[var(--color-gold)] uppercase mb-2">{settings.app_name}</h1>
           <p className="text-gray-400">Sign in to your VIP Dashboard</p>
         </div>
 
@@ -46,7 +48,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[var(--color-gold)] transition-colors"
+              className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl py-3 px-4 text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-gold)] transition-colors"
               placeholder="admin@playboy.com"
             />
           </div>
@@ -58,7 +60,7 @@ export default function LoginPage() {
               required
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[var(--color-gold)] transition-colors"
+              className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl py-3 px-4 text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-gold)] transition-colors"
               placeholder="••••••••"
             />
           </div>

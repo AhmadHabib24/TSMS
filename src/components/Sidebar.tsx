@@ -50,7 +50,7 @@ export default function Sidebar() {
             <h1 className="text-lg md:text-xl font-bold tracking-widest text-[var(--color-gold)] uppercase text-center leading-tight truncate">{settings.app_name}</h1>
           )}
           <button
-            className="absolute right-3 sm:right-4 text-gray-400 hover:text-white md:hidden p-1 bg-[var(--color-panel)]/80 rounded"
+            className="absolute right-3 sm:right-4 text-gray-400 hover:text-[var(--color-foreground)] md:hidden p-1 bg-[var(--color-panel)]/80 rounded"
             onClick={closeMobileSidebar}
           >
             <X size={20} />
@@ -90,7 +90,7 @@ function NavItem({ href, icon, label, active = false, onClick }: { href: string,
     <Link
       href={href}
       onClick={onClick}
-      className={`flex items-center space-x-3 rtl:space-x-reverse p-3 rounded-lg transition-colors ${active ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'text-gray-400 hover:text-white hover:bg-[var(--color-border)]'}`}
+      className={`flex items-center space-x-3 rtl:space-x-reverse p-3 rounded-lg transition-colors ${active ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'text-gray-400 hover:text-[var(--color-foreground)] hover:bg-[var(--color-border)]'}`}
     >
       {icon}
       <span className="font-medium">{t(label)}</span>

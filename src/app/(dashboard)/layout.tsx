@@ -15,6 +15,11 @@ export default function DashboardLayout({
         <main className="flex-1 p-3 sm:p-4 md:p-8 w-full max-w-[100vw] overflow-x-hidden">
           {children}
         </main>
+        
+        {/* Footer */}
+        <footer className="mt-auto py-4 px-6 text-center text-sm text-gray-400 border-t border-[var(--color-border)] no-print">
+          &copy; {new Date().getFullYear()} Designed and Developed by <a href="https://tecveq.com" target="_blank" rel="noopener noreferrer" className="text-[var(--color-gold)] hover:underline font-bold transition-colors">Tecveq</a>
+        </footer>
       </div>
     </AuthProvider>
   );

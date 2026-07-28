@@ -43,7 +43,7 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
 
   if (!bill) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-[var(--color-background)] text-white">
+      <div className="flex flex-col justify-center items-center h-screen bg-[var(--color-background)] text-[var(--color-foreground)]">
         <h1 className="text-2xl font-bold mb-4">Receipt Not Found</h1>
         <Link href="/billing" className="text-[var(--color-gold)] hover:underline">Return to Billing</Link>
       </div>
@@ -54,7 +54,7 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
     <div className="flex flex-col items-center py-10 min-h-screen bg-[var(--color-background)] relative z-50">
       
       <div className="w-full max-w-4xl flex justify-between items-center mb-6 print:hidden px-4">
-        <Link href="/billing" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+        <Link href="/billing" className="flex items-center gap-2 text-gray-400 hover:text-[var(--color-foreground)] transition-colors">
           <ArrowLeft size={20} /> Back to Billing
         </Link>
         <button 

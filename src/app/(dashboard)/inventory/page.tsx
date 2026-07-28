@@ -125,10 +125,10 @@ export default function InventoryPage() {
         <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3"><Package className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">Inventory Management</span></h1>
 
         <div className="flex flex-col sm:flex-row w-full md:w-auto bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg gap-1 sm:gap-0">
-          <button onClick={() => setActiveTab('stock')} className={`flex-1 justify-center px-3 sm:px-4 md:px-6 py-2 text-sm sm:text-base rounded-md font-bold transition-all flex items-center gap-2 ${activeTab === 'stock' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('stock')} className={`flex-1 justify-center px-3 sm:px-4 md:px-6 py-2 text-sm sm:text-base rounded-md font-bold transition-all flex items-center gap-2 ${activeTab === 'stock' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             <Package size={18} className="shrink-0" /> <span className="whitespace-nowrap">Stock & Alerts</span>
           </button>
-          <button onClick={() => setActiveTab('history')} className={`flex-1 justify-center px-3 sm:px-4 md:px-6 py-2 text-sm sm:text-base rounded-md font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('history')} className={`flex-1 justify-center px-3 sm:px-4 md:px-6 py-2 text-sm sm:text-base rounded-md font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             <History size={18} className="shrink-0" /> <span className="whitespace-nowrap">History & Reports</span>
           </button>
         </div>
@@ -156,7 +156,7 @@ export default function InventoryPage() {
                           <div className="w-12 h-12 rounded-full bg-[var(--color-background)] flex items-center justify-center text-gray-400"><ImageIcon size={20} /></div>
                         )}
                       </td>
-                      <td className="py-4 font-bold text-white">{item.name}</td>
+                      <td className="py-4 font-bold text-[var(--color-foreground)]">{item.name}</td>
                       <td className={`py-4 font-black text-xl ${isLowStock ? 'text-red-400' : 'text-[var(--color-gold)]'}`}>{item.stock_level}</td>
                       <td className="py-4 text-gray-400">{item.low_stock_threshold}</td>
                       <td className="py-4">
@@ -173,7 +173,7 @@ export default function InventoryPage() {
                       <td className="py-4 flex gap-3">
                         <button onClick={() => openAdjustModal(item)} className="bg-[var(--color-background)] border border-[var(--color-border)] px-3 py-1 rounded text-sm font-bold hover:border-[var(--color-gold)] transition-colors">Adjust</button>
                         {can('inventory', 'edit') && (
-                          <button onClick={() => openModal(item)} className="ml-3 text-gray-400 hover:text-white transition-colors"><Edit size={18} /></button>
+                          <button onClick={() => openModal(item)} className="ml-3 text-gray-400 hover:text-[var(--color-foreground)] transition-colors"><Edit size={18} /></button>
                         )}
                         {can('inventory', 'delete') && (
                           <button onClick={() => handleDelete(item.id)} className="text-red-500/70 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
@@ -205,7 +205,7 @@ export default function InventoryPage() {
                 {historyData.map((record: any) => (
                   <tr key={record.id} className="hover:bg-[var(--color-background)] transition-colors">
                     <td className="py-4 px-4 text-gray-300">{new Date(record.created_at).toLocaleString()}</td>
-                    <td className="py-4 px-4 font-bold text-white">{record.item?.name}</td>
+                    <td className="py-4 px-4 font-bold text-[var(--color-foreground)]">{record.item?.name}</td>
                     <td className="py-4 px-4">
                       {record.reason === 'Purchase' && <span className="inline-flex items-center gap-1 text-green-400"><ArrowUpRight size={16} /> Purchase</span>}
                       {record.reason === 'Consumption' && <span className="inline-flex items-center gap-1 text-red-400"><ArrowDownRight size={16} /> Consumption</span>}
@@ -228,7 +228,7 @@ export default function InventoryPage() {
           <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md overflow-hidden">
             <div className="flex justify-between items-center p-3 sm:p-6 border-b border-[var(--color-border)] bg-[var(--color-background)]">
               <h2 className="text-xl font-bold">{editingId ? 'Edit Product' : 'Add New Product'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-[var(--color-foreground)]"><X size={24} /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-3 sm:p-6 space-y-4">
               <div>
@@ -269,7 +269,7 @@ export default function InventoryPage() {
                 <span>Adjust Stock</span>
                 <span className="text-[var(--color-gold)] text-sm sm:text-base">{adjustingItem.name}</span>
               </h2>
-              <button onClick={() => setIsAdjustModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              <button onClick={() => setIsAdjustModalOpen(false)} className="text-gray-400 hover:text-[var(--color-foreground)]"><X size={24} /></button>
             </div>
 
             <form onSubmit={handleAdjustSubmit} className="p-3 sm:p-6 space-y-4">

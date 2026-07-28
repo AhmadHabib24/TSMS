@@ -1,9 +1,13 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Scissors, Plus, Edit, Trash2, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Scissors, Plus, Edit, Trash2, X, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity } from 'lucide-react';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { usePermissions } from '@/hooks/usePermissions';
+
+const AVAILABLE_ICONS: Record<string, any> = {
+  Scissors, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity
+};
 
 export default function ServicesPage() {
   const [data, setData] = useState([]);
@@ -12,7 +16,7 @@ export default function ServicesPage() {
 
   const { can } = usePermissions();
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({ name: '', price: '', duration_minutes: '', service_category_id: '', is_active: true });
+  const [formData, setFormData] = useState({ name: '', price: '', duration_minutes: '', service_category_id: '', icon: '', is_active: true });
 
   const fetchData = () => {
     api.get('/services').then(res => setData(res.data)).catch(() => toast.error('Failed to load data'));
@@ -58,11 +62,12 @@ export default function ServicesPage() {
         price: item.price || '', 
         duration_minutes: item.duration_minutes || '', 
         service_category_id: item.service_category_id || '',
+        icon: item.icon || '',
         is_active: item.is_active ?? true
       });
     } else {
       setEditingId(null);
-      setFormData({ name: '', price: '', duration_minutes: '', service_category_id: '', is_active: true });
+      setFormData({ name: '', price: '', duration_minutes: '', service_category_id: '', icon: '', is_active: true });
     }
     setIsModalOpen(true);
   };
@@ -90,8 +95,15 @@ export default function ServicesPage() {
           <tbody className="divide-y divide-[var(--color-border)]">
             {data.map((item: any) => (
               <tr key={item.id} className="hover:bg-[var(--color-background)] transition-colors">
-                <td className="py-3 sm:py-4 pr-4">{item.name}</td>
-                <td className="py-3 sm:py-4 pr-4 text-gray-400">{item.category?.name || '--'}</td>
+                <td className="py-3 sm:py-4 pr-4">
+                  <div className="flex items-center gap-2">
+                    {item.icon && AVAILABLE_ICONS[item.icon] ? React.createElement(AVAILABLE_ICONS[item.icon], { size: 16, className: 'text-[var(--color-gold)]' }) : null}
+                    {item.name}
+                  </div>
+                </td>
+                <td className="py-3 sm:py-4 pr-4 text-gray-400">
+                  {item.category ? (item.category.parent ? `${item.category.parent.name} - ${item.category.name}` : item.category.name) : '--'}
+                </td>
                 <td className="py-3 sm:py-4 pr-4 text-[var(--color-gold)] font-bold">₨ {item.price}</td>
                 <td className="py-3 sm:py-4 pr-4">{item.duration_minutes}</td>
                 <td className="py-3 sm:py-4 pr-4">
@@ -102,7 +114,7 @@ export default function ServicesPage() {
                 </td>
                 <td className="py-3 sm:py-4 flex flex-wrap gap-2 sm:gap-3 items-center min-w-[100px]">
                   {can('services', 'edit') && (
-                    <button onClick={() => openModal(item)} className="mr-0 sm:mr-3 text-gray-400 hover:text-white transition-colors p-1"><Edit size={16} className="sm:w-[18px] sm:h-[18px]"/></button>
+                    <button onClick={() => openModal(item)} className="mr-0 sm:mr-3 text-gray-400 hover:text-[var(--color-foreground)] transition-colors p-1"><Edit size={16} className="sm:w-[18px] sm:h-[18px]"/></button>
                   )}
                   {can('services', 'delete') && (
                     <button onClick={() => handleDelete(item.id)} className="text-red-500/70 hover:text-red-500 transition-colors p-1"><Trash2 size={16} className="sm:w-[18px] sm:h-[18px]"/></button>
@@ -120,7 +132,7 @@ export default function ServicesPage() {
           <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
             <div className="flex justify-between items-center p-4 sm:p-6 border-b border-[var(--color-border)] shrink-0">
               <h2 className="text-lg sm:text-xl font-bold truncate pr-2">{editingId ? 'Edit Service' : 'Add New Service'}</h2>
-              <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
+              <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-[var(--color-foreground)] shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
             <div className="p-4 sm:p-6 overflow-y-auto grow custom-scrollbar">
               <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
@@ -147,14 +159,40 @@ export default function ServicesPage() {
                   <select required value={formData.service_category_id} onChange={e => setFormData({...formData, service_category_id: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none appearance-none">
                     <option value="" disabled>Select a category...</option>
                     {categories.map((c: any) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                      <React.Fragment key={c.id}>
+                        <option value={c.id}>{c.name}</option>
+                        {c.children && c.children.map((sub: any) => (
+                          <option key={sub.id} value={sub.id}>&nbsp;&nbsp;&nbsp;&nbsp;↳ {sub.name}</option>
+                        ))}
+                      </React.Fragment>
                     ))}
                   </select>
                 </div>
 
+                <div>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-2 capitalize">service icon (optional)</label>
+                  <div className="grid grid-cols-5 sm:grid-cols-7 gap-2 p-3 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg max-h-32 overflow-y-auto custom-scrollbar">
+                    {Object.keys(AVAILABLE_ICONS).map((iconName) => {
+                      const IconComponent = AVAILABLE_ICONS[iconName];
+                      const isSelected = formData.icon === iconName;
+                      return (
+                        <button
+                          key={iconName}
+                          type="button"
+                          title={iconName}
+                          onClick={() => setFormData({ ...formData, icon: isSelected ? '' : iconName })}
+                          className={`p-2 rounded flex items-center justify-center transition-all ${isSelected ? 'bg-[var(--color-gold)] text-black scale-110 shadow-lg' : 'text-gray-400 hover:text-[var(--color-foreground)] hover:bg-[var(--color-panel)]'}`}
+                        >
+                          <IconComponent size={20} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div className="flex justify-between items-center bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-lg mt-2">
                   <div>
-                    <div className="text-sm font-bold text-white">Active Status</div>
+                    <div className="text-sm font-bold text-[var(--color-foreground)]">Active Status</div>
                     <div className="text-xs text-gray-400">Can this service be billed right now?</div>
                   </div>
                   <div 

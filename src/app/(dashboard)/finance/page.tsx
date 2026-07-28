@@ -91,13 +91,13 @@ export default function FinancePage() {
         <div className="flex flex-col sm:flex-row w-full md:w-auto bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg gap-1 sm:gap-0">
           <button 
             onClick={() => setActiveTab('expenses')} 
-            className={`flex-1 flex justify-center px-3 sm:px-6 py-2 rounded-md text-sm sm:text-base font-bold transition-all whitespace-nowrap ${activeTab === 'expenses' ? 'bg-red-500 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+            className={`flex-1 flex justify-center px-3 sm:px-6 py-2 rounded-md text-sm sm:text-base font-bold transition-all whitespace-nowrap ${activeTab === 'expenses' ? 'bg-red-500 text-[var(--color-foreground)] shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}
           >
             Expenses
           </button>
           <button 
             onClick={() => setActiveTab('income')} 
-            className={`flex-1 flex justify-center px-3 sm:px-6 py-2 rounded-md text-sm sm:text-base font-bold transition-all whitespace-nowrap ${activeTab === 'income' ? 'bg-green-500 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+            className={`flex-1 flex justify-center px-3 sm:px-6 py-2 rounded-md text-sm sm:text-base font-bold transition-all whitespace-nowrap ${activeTab === 'income' ? 'bg-green-500 text-[var(--color-foreground)] shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}
           >
             Manual Income
           </button>
@@ -127,15 +127,15 @@ export default function FinancePage() {
               {data.map((item: any) => (
                 <tr key={item.id} className="hover:bg-[var(--color-background)] transition-colors">
                   <td className="py-4 px-6 text-gray-300">{item.expense_date || item.income_date}</td>
-                  <td className="py-4 px-6 font-bold text-white flex items-center gap-2">
+                  <td className="py-4 px-6 font-bold text-[var(--color-foreground)] flex items-center gap-2">
                     {activeTab === 'expenses' ? <TrendingDown size={16} className="text-red-500"/> : <TrendingUp size={16} className="text-green-500"/>}
                     {item.category || item.source}
                   </td>
                   {activeTab === 'expenses' && <td className="py-4 px-6 text-gray-400 text-sm max-w-xs truncate">{item.description || '--'}</td>}
                   <td className={`py-4 px-6 font-bold ${activeTab === 'expenses' ? 'text-red-400' : 'text-green-400'}`}>₨ {item.amount}</td>
                   <td className="py-4 px-6 flex justify-end gap-2">
-                    <button onClick={() => openModal(item)} className="p-2 bg-black/50 text-white rounded hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={16}/></button>
-                    <button onClick={() => handleDelete(item.id)} className="p-2 bg-black/50 text-white rounded hover:bg-red-500 transition-colors"><Trash2 size={16}/></button>
+                    <button onClick={() => openModal(item)} className="p-2 bg-black/50 text-[var(--color-foreground)] rounded hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={16}/></button>
+                    <button onClick={() => handleDelete(item.id)} className="p-2 bg-black/50 text-[var(--color-foreground)] rounded hover:bg-red-500 transition-colors"><Trash2 size={16}/></button>
                   </td>
                 </tr>
               ))}
@@ -154,18 +154,18 @@ export default function FinancePage() {
                 {activeTab === 'expenses' ? <TrendingDown className="text-red-500"/> : <TrendingUp className="text-green-500"/>}
                 {editingId ? 'Edit Record' : 'Add New Record'}
               </h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-[var(--color-foreground)]"><X size={24} /></button>
             </div>
             
             <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Date</label>
-                <input required type="date" value={formData.expense_date || formData.income_date || ''} onChange={e => activeTab === 'expenses' ? setFormData({...formData, expense_date: e.target.value}) : setFormData({...formData, income_date: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white" />
+                <input required type="date" value={formData.expense_date || formData.income_date || ''} onChange={e => activeTab === 'expenses' ? setFormData({...formData, expense_date: e.target.value}) : setFormData({...formData, income_date: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
               </div>
               
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">{activeTab === 'expenses' ? 'Category' : 'Source'}</label>
-                <select required value={formData.category || formData.source || ''} onChange={e => activeTab === 'expenses' ? setFormData({...formData, category: e.target.value}) : setFormData({...formData, source: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white">
+                <select required value={formData.category || formData.source || ''} onChange={e => activeTab === 'expenses' ? setFormData({...formData, category: e.target.value}) : setFormData({...formData, source: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]">
                   <option value="">Select {activeTab === 'expenses' ? 'Category' : 'Source'}</option>
                   {activeTab === 'expenses' 
                     ? expenseCategories.map((c: any) => <option key={c.id} value={c.name}>{c.name}</option>) 
@@ -186,7 +186,7 @@ export default function FinancePage() {
                 </div>
               )}
 
-              <button type="submit" className={`w-full py-3 rounded-lg font-bold text-white transition-colors ${activeTab === 'expenses' ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}>
+              <button type="submit" className={`w-full py-3 rounded-lg font-bold text-[var(--color-foreground)] transition-colors ${activeTab === 'expenses' ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}>
                 {editingId ? 'Save Changes' : 'Add Record'}
               </button>
             </form>

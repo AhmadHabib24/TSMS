@@ -36,7 +36,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
   if (loading || settingsLoading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-black">
+      <div suppressHydrationWarning className="h-screen w-screen flex items-center justify-center bg-black">
         {settings?.light_logo_path && !settingsLoading ? (
           <img src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${settings.light_logo_path}`} alt="Logo" className="max-h-24 max-w-[80vw] object-contain animate-pulse" />
         ) : (

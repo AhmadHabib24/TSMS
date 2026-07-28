@@ -18,7 +18,7 @@ interface SettingsContextType {
 }
 
 const defaultSettings: Settings = {
-  app_name: 'PLAYBOY SALON',
+  app_name: 'TSMS',
   theme_color: '#D4AF37',
   font_family: 'Outfit',
   dark_logo_path: null,

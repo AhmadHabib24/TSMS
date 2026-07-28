@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { Bell, User, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Bell, User, CheckCircle, AlertTriangle, Sun, Moon } from 'lucide-react';
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -21,8 +21,26 @@ export default function Header() {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
+    
+    // Theme init
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const [theme, setTheme] = useState('dark');
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    if (newTheme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  };
 
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
 
@@ -53,8 +71,12 @@ export default function Header() {
       <div className="flex items-center space-x-2 sm:space-x-4 relative shrink-0 pl-2">
         <LanguageSwitcher />
         
+        <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-[var(--color-panel)] transition-colors relative cursor-pointer text-gray-400 hover:text-[var(--color-gold)]">
+          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+        
         <div ref={notificationRef} className="relative flex items-center">
-          <button onClick={() => setShowNotifications(!showNotifications)} className="p-2 rounded-full hover:bg-[var(--color-panel)] transition-colors relative cursor-pointer">
+          <button onClick={() => setShowNotifications(!showNotifications)} className="p-2 rounded-full hover:bg-[var(--color-panel)] transition-colors relative cursor-pointer text-gray-400 hover:text-[var(--color-gold)]">
             <Bell size={20} />
             {unreadCount > 0 && (
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
@@ -65,7 +87,7 @@ export default function Header() {
           {showNotifications && (
             <div className="absolute top-12 right-0 w-[280px] sm:w-80 bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 z-50">
               <div className="p-4 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)]">
-                <h3 className="font-bold text-white">Notifications</h3>
+                <h3 className="font-bold text-[var(--color-foreground)]">Notifications</h3>
                 {unreadCount > 0 && <span className="text-xs bg-[var(--color-gold)] text-black px-2 py-0.5 rounded-full font-bold">{unreadCount} New</span>}
               </div>
               <div className="max-h-64 overflow-y-auto custom-scrollbar">
@@ -76,7 +98,7 @@ export default function Header() {
                     <div key={n.id || idx} className={`p-4 border-b border-[var(--color-border)] transition-colors cursor-pointer flex gap-3 items-start ${n.read_at ? 'bg-transparent hover:bg-[var(--color-background)]' : 'bg-[var(--color-background)]'}`}>
                       <div className="mt-1">{getIcon(n.data?.type || n.type)}</div>
                       <div>
-                        <h4 className="text-sm font-semibold text-white">{n.data?.title || n.title}</h4>
+                        <h4 className="text-sm font-semibold text-[var(--color-foreground)]">{n.data?.title || n.title}</h4>
                         <p className="text-xs text-gray-400 mt-1">{n.data?.message || n.message}</p>
                       </div>
                     </div>

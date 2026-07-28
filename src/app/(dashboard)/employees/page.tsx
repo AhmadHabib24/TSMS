@@ -96,11 +96,12 @@ export default function EmployeesPage() {
         cnic: item.cnic || '',
         designation: item.designation || '',
         joining_date: item.joining_date || '',
-        base_salary: item.base_salary || ''
+        base_salary: item.base_salary || '',
+        daily_commission: item.daily_commission || ''
       });
     } else {
       setEditingId(null);
-      setFormData({ name: '', mobile: '', cnic: '', designation: '', joining_date: '', base_salary: '' });
+      setFormData({ name: '', mobile: '', cnic: '', designation: '', joining_date: '', base_salary: '', daily_commission: '' });
     }
     setIsModalOpen(true);
   };
@@ -151,10 +152,10 @@ export default function EmployeesPage() {
         <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3"><Briefcase className="text-[var(--color-gold)] w-6 h-6 md:w-8 md:h-8" /> Employee Hub</h1>
         
         <div className="flex flex-col sm:flex-row bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg w-full lg:w-auto">
-          <button onClick={() => setActiveTab('directory')} className={`w-full sm:w-auto justify-center px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 text-sm md:text-base ${activeTab === 'directory' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('directory')} className={`w-full sm:w-auto justify-center px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 text-sm md:text-base ${activeTab === 'directory' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             Staff Directory
           </button>
-          <button onClick={() => setActiveTab('salary')} className={`w-full sm:w-auto justify-center px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 text-sm md:text-base ${activeTab === 'salary' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('salary')} className={`w-full sm:w-auto justify-center px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 text-sm md:text-base ${activeTab === 'salary' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             <Banknote size={16} className="md:w-[18px] md:h-[18px]" /> Salary Management
           </button>
         </div>
@@ -186,10 +187,10 @@ export default function EmployeesPage() {
                 <div className="p-6 relative">
                   <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     {can('employees', 'edit') && (
-                      <button onClick={() => openEmployeeModal(item)} className="p-2 bg-black/50 text-white rounded-lg hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={16}/></button>
+                      <button onClick={() => openEmployeeModal(item)} className="p-2 bg-black/50 text-[var(--color-foreground)] rounded-lg hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={16}/></button>
                     )}
                     {can('employees', 'delete') && (
-                      <button onClick={() => handleDelete(item.id)} className="p-2 bg-black/50 text-white rounded-lg hover:bg-red-500 transition-colors"><Trash2 size={16}/></button>
+                      <button onClick={() => handleDelete(item.id)} className="p-2 bg-black/50 text-[var(--color-foreground)] rounded-lg hover:bg-red-500 transition-colors"><Trash2 size={16}/></button>
                     )}
                   </div>
                   
@@ -200,7 +201,7 @@ export default function EmployeesPage() {
                       <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--color-background)] border-2 border-[var(--color-border)] flex items-center justify-center text-gray-400 shrink-0"><ImageIcon size={20} className="sm:w-6 sm:h-6"/></div>
                     )}
                     <div className="min-w-0">
-                      <h3 className="text-lg sm:text-xl font-bold text-white truncate">{item.name}</h3>
+                      <h3 className="text-lg sm:text-xl font-bold text-[var(--color-foreground)] truncate">{item.name}</h3>
                       <p className="text-xs sm:text-sm text-[var(--color-gold)] font-medium uppercase tracking-wider truncate">{item.designation || 'Staff'}</p>
                     </div>
                   </div>
@@ -208,19 +209,23 @@ export default function EmployeesPage() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between border-b border-[var(--color-border)] pb-2">
                       <span className="text-gray-400">Mobile</span>
-                      <span className="text-white font-medium">{item.mobile || '--'}</span>
+                      <span className="text-[var(--color-foreground)] font-medium">{item.mobile || '--'}</span>
                     </div>
                     <div className="flex justify-between border-b border-[var(--color-border)] pb-2">
                       <span className="text-gray-400">CNIC</span>
-                      <span className="text-white font-medium">{item.cnic || '--'}</span>
+                      <span className="text-[var(--color-foreground)] font-medium">{item.cnic || '--'}</span>
                     </div>
                     <div className="flex justify-between border-b border-[var(--color-border)] pb-2">
                       <span className="text-gray-400">Joined</span>
-                      <span className="text-white font-medium">{item.joining_date ? new Date(item.joining_date).toLocaleDateString() : '--'}</span>
+                      <span className="text-[var(--color-foreground)] font-medium">{item.joining_date ? new Date(item.joining_date).toLocaleDateString() : '--'}</span>
                     </div>
-                    <div className="flex justify-between pt-1">
+                    <div className="flex justify-between pt-1 border-b border-[var(--color-border)] pb-2">
                       <span className="text-gray-400">Base Salary</span>
                       <span className="text-[var(--color-gold)] font-bold">₨ {item.base_salary || '0'}</span>
+                    </div>
+                    <div className="flex justify-between pt-1">
+                      <span className="text-gray-400">Daily Comm.</span>
+                      <span className="text-green-400 font-bold">₨ {item.daily_commission || '0'}</span>
                     </div>
                   </div>
                 </div>
@@ -242,7 +247,7 @@ export default function EmployeesPage() {
               <label className="text-gray-400 font-bold uppercase tracking-wider text-xs sm:text-sm">Salary Month</label>
               <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-3 py-2 sm:px-4 flex items-center gap-2 w-full sm:w-auto">
                 <Calendar size={16} className="text-[var(--color-gold)] sm:w-[18px] sm:h-[18px]" />
-                <input type="month" value={salaryMonth} onChange={e => setSalaryMonth(e.target.value)} className="bg-transparent text-white font-bold outline-none text-sm sm:text-base w-full" />
+                <input type="month" value={salaryMonth} onChange={e => setSalaryMonth(e.target.value)} className="bg-transparent text-[var(--color-foreground)] font-bold outline-none text-sm sm:text-base w-full" />
               </div>
             </div>
             <button onClick={generateSalaries} disabled={isGenerating} className="w-full md:w-auto justify-center bg-[var(--color-gold)] text-black px-4 sm:px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[var(--color-gold-hover)] transition-colors disabled:opacity-50 text-sm sm:text-base">
@@ -269,7 +274,7 @@ export default function EmployeesPage() {
                   const total = totalPayable(s);
                   return (
                     <tr key={s.id} className="hover:bg-[var(--color-background)] transition-colors">
-                      <td className="py-4 px-6 font-bold text-white flex items-center gap-2">
+                      <td className="py-4 px-6 font-bold text-[var(--color-foreground)] flex items-center gap-2">
                         {s.employee?.image_path ? (
                            <img src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${s.employee.image_path}`} alt="img" className="w-8 h-8 rounded-full object-cover" />
                         ) : (
@@ -314,7 +319,7 @@ export default function EmployeesPage() {
           <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
             <div className="p-4 sm:p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)] shrink-0">
               <h2 className="text-lg sm:text-2xl font-bold truncate pr-2">{editingId ? 'Edit Employee Profile' : 'Add New Staff Member'}</h2>
-              <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
+              <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-[var(--color-foreground)] shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
             <div className="p-4 sm:p-6 overflow-y-auto grow custom-scrollbar">
               <form onSubmit={handleEmployeeSubmit} className="space-y-4 sm:space-y-6">
@@ -348,11 +353,15 @@ export default function EmployeesPage() {
                   </div>
                   <div>
                     <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-gray-400 mb-1 sm:mb-2">Joining Date</label>
-                    <input type="date" value={formData.joining_date} onChange={e => setFormData({...formData, joining_date: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none text-white" />
+                    <input type="date" value={formData.joining_date} onChange={e => setFormData({...formData, joining_date: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
                   </div>
                   <div>
                     <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-gray-400 mb-1 sm:mb-2">Base Salary (₨)</label>
                     <input value={formData.base_salary} onChange={e => setFormData({...formData, base_salary: e.target.value})} type="number" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" placeholder="0" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] sm:text-xs uppercase tracking-wider font-bold text-gray-400 mb-1 sm:mb-2">Daily Commission (₨)</label>
+                    <input value={formData.daily_commission} onChange={e => setFormData({...formData, daily_commission: e.target.value})} type="number" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" placeholder="0" />
                   </div>
                 </div>
                 
@@ -376,7 +385,7 @@ export default function EmployeesPage() {
                 <span>Adjust Salary</span>
                 <span className="text-[var(--color-gold)] text-xs sm:text-sm truncate">{editingSalary.employee?.name} - {salaryMonth}</span>
               </h2>
-              <button type="button" onClick={() => setIsSalaryModalOpen(false)} className="text-gray-400 hover:text-white shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
+              <button type="button" onClick={() => setIsSalaryModalOpen(false)} className="text-gray-400 hover:text-[var(--color-foreground)] shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
             
             <div className="overflow-y-auto grow custom-scrollbar p-4 sm:p-6">

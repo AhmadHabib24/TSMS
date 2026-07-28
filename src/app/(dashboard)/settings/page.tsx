@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, Plus, Edit, Trash2, X, Layers, TrendingDown, Printer, Image as ImageIcon, CheckCircle, Palette } from 'lucide-react';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
@@ -34,7 +34,7 @@ export default function SettingsPage() {
 
   const { can } = usePermissions();
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({ name: '' });
+  const [formData, setFormData] = useState({ name: '', parent_id: '' as string | number });
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -148,13 +148,13 @@ export default function SettingsPage() {
     }
   };
 
-  const openModal = (item?: any) => {
+  const openModal = (item?: any, parentId?: number) => {
     if (item) {
       setEditingId(item.id);
-      setFormData({ name: item.name || '' });
+      setFormData({ name: item.name || '', parent_id: item.parent_id || '' });
     } else {
       setEditingId(null);
-      setFormData({ name: '' });
+      setFormData({ name: '', parent_id: parentId || '' });
     }
     setIsModalOpen(true);
   };
@@ -183,16 +183,16 @@ export default function SettingsPage() {
         <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3"><Settings className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">System Settings</span></h1>
         
         <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto w-full custom-scrollbar">
-          <button onClick={() => setActiveTab('general_settings')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'general_settings' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('general_settings')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'general_settings' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             <Palette size={18} /> General Settings
           </button>
-          <button onClick={() => setActiveTab('print_settings')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'print_settings' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('print_settings')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'print_settings' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             <Printer size={18} /> Print Settings
           </button>
-          <button onClick={() => setActiveTab('service_categories')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'service_categories' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('service_categories')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'service_categories' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             <Layers size={18} /> Service Categories
           </button>
-          <button onClick={() => setActiveTab('expense_categories')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'expense_categories' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('expense_categories')} className={`px-4 md:px-6 py-2 rounded-md font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'expense_categories' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
             <TrendingDown size={18} /> Expense Categories
           </button>
         </div>
@@ -213,7 +213,7 @@ export default function SettingsPage() {
               
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">App Name</label>
-                <input value={generalSettings.app_name || ''} onChange={e => setGeneralSettings({...generalSettings, app_name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white font-bold text-lg" placeholder="e.g. PLAYBOY SALON" />
+                <input value={generalSettings.app_name || ''} onChange={e => setGeneralSettings({...generalSettings, app_name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)] font-bold text-lg" placeholder="e.g. TSMS" />
               </div>
 
               <div className="grid grid-cols-1 gap-6 pt-4 border-t border-[var(--color-border)]">
@@ -226,7 +226,7 @@ export default function SettingsPage() {
                     <input type="file" accept="image/*" onChange={e => {
                       const file = e.target.files?.[0];
                       if(file) { setDarkLogoFile(file); setDarkLogoPreview(URL.createObjectURL(file)); }
-                    }} className="w-full overflow-hidden text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-white hover:file:bg-gray-700 cursor-pointer text-gray-400" />
+                    }} className="w-full overflow-hidden text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-[var(--color-foreground)] hover:file:bg-gray-700 cursor-pointer text-gray-400" />
                   </div>
                 </div>
 
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                     <input type="file" accept="image/*" onChange={e => {
                       const file = e.target.files?.[0];
                       if(file) { setLightLogoFile(file); setLightLogoPreview(URL.createObjectURL(file)); }
-                    }} className="w-full overflow-hidden text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-white hover:file:bg-gray-700 cursor-pointer text-gray-400" />
+                    }} className="w-full overflow-hidden text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-[var(--color-foreground)] hover:file:bg-gray-700 cursor-pointer text-gray-400" />
                   </div>
                 </div>
 
@@ -252,7 +252,7 @@ export default function SettingsPage() {
                     <input type="file" accept="image/*" onChange={e => {
                       const file = e.target.files?.[0];
                       if(file) { setFaviconFile(file); setFaviconPreview(URL.createObjectURL(file)); }
-                    }} className="w-full overflow-hidden text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-white hover:file:bg-gray-700 cursor-pointer text-gray-400" />
+                    }} className="w-full overflow-hidden text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[var(--color-border)] file:text-[var(--color-foreground)] hover:file:bg-gray-700 cursor-pointer text-gray-400" />
                   </div>
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function SettingsPage() {
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Primary Theme Color</label>
                 <div className="flex items-center gap-4">
                   <input type="color" value={generalSettings.theme_color || '#D4AF37'} onChange={e => setGeneralSettings({...generalSettings, theme_color: e.target.value})} className="w-16 h-16 rounded-lg cursor-pointer bg-transparent border-0 p-0" />
-                  <input type="text" value={generalSettings.theme_color || '#D4AF37'} onChange={e => setGeneralSettings({...generalSettings, theme_color: e.target.value})} className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white uppercase font-mono" />
+                  <input type="text" value={generalSettings.theme_color || '#D4AF37'} onChange={e => setGeneralSettings({...generalSettings, theme_color: e.target.value})} className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)] uppercase font-mono" />
                 </div>
               </div>
 
@@ -277,7 +277,7 @@ export default function SettingsPage() {
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${generalSettings.font_family === font.id ? 'border-[var(--color-gold)]' : 'border-gray-500'}`}>
                         {generalSettings.font_family === font.id && <div className="w-2.5 h-2.5 bg-[var(--color-gold)] rounded-full"></div>}
                       </div>
-                      <span className="font-bold text-white" style={{ fontFamily: font.id }}>{font.name}</span>
+                      <span className="font-bold text-[var(--color-foreground)]" style={{ fontFamily: font.id }}>{font.name}</span>
                       <input type="radio" name="font_family" value={font.id} checked={generalSettings.font_family === font.id} onChange={() => setGeneralSettings({...generalSettings, font_family: font.id})} className="hidden" />
                     </label>
                   ))}
@@ -312,23 +312,23 @@ export default function SettingsPage() {
 
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Salon Name</label>
-                <input value={printSettings.salon_name || ''} onChange={e => setPrintSettings({...printSettings, salon_name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white" placeholder="The Golden Scissors" />
+                <input value={printSettings.salon_name || ''} onChange={e => setPrintSettings({...printSettings, salon_name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" placeholder="The Golden Scissors" />
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Phone Number</label>
-                  <input value={printSettings.phone || ''} onChange={e => setPrintSettings({...printSettings, phone: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white" placeholder="+1 234 567 890" />
+                  <input value={printSettings.phone || ''} onChange={e => setPrintSettings({...printSettings, phone: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" placeholder="+1 234 567 890" />
                 </div>
                 <div>
                   <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Address</label>
-                  <input value={printSettings.address || ''} onChange={e => setPrintSettings({...printSettings, address: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white" placeholder="123 Main St, City" />
+                  <input value={printSettings.address || ''} onChange={e => setPrintSettings({...printSettings, address: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" placeholder="123 Main St, City" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Footer Note</label>
-                <textarea value={printSettings.footer_text || ''} onChange={e => setPrintSettings({...printSettings, footer_text: e.target.value})} rows={3} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white resize-none" placeholder="Thank you for your visit! Follow us on IG @salon" />
+                <textarea value={printSettings.footer_text || ''} onChange={e => setPrintSettings({...printSettings, footer_text: e.target.value})} rows={3} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)] resize-none" placeholder="Thank you for your visit! Follow us on IG @salon" />
               </div>
             </div>
 
@@ -344,7 +344,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <div className="font-bold text-lg text-white">{t.name}</div>
+                      <div className="font-bold text-lg text-[var(--color-foreground)]">{t.name}</div>
                       <div className="text-sm text-gray-400">{t.desc}</div>
                     </div>
                     {printSettings.active_template === t.id && <CheckCircle className="text-[var(--color-gold)] mt-1" size={20} />}
@@ -374,24 +374,47 @@ export default function SettingsPage() {
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
                 {data.map((item: any) => (
-                  <tr key={item.id} className="hover:bg-[var(--color-background)] transition-colors">
-                    <td className="py-4 px-6 font-bold text-white">
-                      <div className="flex items-center gap-2">
-                        {activeTab === 'service_categories' ? <Layers className="text-[var(--color-gold)]" size={16}/> : <TrendingDown className="text-red-500" size={16}/>}
-                        {item.name}
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex justify-end gap-2">
-                        {canEdit && (
-                          <button onClick={() => openModal(item)} className="p-2 bg-black/50 text-white rounded hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={16}/></button>
-                        )}
-                        {canDelete && (
-                          <button onClick={() => handleDelete(item.id)} className="p-2 bg-black/50 text-white rounded hover:bg-red-500 transition-colors"><Trash2 size={16}/></button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+                  <React.Fragment key={item.id}>
+                    <tr className="hover:bg-[var(--color-background)] transition-colors">
+                      <td className="py-4 px-6 font-bold text-[var(--color-foreground)]">
+                        <div className="flex items-center gap-2">
+                          {activeTab === 'service_categories' ? <Layers className="text-[var(--color-gold)]" size={16}/> : <TrendingDown className="text-red-500" size={16}/>}
+                          {item.name}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex justify-end gap-2">
+                          {canAdd && activeTab === 'service_categories' && (
+                            <button onClick={() => openModal(null, item.id)} className="p-2 bg-black/50 text-[var(--color-foreground)] rounded hover:bg-[var(--color-gold)] hover:text-black transition-colors" title="Add Sub-category"><Plus size={16}/></button>
+                          )}
+                          {canEdit && (
+                            <button onClick={() => openModal(item)} className="p-2 bg-black/50 text-[var(--color-foreground)] rounded hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={16}/></button>
+                          )}
+                          {canDelete && (
+                            <button onClick={() => handleDelete(item.id)} className="p-2 bg-black/50 text-[var(--color-foreground)] rounded hover:bg-red-500 transition-colors"><Trash2 size={16}/></button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    {/* Render subcategories if any */}
+                    {item.children && item.children.length > 0 && item.children.map((sub: any) => (
+                      <tr key={`sub-${sub.id}`} className="hover:bg-[var(--color-background)] transition-colors bg-black/10">
+                        <td className="py-3 px-6 pl-12 text-sm text-gray-300 border-l-2 border-[var(--color-gold)]">
+                          {sub.name}
+                        </td>
+                        <td className="py-3 px-6">
+                          <div className="flex justify-end gap-2">
+                            {canEdit && (
+                              <button onClick={() => openModal(sub, item.id)} className="p-1.5 bg-black/30 text-gray-400 rounded hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={14}/></button>
+                            )}
+                            {canDelete && (
+                              <button onClick={() => handleDelete(sub.id)} className="p-1.5 bg-black/30 text-gray-400 rounded hover:bg-red-500 hover:text-white transition-colors"><Trash2 size={14}/></button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
                 ))}
                 {data.length === 0 && <tr><td colSpan={2} className="py-12 text-center text-gray-500">No categories found</td></tr>}
               </tbody>
@@ -408,14 +431,26 @@ export default function SettingsPage() {
                 {activeTab === 'service_categories' ? <Layers className="text-[var(--color-gold)]"/> : <TrendingDown className="text-red-500"/>}
                 {editingId ? 'Edit Category' : 'Add New Category'}
               </h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-[var(--color-foreground)]"><X size={24} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Category Name</label>
-                <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-white" placeholder="e.g. Rent, Marketing, Haircut..." />
+                <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" placeholder={activeTab === 'service_categories' && formData.parent_id ? 'e.g. Coloring, Highlights...' : 'e.g. Rent, Marketing, Haircut...'} />
               </div>
+
+              {activeTab === 'service_categories' && (
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Parent Category (Optional)</label>
+                  <select value={formData.parent_id} onChange={e => setFormData({...formData, parent_id: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)] appearance-none">
+                    <option value="">None (Make this a primary category)</option>
+                    {data.filter((c: any) => c.id !== editingId).map((c: any) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               
               <button type="submit" className="w-full bg-[var(--color-gold)] text-black py-3 rounded-lg font-bold mt-6 hover:bg-[var(--color-gold-hover)] transition-colors">
                 {editingId ? 'Save Changes' : 'Create Category'}

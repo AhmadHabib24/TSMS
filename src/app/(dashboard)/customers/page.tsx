@@ -30,7 +30,7 @@ export default function CustomersPage() {
 
   const filteredData = data.filter((c: any) => 
     c.name.toLowerCase().includes(search.toLowerCase()) || 
-    c.mobile.includes(search)
+    (c.mobile && String(c.mobile).includes(search))
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,6 +102,19 @@ export default function CustomersPage() {
     }
   };
 
+  const handleMarkPaid = async (billId: number) => {
+    try {
+      await api.put(`/bills/${billId}/mark-paid`);
+      toast.success('Marked as paid!');
+      if (editingId) {
+        const res = await api.get(`/customers/${editingId}`);
+        setCustomerProfile(res.data);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to update payment status');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -144,7 +157,7 @@ export default function CustomersPage() {
                 <td className="py-3 sm:py-4 flex flex-wrap gap-2 sm:gap-3 items-center min-w-[150px]">
                   <button onClick={() => openModal(item, 'history')} className="text-gray-400 hover:text-[var(--color-gold)] transition-colors flex items-center gap-1 text-xs sm:text-sm bg-black/20 px-2 sm:px-3 py-1 rounded-full border border-[var(--color-border)]"><Eye size={14} className="sm:w-4 sm:h-4"/> Profile</button>
                   {can('customers', 'edit') && (
-                    <button onClick={() => openModal(item, 'profile')} className="text-gray-400 hover:text-white transition-colors p-1"><Edit size={16} className="sm:w-[18px] sm:h-[18px]"/></button>
+                    <button onClick={() => openModal(item, 'profile')} className="text-gray-400 hover:text-[var(--color-foreground)] transition-colors p-1"><Edit size={16} className="sm:w-[18px] sm:h-[18px]"/></button>
                   )}
                   {can('customers', 'delete') && (
                     <button onClick={() => handleDelete(item.id)} className="text-red-500/70 hover:text-red-500 transition-colors p-1"><Trash2 size={16} className="sm:w-[18px] sm:h-[18px]"/></button>
@@ -163,13 +176,14 @@ export default function CustomersPage() {
             
             <div className="p-4 sm:p-6 border-b border-[var(--color-border)] flex justify-between items-center bg-[var(--color-background)] shrink-0 gap-2">
               <h2 className="text-lg sm:text-2xl font-bold truncate pr-2">{editingId ? (customerProfile?.customer?.name || formData.name) : 'Add New Customer'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-[var(--color-foreground)] shrink-0"><X size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
 
             {editingId && (
               <div className="flex border-b border-[var(--color-border)] px-2 sm:px-6 shrink-0 bg-[var(--color-background)] overflow-x-auto custom-scrollbar">
                 <button onClick={() => setActiveTab('profile')} className={`py-3 sm:py-4 px-4 sm:px-6 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'profile' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>Edit Details</button>
                 <button onClick={() => setActiveTab('history')} className={`py-3 sm:py-4 px-4 sm:px-6 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'history' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>History & Favorites</button>
+                <button onClick={() => setActiveTab('udhar')} className={`py-3 sm:py-4 px-4 sm:px-6 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'udhar' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>Udhar (Pending)</button>
               </div>
             )}
 
@@ -205,18 +219,24 @@ export default function CustomersPage() {
                     <div className="space-y-8 animate-in fade-in duration-300">
                       
                       {/* Stats Section */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
                         <div className="bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl text-center">
                           <div className="text-gray-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-1">Total Visits</div>
-                          <div className="text-xl sm:text-2xl font-bold text-white">{customerProfile.customer?.visit_count || 0}</div>
+                          <div className="text-xl sm:text-2xl font-bold text-[var(--color-foreground)]">{customerProfile.customer?.visit_count || 0}</div>
                         </div>
                         <div className="bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl text-center">
                           <div className="text-gray-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-1">Total Spend</div>
                           <div className="text-xl sm:text-2xl font-bold text-[var(--color-gold)]">₨ {Number(customerProfile.customer?.total_spend || 0).toLocaleString()}</div>
                         </div>
+                        <div className="bg-[var(--color-background)] border border-orange-500/30 p-3 sm:p-4 rounded-xl text-center shadow-[0_0_10px_rgba(249,115,22,0.1)]">
+                          <div className="text-orange-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-1">Pending Udhar</div>
+                          <div className="text-xl sm:text-2xl font-bold text-orange-500">
+                            ₨ {customerProfile.customer?.bills?.filter((b: any) => b.payment_status === 'pending').reduce((sum: number, b: any) => sum + Number(b.total), 0).toLocaleString() || 0}
+                          </div>
+                        </div>
                         <div className="col-span-2 bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl text-center flex flex-col justify-center">
                           <div className="text-gray-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-1">Last Visit</div>
-                          <div className="text-sm sm:text-md font-bold text-white mt-1">
+                          <div className="text-sm sm:text-md font-bold text-[var(--color-foreground)] mt-1">
                             {customerProfile.customer?.bills?.length > 0 
                               ? new Date(customerProfile.customer.bills[0].created_at).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' }) 
                               : 'No visits yet'}
@@ -231,7 +251,7 @@ export default function CustomersPage() {
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                             {customerProfile.favorites.map((fav: any) => (
                               <div key={fav.service.id} className="bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl text-center">
-                                <div className="font-bold text-white mb-1 text-sm sm:text-base truncate">{fav.service.name}</div>
+                                <div className="font-bold text-[var(--color-foreground)] mb-1 text-sm sm:text-base truncate">{fav.service.name}</div>
                                 <div className="text-xs text-[var(--color-gold)]">{fav.count} {fav.count === 1 ? 'visit' : 'visits'}</div>
                               </div>
                             ))}
@@ -251,17 +271,24 @@ export default function CustomersPage() {
                                 <div className="flex justify-between sm:block items-start sm:items-stretch">
                                   <div>
                                     <div className="text-xs text-gray-400 mb-1">{new Date(bill.created_at).toLocaleString()}</div>
-                                    <div className="font-medium text-sm">Served by: <span className="text-white">{bill.employee?.name || 'Unknown'}</span></div>
+                                    <div className="font-medium text-sm">Served by: <span className="text-[var(--color-foreground)]">{bill.employee?.name || 'Unknown'}</span></div>
                                   </div>
                                   <div className="font-bold text-[var(--color-gold)] whitespace-nowrap sm:hidden">
-                                    ₨ {bill.total_amount}
+                                    ₨ {bill.total}
                                   </div>
                                 </div>
                                 <div className="flex-1 bg-black/20 p-2 rounded-lg text-xs sm:text-sm border border-[var(--color-border)] break-words">
                                   {bill.items?.map((i: any) => i.service?.name).join(', ') || 'No items'}
                                 </div>
-                                <div className="font-bold text-[var(--color-gold)] whitespace-nowrap hidden sm:block">
-                                  ₨ {bill.total_amount}
+                                <div className="flex flex-col items-end gap-2">
+                                  <div className="font-bold text-[var(--color-gold)] whitespace-nowrap hidden sm:block">
+                                    ₨ {bill.total}
+                                  </div>
+                                  {bill.payment_status === 'pending' ? (
+                                    <button onClick={() => handleMarkPaid(bill.id)} className="bg-orange-500 text-black px-3 py-1 text-xs font-bold rounded hover:bg-orange-600 transition-colors">Mark Paid</button>
+                                  ) : (
+                                    <span className="text-green-500 text-xs font-bold px-2 py-1 bg-green-500/10 rounded-full border border-green-500/20">Paid</span>
+                                  )}
                                 </div>
                               </div>
                             ))
@@ -271,6 +298,50 @@ export default function CustomersPage() {
                         </div>
                       </div>
 
+                    </div>
+                  ) : (
+                    <div className="text-center text-red-500">Error loading profile data.</div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'udhar' && (
+                <div>
+                  {isLoadingProfile ? (
+                    <div className="flex justify-center py-12"><div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div></div>
+                  ) : customerProfile ? (
+                    <div className="space-y-4 animate-in fade-in duration-300">
+                      <h3 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3 sm:mb-4"><Clock size={16} className="w-4 h-4 text-orange-500"/> Udhar Bills (Pending & Paid)</h3>
+                      {customerProfile.customer?.bills?.filter((b: any) => b.payment_method === 'udhar').length > 0 ? (
+                        customerProfile.customer.bills.filter((b: any) => b.payment_method === 'udhar').map((bill: any) => (
+                          <div key={bill.id} className={`bg-[var(--color-background)] border ${bill.payment_status === 'pending' ? 'border-orange-500/50' : 'border-[var(--color-border)]'} rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:border-orange-500 transition-colors`}>
+                            <div className="flex justify-between sm:block items-start sm:items-stretch">
+                              <div>
+                                <div className="text-xs text-gray-400 mb-1">{new Date(bill.created_at).toLocaleString()}</div>
+                                <div className="font-medium text-sm">Served by: <span className="text-[var(--color-foreground)]">{bill.employee?.name || 'Unknown'}</span></div>
+                              </div>
+                              <div className="font-bold text-[var(--color-gold)] whitespace-nowrap sm:hidden">
+                                ₨ {bill.total}
+                              </div>
+                            </div>
+                            <div className="flex-1 bg-black/20 p-2 rounded-lg text-xs sm:text-sm border border-[var(--color-border)] break-words">
+                              {bill.items?.map((i: any) => i.service?.name).join(', ') || 'No items'}
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                              <div className="font-bold text-[var(--color-gold)] whitespace-nowrap hidden sm:block">
+                                ₨ {bill.total}
+                              </div>
+                              {bill.payment_status === 'pending' ? (
+                                <button onClick={() => handleMarkPaid(bill.id)} className="bg-orange-500 text-black px-3 py-1 text-xs font-bold rounded hover:bg-orange-600 transition-colors">Mark Paid</button>
+                              ) : (
+                                <span className="text-green-500 text-xs font-bold px-2 py-1 bg-green-500/10 rounded-full border border-green-500/20">Paid</span>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-gray-500 italic text-sm text-center py-8">No Udhar history found.</div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center text-red-500">Error loading profile data.</div>
