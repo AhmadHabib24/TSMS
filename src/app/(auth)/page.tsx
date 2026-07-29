@@ -22,8 +22,9 @@ export default function LoginPage() {
       login(res.data.access_token, res.data.user);
       toast.success(`Welcome back to ${settings.app_name}!`);
       router.push('/dashboard');
-    } catch (err) {
-      toast.error('Invalid credentials. Please try again.');
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.error || 'Invalid credentials. Please try again.';
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

@@ -16,6 +16,17 @@ export const usePermissions = () => {
 
     return permissions[module].includes(action);
   };
+  const hasFeature = (featureName: string): boolean => {
+    const { planDetails } = require('@/store/usePlanStore').usePlanStore.getState();
+    if (!planDetails || !planDetails.features) return true; // Default allow if no plan info
+    return !!planDetails.features[featureName];
+  };
 
-  return { can, user };
+  const isPlanExpired = (): boolean => {
+    const { planDetails } = require('@/store/usePlanStore').usePlanStore.getState();
+    if (!planDetails || !planDetails.expires_at) return false; // Default false if no expiry set
+    return new Date(planDetails.expires_at) < new Date();
+  };
+
+  return { can, user, hasFeature, isPlanExpired };
 };

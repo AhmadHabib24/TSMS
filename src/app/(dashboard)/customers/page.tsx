@@ -102,16 +102,27 @@ export default function CustomersPage() {
     }
   };
 
-  const handleMarkPaid = async (billId: number) => {
+  const [selectedBillForPayment, setSelectedBillForPayment] = useState<any>(null);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('Cash');
+
+  const handleMarkPaid = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedBillForPayment) return;
     try {
-      await api.put(`/bills/${billId}/mark-paid`);
-      toast.success('Marked as paid!');
+      await api.put(`/bills/${selectedBillForPayment.id}/mark-paid`, {
+        amount: Number(paymentAmount),
+        payment_method: paymentMethod
+      });
+      toast.success('Payment recorded successfully!');
+      setSelectedBillForPayment(null);
+      setPaymentAmount('');
       if (editingId) {
         const res = await api.get(`/customers/${editingId}`);
         setCustomerProfile(res.data);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to update payment status');
+      toast.error(err.response?.data?.error || 'Failed to record payment');
     }
   };
 
@@ -231,7 +242,7 @@ export default function CustomersPage() {
                         <div className="bg-[var(--color-background)] border border-orange-500/30 p-3 sm:p-4 rounded-xl text-center shadow-[0_0_10px_rgba(249,115,22,0.1)]">
                           <div className="text-orange-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-1">Pending Udhar</div>
                           <div className="text-xl sm:text-2xl font-bold text-orange-500">
-                            ₨ {customerProfile.customer?.bills?.filter((b: any) => b.payment_status === 'pending').reduce((sum: number, b: any) => sum + Number(b.total), 0).toLocaleString() || 0}
+                            ₨ {customerProfile.customer?.bills?.filter((b: any) => b.payment_status === 'pending').reduce((sum: number, b: any) => sum + (Number(b.total) - (b.payments?.reduce((s:number, p:any) => s + Number(p.amount), 0) || 0)), 0).toLocaleString() || 0}
                           </div>
                         </div>
                         <div className="col-span-2 bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl text-center flex flex-col justify-center">
@@ -285,11 +296,26 @@ export default function CustomersPage() {
                                     ₨ {bill.total}
                                   </div>
                                   {bill.payment_status === 'pending' ? (
-                                    <button onClick={() => handleMarkPaid(bill.id)} className="bg-orange-500 text-black px-3 py-1 text-xs font-bold rounded hover:bg-orange-600 transition-colors">Mark Paid</button>
+                                    <button onClick={() => { setSelectedBillForPayment(bill); setPaymentAmount(String(bill.total - (bill.payments?.reduce((s:number,p:any)=>s+Number(p.amount),0)||0))); }} className="bg-orange-500 text-black px-3 py-1 text-xs font-bold rounded hover:bg-orange-600 transition-colors">Pay Installment</button>
                                   ) : (
                                     <span className="text-green-500 text-xs font-bold px-2 py-1 bg-green-500/10 rounded-full border border-green-500/20">Paid</span>
                                   )}
                                 </div>
+                                {bill.payments && bill.payments.length > 0 && (
+                                  <div className="w-full mt-2 pt-2 border-t border-[var(--color-border)] text-xs text-gray-400 col-span-full">
+                                    <div className="font-bold mb-1">Installments Paid:</div>
+                                    {bill.payments.map((p: any) => (
+                                      <div key={p.id} className="flex justify-between">
+                                        <span>{new Date(p.created_at).toLocaleDateString()} - {p.payment_method}</span>
+                                        <span className="text-green-400">₨ {p.amount}</span>
+                                      </div>
+                                    ))}
+                                    <div className="flex justify-between font-bold mt-1 pt-1 border-t border-[var(--color-border)] text-[var(--color-foreground)]">
+                                      <span>Remaining:</span>
+                                      <span className="text-orange-400">₨ {bill.total - bill.payments.reduce((s:number, p:any) => s + Number(p.amount), 0)}</span>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             ))
                           ) : (
@@ -332,11 +358,26 @@ export default function CustomersPage() {
                                 ₨ {bill.total}
                               </div>
                               {bill.payment_status === 'pending' ? (
-                                <button onClick={() => handleMarkPaid(bill.id)} className="bg-orange-500 text-black px-3 py-1 text-xs font-bold rounded hover:bg-orange-600 transition-colors">Mark Paid</button>
+                                <button onClick={() => { setSelectedBillForPayment(bill); setPaymentAmount(String(bill.total - (bill.payments?.reduce((s:number,p:any)=>s+Number(p.amount),0)||0))); }} className="bg-orange-500 text-black px-3 py-1 text-xs font-bold rounded hover:bg-orange-600 transition-colors">Pay Installment</button>
                               ) : (
                                 <span className="text-green-500 text-xs font-bold px-2 py-1 bg-green-500/10 rounded-full border border-green-500/20">Paid</span>
                               )}
                             </div>
+                            {bill.payments && bill.payments.length > 0 && (
+                              <div className="w-full mt-2 pt-2 border-t border-[var(--color-border)] text-xs text-gray-400 col-span-full">
+                                <div className="font-bold mb-1">Installments Paid:</div>
+                                {bill.payments.map((p: any) => (
+                                  <div key={p.id} className="flex justify-between">
+                                    <span>{new Date(p.created_at).toLocaleDateString()} - {p.payment_method}</span>
+                                    <span className="text-green-400">₨ {p.amount}</span>
+                                  </div>
+                                ))}
+                                <div className="flex justify-between font-bold mt-1 pt-1 border-t border-[var(--color-border)] text-[var(--color-foreground)]">
+                                  <span>Remaining:</span>
+                                  <span className="text-orange-400">₨ {bill.total - bill.payments.reduce((s:number, p:any) => s + Number(p.amount), 0)}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         ))
                       ) : (
@@ -349,6 +390,52 @@ export default function CustomersPage() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+      {/* Payment Modal */}
+      {selectedBillForPayment && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl w-full max-w-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">Record Payment</h3>
+              <button onClick={() => setSelectedBillForPayment(null)} className="text-gray-400 hover:text-[var(--color-foreground)]"><X size={20}/></button>
+            </div>
+            <form onSubmit={handleMarkPaid} className="space-y-4">
+              <div className="bg-orange-500/10 border border-orange-500/30 p-3 rounded-lg text-sm text-orange-400 mb-4">
+                Total Remaining: ₨ {selectedBillForPayment.total - (selectedBillForPayment.payments?.reduce((s:number,p:any)=>s+Number(p.amount),0)||0)}
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1 uppercase tracking-wider font-bold">Payment Amount (₨)</label>
+                <input 
+                  required 
+                  type="number" 
+                  min="1"
+                  max={selectedBillForPayment.total - (selectedBillForPayment.payments?.reduce((s:number,p:any)=>s+Number(p.amount),0)||0)}
+                  value={paymentAmount} 
+                  onChange={e => setPaymentAmount(e.target.value)} 
+                  className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-lg font-bold focus:border-[var(--color-gold)] outline-none" 
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1 uppercase tracking-wider font-bold">Payment Method</label>
+                <select 
+                  value={paymentMethod} 
+                  onChange={e => setPaymentMethod(e.target.value)}
+                  className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 focus:border-[var(--color-gold)] outline-none"
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Online">Online</option>
+                  <option value="Jazz Cash">Jazz Cash</option>
+                  <option value="POS Meezan">POS Meezan</option>
+                  <option value="UBL">UBL</option>
+                </select>
+              </div>
+              <button type="submit" className="w-full bg-[var(--color-gold)] text-black font-bold py-3 rounded-lg hover:bg-[var(--color-gold-hover)] mt-2">
+                Save Payment
+              </button>
+            </form>
           </div>
         </div>
       )}

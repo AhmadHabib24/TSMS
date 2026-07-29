@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { FileText, Trophy, TrendingUp, TrendingDown, Users, DollarSign, Activity, Image as ImageIcon, Calendar, PieChart, Package, AlertTriangle } from 'lucide-react';
+import { FileText, Trophy, TrendingUp, TrendingDown, Users, DollarSign, Activity, Image as ImageIcon, Calendar, PieChart, Package, AlertTriangle, Lock } from 'lucide-react';
 import api from '@/lib/axios';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+import { usePermissions } from '@/hooks/usePermissions';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -32,7 +34,16 @@ ChartJS.register(
 );
 
 export default function ReportsPage() {
+  const { hasFeature, isPlanExpired } = usePermissions();
   const [activeTab, setActiveTab] = useState<'sales' | 'staff' | 'bills' | 'pnl' | 'inventory' | 'discounts' | 'udhar'>('pnl');
+  
+  const handleTabClick = (tab: any, featureName: string) => {
+    if (!hasFeature(featureName) || isPlanExpired()) {
+      toast.error("Please upgrade your plan to access this report.", { duration: 4000 });
+      return;
+    }
+    setActiveTab(tab);
+  };
   
   // Data States
   const [bills, setBills] = useState<any[]>([]);
@@ -251,26 +262,26 @@ export default function ReportsPage() {
         <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3 shrink-0"><FileText className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">Reports & Analytics</span></h1>
         
         <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto w-full xl:w-auto shrink-0">
-          <button onClick={() => setActiveTab('pnl')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'pnl' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
-            Profit & Loss
+          <button onClick={() => handleTabClick('pnl', 'report_pnl')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'pnl' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'} ${(!hasFeature('report_pnl') || isPlanExpired()) ? 'opacity-50' : ''}`}>
+            Profit & Loss {(!hasFeature('report_pnl') || isPlanExpired()) && <Lock size={14}/>}
           </button>
-          <button onClick={() => setActiveTab('sales')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'sales' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
-            Sales Report
+          <button onClick={() => handleTabClick('sales', 'report_sales')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'sales' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'} ${(!hasFeature('report_sales') || isPlanExpired()) ? 'opacity-50' : ''}`}>
+            Sales Report {(!hasFeature('report_sales') || isPlanExpired()) && <Lock size={14}/>}
           </button>
-          <button onClick={() => setActiveTab('inventory')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'inventory' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
-            Inventory
+          <button onClick={() => handleTabClick('inventory', 'report_inventory')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'inventory' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'} ${(!hasFeature('report_inventory') || isPlanExpired()) ? 'opacity-50' : ''}`}>
+            Inventory {(!hasFeature('report_inventory') || isPlanExpired()) && <Lock size={14}/>}
           </button>
-          <button onClick={() => setActiveTab('staff')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'staff' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
-            Staff Performance
+          <button onClick={() => handleTabClick('staff', 'report_staff')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'staff' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'} ${(!hasFeature('report_staff') || isPlanExpired()) ? 'opacity-50' : ''}`}>
+            Staff Performance {(!hasFeature('report_staff') || isPlanExpired()) && <Lock size={14}/>}
           </button>
-          <button onClick={() => setActiveTab('bills')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'bills' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
-            Recent Bills
+          <button onClick={() => handleTabClick('bills', 'report_bills')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'bills' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'} ${(!hasFeature('report_bills') || isPlanExpired()) ? 'opacity-50' : ''}`}>
+            Recent Bills {(!hasFeature('report_bills') || isPlanExpired()) && <Lock size={14}/>}
           </button>
-          <button onClick={() => setActiveTab('discounts')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap ${activeTab === 'discounts' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'}`}>
-            Discounts
+          <button onClick={() => handleTabClick('discounts', 'report_discounts')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'discounts' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'} ${(!hasFeature('report_discounts') || isPlanExpired()) ? 'opacity-50' : ''}`}>
+            Discounts {(!hasFeature('report_discounts') || isPlanExpired()) && <Lock size={14}/>}
           </button>
-          <button onClick={() => setActiveTab('udhar')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'udhar' ? 'bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]' : 'text-gray-400 hover:text-orange-400'}`}>
-            <AlertTriangle size={16} className={activeTab === 'udhar' ? 'text-black' : ''} /> Udhar Report
+          <button onClick={() => handleTabClick('udhar', 'report_udhar')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'udhar' ? 'bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]' : 'text-gray-400 hover:text-orange-400'} ${(!hasFeature('report_udhar') || isPlanExpired()) ? 'opacity-50' : ''}`}>
+            <AlertTriangle size={16} className={activeTab === 'udhar' ? 'text-black' : ''} /> Udhar Report {(!hasFeature('report_udhar') || isPlanExpired()) && <Lock size={14}/>}
           </button>
         </div>
       </div>

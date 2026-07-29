@@ -7,6 +7,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLayoutStore } from '@/store/useLayoutStore';
 import { Menu } from 'lucide-react';
+import ExpiryTimer from './ExpiryTimer';
 
 export default function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -69,6 +70,7 @@ export default function Header() {
         </div>
       </div>
       <div className="flex items-center space-x-2 sm:space-x-4 relative shrink-0 pl-2">
+        <ExpiryTimer />
         <LanguageSwitcher />
         
         <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-[var(--color-panel)] transition-colors relative cursor-pointer text-gray-400 hover:text-[var(--color-gold)]">

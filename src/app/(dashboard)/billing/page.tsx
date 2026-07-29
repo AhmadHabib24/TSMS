@@ -150,10 +150,15 @@ export default function QuickBilling() {
                             tabIndex={0}
                             onClick={() => { setSelectedCustomer(cust); setStep(2); }} 
                             onKeyDown={(e) => { if(e.key === 'Enter') { setSelectedCustomer(cust); setStep(2); } }}
-                            className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] focus:border-[var(--color-gold)] focus:outline-none transition-colors bg-[var(--color-background)]"
+                            className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] focus:border-[var(--color-gold)] focus:outline-none transition-colors bg-[var(--color-background)] relative"
                           >
                             <div className="font-bold">{cust.name}</div>
                             <div className="text-sm text-gray-400">{cust.mobile}</div>
+                            {Number(cust.pending_balance) > 0 && (
+                              <span className="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                Udhar: ₨ {cust.pending_balance}
+                              </span>
+                            )}
                           </div>
                         ))}
                         {filteredCustomers.length === 0 && <div className="col-span-2 text-center text-gray-500 py-4">No customers found</div>}

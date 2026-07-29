@@ -28,6 +28,16 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           router.push('/');
         }
       }
+
+      // Fetch Plan Details
+      try {
+        const planRes = await api.get('/plan/details');
+        const { setPlanDetails } = require('@/store/usePlanStore').usePlanStore.getState();
+        setPlanDetails(planRes.data);
+      } catch (err) {
+        console.error("Failed to fetch plan details", err);
+      }
+      
       setLoading(false);
     };
 
