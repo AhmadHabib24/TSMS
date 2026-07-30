@@ -21,6 +21,8 @@ export default function QuickBilling() {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [discount, setDiscount] = useState<number | ''>('');
   const [discountReason, setDiscountReason] = useState('');
+  const [paidAmount, setPaidAmount] = useState<number | ''>('');
+  const [upfrontPaymentMethod, setUpfrontPaymentMethod] = useState('Cash');
 
   const [search, setSearch] = useState('');
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
@@ -29,7 +31,7 @@ export default function QuickBilling() {
 
   const [savedBill, setSavedBill] = useState<any>(null);
   const [printFormat, setPrintFormat] = useState<'thermal' | 'a4'>('thermal');
-
+  const [expandedCategory, setExpandedCategory] = useState<number | string | null>(null);
   // Fetch live data from Laravel API
   useEffect(() => {
     api.get('/customers').then(res => setCustomers(res.data)).catch(err => console.error(err));
@@ -78,6 +80,8 @@ export default function QuickBilling() {
     setPaymentMethod('Cash');
     setDiscount('');
     setDiscountReason('');
+    setPaidAmount('');
+    setUpfrontPaymentMethod('Cash');
     setSavedBill(null);
   };
 
@@ -216,18 +220,52 @@ export default function QuickBilling() {
                 Select Services
               </h2>
               {step === 3 && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-300 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-                  {categories.map((cat: any) => {
-                    const catServices = services.filter((s: any) => s.service_category_id === cat.id);
-                    const hasSub = cat.children && cat.children.length > 0;
-                    if (catServices.length === 0 && !hasSub) return null;
-                    
-                    return (
-                      <div key={cat.id} className="mb-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl overflow-hidden">
-                        <div className="bg-black/30 p-3 font-bold text-[var(--color-gold)] border-b border-[var(--color-border)] uppercase tracking-widest text-xs">
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  
+                  {/* Horizontal List of Main Categories */}
+                  <div className="flex overflow-x-auto pb-3 gap-2 custom-scrollbar mb-4">
+                    {categories.map((cat: any) => {
+                      const catServices = services.filter((s: any) => s.service_category_id === cat.id);
+                      const hasSub = cat.children && cat.children.length > 0;
+                      if (catServices.length === 0 && !hasSub) return null;
+
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => setExpandedCategory(expandedCategory === cat.id ? null : cat.id)}
+                          className={`whitespace-nowrap px-5 py-2.5 rounded-xl border font-bold text-sm transition-all shadow-sm ${
+                            expandedCategory === cat.id 
+                              ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' 
+                              : 'border-[var(--color-border)] bg-[var(--color-background)] text-gray-400 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'
+                          }`}
+                        >
                           {cat.name}
-                        </div>
-                        <div className="p-2 space-y-2">
+                        </button>
+                      );
+                    })}
+                    {services.filter((s: any) => !s.service_category_id).length > 0 && (
+                      <button
+                        onClick={() => setExpandedCategory('uncategorized')}
+                        className={`whitespace-nowrap px-5 py-2.5 rounded-xl border font-bold text-sm transition-all shadow-sm ${
+                          expandedCategory === 'uncategorized'
+                            ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' 
+                            : 'border-[var(--color-border)] bg-[var(--color-background)] text-gray-400 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'
+                        }`}
+                      >
+                        Uncategorized
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Expanded Category Services */}
+                  <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                    {categories.map((cat: any) => {
+                      if (expandedCategory !== cat.id) return null;
+                      
+                      const catServices = services.filter((s: any) => s.service_category_id === cat.id);
+                      
+                      return (
+                        <div key={cat.id} className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
                           {/* Services directly under parent category */}
                           {catServices.map((srv: any) => {
                             const isSelected = !!selectedServices.find(s => s.id === srv.id);
@@ -236,9 +274,9 @@ export default function QuickBilling() {
                               else setSelectedServices([...selectedServices, srv]);
                             };
                             return (
-                              <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)]'}`}>
-                                <div className="font-bold text-sm flex items-center gap-2">
-                                  {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 14 }) : null}
+                              <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-4 border rounded-xl cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)] shadow-[0_0_10px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'}`}>
+                                <div className="font-bold text-sm flex items-center gap-3">
+                                  {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 16 }) : null}
                                   {srv.name}
                                 </div>
                                 <div className={`text-sm ${isSelected ? 'font-bold' : ''}`}>₨ {srv.price}</div>
@@ -251,8 +289,8 @@ export default function QuickBilling() {
                             const subServices = services.filter((s: any) => s.service_category_id === sub.id);
                             if (subServices.length === 0) return null;
                             return (
-                              <div key={sub.id} className="mt-2 ml-4">
-                                <div className="text-xs font-bold text-gray-400 mb-2 border-b border-[var(--color-border)] pb-1">↳ {sub.name}</div>
+                              <div key={sub.id} className="mt-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl overflow-hidden p-3">
+                                <div className="text-xs font-bold text-gray-400 mb-3 ml-1 uppercase tracking-wider">{sub.name}</div>
                                 <div className="space-y-2">
                                   {subServices.map((srv: any) => {
                                     const isSelected = !!selectedServices.find(s => s.id === srv.id);
@@ -261,8 +299,8 @@ export default function QuickBilling() {
                                       else setSelectedServices([...selectedServices, srv]);
                                     };
                                     return (
-                                      <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)]'}`}>
-                                        <div className="font-bold text-sm flex items-center gap-2">
+                                      <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'border-[var(--color-border)] bg-[var(--color-panel)] hover:border-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'}`}>
+                                        <div className="font-bold text-sm flex items-center gap-3">
                                           {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 14 }) : null}
                                           {srv.name}
                                         </div>
@@ -275,36 +313,37 @@ export default function QuickBilling() {
                             );
                           })}
                         </div>
-                      </div>
-                    );
-                  })}
-                  
-                  {/* Uncategorized */}
-                  {services.filter((s: any) => !s.service_category_id).length > 0 && (
-                     <div className="mb-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl overflow-hidden">
-                        <div className="bg-black/30 p-3 font-bold text-gray-400 border-b border-[var(--color-border)] uppercase tracking-widest text-xs">
-                          Uncategorized
-                        </div>
-                        <div className="p-2 space-y-2">
-                          {services.filter((s: any) => !s.service_category_id).map((srv: any) => {
-                            const isSelected = !!selectedServices.find(s => s.id === srv.id);
-                            const toggleSelection = () => {
-                              if (isSelected) setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
-                              else setSelectedServices([...selectedServices, srv]);
-                            };
-                            return (
-                              <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)]'}`}>
-                                <div className="font-bold text-sm flex items-center gap-2">
-                                  {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 14 }) : null}
-                                  {srv.name}
-                                </div>
-                                <div className={`text-sm ${isSelected ? 'font-bold' : ''}`}>₨ {srv.price}</div>
+                      );
+                    })}
+                    
+                    {/* Uncategorized */}
+                    {expandedCategory === 'uncategorized' && (
+                      <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {services.filter((s: any) => !s.service_category_id).map((srv: any) => {
+                          const isSelected = !!selectedServices.find(s => s.id === srv.id);
+                          const toggleSelection = () => {
+                            if (isSelected) setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
+                            else setSelectedServices([...selectedServices, srv]);
+                          };
+                          return (
+                            <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-4 border rounded-xl cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)] shadow-[0_0_10px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'}`}>
+                              <div className="font-bold text-sm flex items-center gap-3">
+                                {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 16 }) : null}
+                                {srv.name}
                               </div>
-                            );
-                          })}
-                        </div>
+                              <div className={`text-sm ${isSelected ? 'font-bold' : ''}`}>₨ {srv.price}</div>
+                            </div>
+                          );
+                        })}
                       </div>
-                  )}
+                    )}
+                    
+                    {!expandedCategory && (
+                       <div className="text-center text-gray-500 italic py-8 border border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-background)]/50">
+                          Select a category above to view and select services
+                       </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -393,6 +432,46 @@ export default function QuickBilling() {
               </div>
             </div>
 
+            {paymentMethod === 'Udhar' && (
+              <div className="mb-6 p-4 border border-orange-500/50 bg-orange-500/5 rounded-xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <h4 className="font-bold text-orange-500 text-sm uppercase tracking-wider">Partial Payment (Optional)</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Amount Paying Now</label>
+                    <input 
+                      type="number" 
+                      value={paidAmount} 
+                      onChange={e => setPaidAmount(e.target.value === '' ? '' : Number(e.target.value))} 
+                      max={total}
+                      placeholder="0" 
+                      className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 px-3 text-[var(--color-foreground)] focus:border-orange-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Payment Method</label>
+                    <select 
+                      value={upfrontPaymentMethod} 
+                      onChange={e => setUpfrontPaymentMethod(e.target.value)} 
+                      className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 px-3 text-[var(--color-foreground)] focus:border-orange-500 outline-none appearance-none"
+                    >
+                      <option value="Cash">Cash</option>
+                      <option value="Card">Card</option>
+                      <option value="Online">Online</option>
+                      <option value="Jazz Cash">Jazz Cash</option>
+                      <option value="POS Meezan">POS Meezan</option>
+                      <option value="UBL">UBL</option>
+                    </select>
+                  </div>
+                </div>
+                {Number(paidAmount) > 0 && (
+                  <div className="flex justify-between items-center text-sm font-bold text-gray-300 pt-2 border-t border-orange-500/20">
+                    <span>Remaining Udhar:</span>
+                    <span className="text-orange-500">₨ {total - Number(paidAmount)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="space-y-3 mt-auto">
               <button
                 disabled={selectedServices.length === 0 || !selectedEmployee}
@@ -403,6 +482,8 @@ export default function QuickBilling() {
                       employee_id: selectedEmployee?.id,
                       payment_method: paymentMethod.toLowerCase(),
                       payment_status: paymentMethod === 'Udhar' ? 'pending' : 'paid',
+                      paid_amount: paymentMethod === 'Udhar' ? (Number(paidAmount) || 0) : total,
+                      upfront_payment_method: paymentMethod === 'Udhar' ? upfrontPaymentMethod : paymentMethod,
                       discount_amount: discountAmount,
                       discount_reason: discountReason,
                       items: selectedServices.map(s => ({ service_id: s.id, price: s.price }))

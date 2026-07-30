@@ -89,8 +89,15 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
         </div>
 
         {bill.payment_status === 'pending' && (
-          <div className="mt-6 mb-2 text-center font-bold text-lg text-red-600 uppercase border-2 border-red-600 p-2 rounded">
-            Payment Status: Pending / Unpaid
+          <div className="mt-6 mb-2">
+            <div className="text-center font-bold text-lg text-red-600 uppercase border-2 border-red-600 p-2 rounded">
+              Payment Status: Pending / Unpaid
+            </div>
+            {Number(bill.paid_amount) > 0 && (
+              <div className="text-center mt-2 text-gray-700 font-medium">
+                Paid: ₨ {bill.paid_amount} | Remaining: <span className="text-red-600 font-bold">₨ {bill.remaining_amount}</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -140,7 +147,10 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
 
         {bill.payment_status === 'pending' && (
           <div className="mt-2 text-center font-bold uppercase border-t border-b border-black py-1">
-            ** PAYMENT PENDING / UNPAID **
+            ** PAYMENT PENDING **
+            {Number(bill.paid_amount) > 0 && (
+              <div className="text-xs mt-1">Paid: ₨ {bill.paid_amount} | Rem: ₨ {bill.remaining_amount}</div>
+            )}
           </div>
         )}
 
@@ -201,7 +211,10 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
 
       {bill.payment_status === 'pending' && (
         <div className="text-center font-bold uppercase mt-2 pt-2 border-t border-black">
-          ** PAYMENT PENDING / UNPAID **
+          ** PAYMENT PENDING **
+          {Number(bill.paid_amount) > 0 && (
+            <div className="text-xs mt-1">Paid: ₨ {bill.paid_amount} | Rem: ₨ {bill.remaining_amount}</div>
+          )}
         </div>
       )}
 

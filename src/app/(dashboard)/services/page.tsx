@@ -1,12 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Scissors, Plus, Edit, Trash2, X, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity } from 'lucide-react';
+import { Scissors, Plus, Edit, Trash2, X, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity, Coffee, Monitor, Music, Shield, Anchor, Award, Briefcase, Camera, Compass, Eye, Gift, Globe, Key, Map, MessageCircle, Navigation, Phone, Search, Settings, Tag, User, Video, Watch, Wifi } from 'lucide-react';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { usePermissions } from '@/hooks/usePermissions';
 
 const AVAILABLE_ICONS: Record<string, any> = {
-  Scissors, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity
+  Scissors, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity, Coffee, Monitor, Music, Shield, Anchor, Award, Briefcase, Camera, Compass, Eye, Gift, Globe, Key, Map, MessageCircle, Navigation, Phone, Search, Settings, Tag, User, Video, Watch, Wifi
 };
 
 export default function ServicesPage() {
@@ -16,7 +16,7 @@ export default function ServicesPage() {
 
   const { can } = usePermissions();
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({ name: '', price: '', duration_minutes: '', service_category_id: '', icon: '', is_active: true });
+  const [formData, setFormData] = useState({ name: '', price: '', service_category_id: '', icon: '', is_active: true });
 
   const fetchData = () => {
     api.get('/services').then(res => setData(res.data)).catch(() => toast.error('Failed to load data'));
@@ -60,14 +60,13 @@ export default function ServicesPage() {
       setFormData({ 
         name: item.name || '', 
         price: item.price || '', 
-        duration_minutes: item.duration_minutes || '', 
         service_category_id: item.service_category_id || '',
         icon: item.icon || '',
         is_active: item.is_active ?? true
       });
     } else {
       setEditingId(null);
-      setFormData({ name: '', price: '', duration_minutes: '', service_category_id: '', icon: '', is_active: true });
+      setFormData({ name: '', price: '', service_category_id: '', icon: '', is_active: true });
     }
     setIsModalOpen(true);
   };
@@ -87,7 +86,6 @@ export default function ServicesPage() {
               <th className="pb-3">Name</th>
               <th className="pb-3">Category</th>
               <th className="pb-3">Price (₨)</th>
-              <th className="pb-3">Duration (min)</th>
               <th className="pb-3">Status</th>
               <th className="pb-3">Actions</th>
             </tr>
@@ -105,7 +103,6 @@ export default function ServicesPage() {
                   {item.category ? (item.category.parent ? `${item.category.parent.name} - ${item.category.name}` : item.category.name) : '--'}
                 </td>
                 <td className="py-3 sm:py-4 pr-4 text-[var(--color-gold)] font-bold">₨ {item.price}</td>
-                <td className="py-3 sm:py-4 pr-4">{item.duration_minutes}</td>
                 <td className="py-3 sm:py-4 pr-4">
                   {item.is_active ? 
                     <span className="text-green-500 bg-green-500/10 px-2 py-1 rounded text-[10px] sm:text-xs font-bold uppercase tracking-wider">Active</span> : 
@@ -142,16 +139,9 @@ export default function ServicesPage() {
                   <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" />
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1 capitalize">price</label>
-                    <input required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} type="number" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1 capitalize">duration (minutes)</label>
-                    <input required value={formData.duration_minutes} onChange={e => setFormData({...formData, duration_minutes: e.target.value})} type="number" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" />
-                  </div>
+                <div>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-1 capitalize">price</label>
+                  <input required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} type="number" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm sm:text-base focus:border-[var(--color-gold)] outline-none" />
                 </div>
                 
                 <div>
