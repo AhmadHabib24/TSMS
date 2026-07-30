@@ -9,7 +9,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 
 export default function BottomNavigation() {
   const pathname = usePathname();
-  const { openMobileSidebar } = useLayoutStore();
+  const { toggleMobileSidebar } = useLayoutStore();
   const { t } = useTranslation();
   const { can, hasFeature, isPlanExpired } = usePermissions();
 
@@ -23,7 +23,7 @@ export default function BottomNavigation() {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[var(--color-panel)] border-t border-[var(--color-border)] flex justify-around items-center z-40 px-2 pb-safe no-print shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
       <button 
-        onClick={openMobileSidebar} 
+        onClick={toggleMobileSidebar} 
         className="flex flex-col items-center gap-1 text-gray-400 hover:text-[var(--color-gold)] transition-colors p-2"
       >
         <Menu size={20} />
