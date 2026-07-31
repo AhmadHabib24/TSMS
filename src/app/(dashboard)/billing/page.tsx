@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Plus, Check, Printer, UserPlus, CreditCard, Banknote, Smartphone, X, Clock, Scissors, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity } from 'lucide-react';
+import { Search, Plus, Check, Printer, UserPlus, CreditCard, Banknote, Smartphone, X, Clock, Scissors, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity, Layers, Tag } from 'lucide-react';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 
@@ -14,6 +14,8 @@ export default function QuickBilling() {
   const [employees, setEmployees] = useState([]);
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [packages, setPackages] = useState([]);
+  const [deals, setDeals] = useState([]);
 
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
@@ -21,6 +23,10 @@ export default function QuickBilling() {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [discount, setDiscount] = useState<number | ''>('');
   const [discountReason, setDiscountReason] = useState('');
+  
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<any>(null);
+  
   const [paidAmount, setPaidAmount] = useState<number | ''>('');
   const [upfrontPaymentMethod, setUpfrontPaymentMethod] = useState('Cash');
 
@@ -31,18 +37,39 @@ export default function QuickBilling() {
 
   const [savedBill, setSavedBill] = useState<any>(null);
   const [printFormat, setPrintFormat] = useState<'thermal' | 'a4'>('thermal');
-  const [expandedCategory, setExpandedCategory] = useState<number | string | null>(null);
+  
+  const [mainTab, setMainTab] = useState<'services' | 'deals' | 'packages'>('services');
+  const [subTab, setSubTab] = useState<number | 'all' | 'uncategorized' | null>(null);
+  
   // Fetch live data from Laravel API
   useEffect(() => {
     api.get('/customers').then(res => setCustomers(res.data)).catch(err => console.error(err));
     api.get('/employees').then(res => setEmployees(res.data)).catch(err => console.error(err));
     api.get('/services').then(res => setServices(res.data)).catch(err => console.error(err));
     api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.error(err));
+    api.get('/packages').then(res => setPackages(res.data)).catch(err => console.error(err));
+    api.get('/deals').then(res => setDeals(res.data)).catch(err => console.error(err));
   }, []);
 
-  const subtotal = selectedServices.reduce((sum, s) => sum + Number(s.price), 0);
+  const subtotal = selectedServices.reduce((sum, s) => {
+    let p = Number(s.price);
+    if (s.is_deal && s.discount_percentage) {
+      p = p - (p * (Number(s.discount_percentage) / 100));
+    }
+    return sum + p;
+  }, 0);
+  
+  let promoDiscountAmount = 0;
+  if (appliedPromo) {
+    if (appliedPromo.discount_type === 'percentage') {
+      promoDiscountAmount = subtotal * (Number(appliedPromo.discount_value) / 100);
+    } else {
+      promoDiscountAmount = Number(appliedPromo.discount_value);
+    }
+  }
+
   const discountAmount = Number(discount) || 0;
-  const total = subtotal - discountAmount;
+  const total = Math.max(0, subtotal - discountAmount - promoDiscountAmount);
 
   const filteredCustomers = customers.filter((c: any) =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -83,6 +110,52 @@ export default function QuickBilling() {
     setPaidAmount('');
     setUpfrontPaymentMethod('Cash');
     setSavedBill(null);
+    setPromoCodeInput('');
+    setAppliedPromo(null);
+  };
+
+  const applyPromoCode = async () => {
+    if (!promoCodeInput) return;
+    try {
+      const res = await api.post('/promotions/validate', { code: promoCodeInput });
+      setAppliedPromo(res.data);
+      toast.success('Promo code applied!');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Invalid promo code');
+      setAppliedPromo(null);
+    }
+  };
+
+  const removeSubService = (mainSrvId: number, isPackage: boolean, isDeal: boolean, subId: number) => {
+    setSelectedServices(selectedServices.map(s => {
+      if (s.id === mainSrvId && !!s.is_package === !!isPackage && !!s.is_deal === !!isDeal) {
+        return {
+          ...s,
+          active_sub_services: s.active_sub_services.filter((sub: any) => sub.id !== subId)
+        };
+      }
+      return s;
+    }));
+  };
+
+  const handleGridKeyDown = (e: React.KeyboardEvent, index: number, total: number, columns: number) => {
+    if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
+      e.preventDefault();
+      let nextIndex = index;
+      if (e.key === 'ArrowRight') nextIndex = (index + 1) % total;
+      if (e.key === 'ArrowLeft') nextIndex = (index - 1 + total) % total;
+      if (e.key === 'ArrowDown') nextIndex = Math.min(index + columns, total - 1);
+      if (e.key === 'ArrowUp') nextIndex = Math.max(index - columns, 0);
+      
+      const container = e.currentTarget.parentElement;
+      if (container) {
+        // Find all focusable grid items within the same container
+        const items = Array.from(container.children).filter(el => (el as HTMLElement).tabIndex === 0);
+        if (items[nextIndex]) {
+          (items[nextIndex] as HTMLElement).focus();
+        }
+      }
+    }
   };
 
   return (
@@ -147,22 +220,27 @@ export default function QuickBilling() {
                           className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 pl-10 px-4 focus:outline-none focus:border-[var(--color-gold)] transition-colors" 
                         />
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
-                        {filteredCustomers.map((cust: any) => (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                        {filteredCustomers.map((cust: any, index: number) => (
                           <div 
                             key={cust.id} 
                             tabIndex={0}
                             onClick={() => { setSelectedCustomer(cust); setStep(2); }} 
-                            onKeyDown={(e) => { if(e.key === 'Enter') { setSelectedCustomer(cust); setStep(2); } }}
+                            onKeyDown={(e) => { 
+                              if(e.key === 'Enter') { setSelectedCustomer(cust); setStep(2); }
+                              else handleGridKeyDown(e, index, filteredCustomers.length, window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1);
+                            }}
                             className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] focus:border-[var(--color-gold)] focus:outline-none transition-colors bg-[var(--color-background)] relative"
                           >
-                            <div className="font-bold">{cust.name}</div>
-                            <div className="text-sm text-gray-400">{cust.mobile}</div>
-                            {Number(cust.pending_balance) > 0 && (
-                              <span className="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                Udhar: ₨ {cust.pending_balance}
-                              </span>
-                            )}
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="font-bold break-words whitespace-normal">{cust.name}</div>
+                              {Number(cust.pending_balance) > 0 && (
+                                <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
+                                  Udhar: ₨ {cust.pending_balance}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-400 mt-1">{cust.mobile}</div>
                           </div>
                         ))}
                         {filteredCustomers.length === 0 && <div className="col-span-2 text-center text-gray-500 py-4">No customers found</div>}
@@ -188,13 +266,16 @@ export default function QuickBilling() {
                 Select Employee
               </h2>
               {step === 2 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                  {employees.map((emp: any) => (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  {employees.map((emp: any, index: number) => (
                     <div 
                       key={emp.id} 
                       tabIndex={0}
                       onClick={() => { setSelectedEmployee(emp); setStep(3); }} 
-                      onKeyDown={(e) => { if(e.key === 'Enter') { setSelectedEmployee(emp); setStep(3); } }}
+                      onKeyDown={(e) => { 
+                        if(e.key === 'Enter') { setSelectedEmployee(emp); setStep(3); }
+                        else handleGridKeyDown(e, index, employees.length, window.innerWidth >= 1024 ? 4 : window.innerWidth >= 640 ? 3 : 2);
+                      }}
                       className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] focus:border-[var(--color-gold)] focus:outline-none transition-colors flex items-center justify-between bg-[var(--color-background)]"
                     >
                       <div>
@@ -223,126 +304,241 @@ export default function QuickBilling() {
                 <div className="animate-in fade-in slide-in-from-top-2 duration-300">
                   
                   {/* Horizontal List of Main Categories */}
-                  <div className="flex overflow-x-auto pb-3 gap-2 custom-scrollbar mb-4">
-                    {categories.map((cat: any) => {
-                      const catServices = services.filter((s: any) => s.service_category_id === cat.id);
-                      const hasSub = cat.children && cat.children.length > 0;
-                      if (catServices.length === 0 && !hasSub) return null;
-
-                      return (
-                        <button
-                          key={cat.id}
-                          onClick={() => setExpandedCategory(expandedCategory === cat.id ? null : cat.id)}
-                          className={`whitespace-nowrap px-5 py-2.5 rounded-xl border font-bold text-sm transition-all shadow-sm ${
-                            expandedCategory === cat.id 
-                              ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' 
-                              : 'border-[var(--color-border)] bg-[var(--color-background)] text-gray-400 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'
-                          }`}
-                        >
-                          {cat.name}
-                        </button>
-                      );
-                    })}
-                    {services.filter((s: any) => !s.service_category_id).length > 0 && (
+                  <div className="flex overflow-x-auto pb-3 gap-2 custom-scrollbar mb-4 border-b border-[var(--color-border)]">
+                    <button
+                      onClick={() => setMainTab('services')}
+                      className={`whitespace-nowrap px-6 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                        mainTab === 'services' 
+                          ? 'bg-[var(--color-gold)] text-black' 
+                          : 'bg-transparent text-gray-400 hover:text-[var(--color-gold)]'
+                      }`}
+                    >
+                      <Scissors size={16} /> Services
+                    </button>
+                    {deals.length > 0 && (
                       <button
-                        onClick={() => setExpandedCategory('uncategorized')}
-                        className={`whitespace-nowrap px-5 py-2.5 rounded-xl border font-bold text-sm transition-all shadow-sm ${
-                          expandedCategory === 'uncategorized'
-                            ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' 
-                            : 'border-[var(--color-border)] bg-[var(--color-background)] text-gray-400 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'
+                        onClick={() => setMainTab('deals')}
+                        className={`whitespace-nowrap px-6 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                          mainTab === 'deals'
+                            ? 'bg-[var(--color-gold)] text-black' 
+                            : 'bg-transparent text-gray-400 hover:text-[var(--color-gold)]'
                         }`}
                       >
-                        Uncategorized
+                        <Tag size={16} /> Deals
+                      </button>
+                    )}
+                    {packages.length > 0 && (
+                      <button
+                        onClick={() => setMainTab('packages')}
+                        className={`whitespace-nowrap px-6 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                          mainTab === 'packages'
+                            ? 'bg-[var(--color-gold)] text-black' 
+                            : 'bg-transparent text-gray-400 hover:text-[var(--color-gold)]'
+                        }`}
+                      >
+                        <Layers size={16} /> Session Package
                       </button>
                     )}
                   </div>
 
+                  {mainTab === 'services' && (
+                    <div className="flex overflow-x-auto pb-3 gap-2 custom-scrollbar mb-4">
+                      <button
+                        onClick={() => setSubTab('all')}
+                        className={`whitespace-nowrap px-4 py-1.5 rounded-full font-bold text-xs transition-all border ${
+                          subTab === 'all' 
+                            ? 'border-[var(--color-gold)] bg-[var(--color-gold)] text-black' 
+                            : 'border-[var(--color-border)] bg-[var(--color-background)] text-gray-400 hover:border-[var(--color-gold)]'
+                        }`}
+                      >
+                        ALL
+                      </button>
+                      {categories.map((cat: any) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSubTab(cat.id)}
+                          className={`whitespace-nowrap px-4 py-1.5 rounded-full font-bold text-xs transition-all border uppercase ${
+                            subTab === cat.id 
+                              ? 'border-[var(--color-gold)] bg-[var(--color-gold)] text-black' 
+                              : 'border-[var(--color-border)] bg-[var(--color-background)] text-gray-400 hover:border-[var(--color-gold)]'
+                          }`}
+                        >
+                          {cat.name}
+                        </button>
+                      ))}
+                      {services.filter((s: any) => !s.service_category_id).length > 0 && (
+                        <button
+                          onClick={() => setSubTab('uncategorized')}
+                          className={`whitespace-nowrap px-4 py-1.5 rounded-full font-bold text-xs transition-all border uppercase ${
+                            subTab === 'uncategorized' 
+                              ? 'border-[var(--color-gold)] bg-[var(--color-gold)] text-black' 
+                              : 'border-[var(--color-border)] bg-[var(--color-background)] text-gray-400 hover:border-[var(--color-gold)]'
+                          }`}
+                        >
+                          UNCATEGORIZED
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   {/* Expanded Category Services */}
-                  <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar">
-                    {categories.map((cat: any) => {
-                      if (expandedCategory !== cat.id) return null;
-                      
-                      const catServices = services.filter((s: any) => s.service_category_id === cat.id);
-                      
-                      return (
-                        <div key={cat.id} className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                          {/* Services directly under parent category */}
-                          {catServices.map((srv: any) => {
+                  <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar p-2">
+                    
+                    {mainTab === 'services' && subTab === null && (
+                      <div className="text-center text-gray-500 italic py-12 border border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-background)]/50 mt-4">
+                        Select a category above to view services
+                      </div>
+                    )}
+
+                    {mainTab === 'services' && subTab !== null && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 animate-in fade-in duration-200">
+                        {services
+                          .filter((s: any) => {
+                            if (subTab === 'all') return true;
+                            if (subTab === 'uncategorized') return !s.service_category_id;
+                            // Check direct category or subcategory
+                            if (s.service_category_id === subTab) return true;
+                            const parentCat = categories.find((c: any) => c.id === subTab);
+                            if (parentCat && parentCat.children) {
+                               return parentCat.children.some((subC: any) => subC.id === s.service_category_id);
+                            }
+                            return false;
+                          })
+                          .map((srv: any, index: number, arr: any[]) => {
                             const isSelected = !!selectedServices.find(s => s.id === srv.id);
                             const toggleSelection = () => {
                               if (isSelected) setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
                               else setSelectedServices([...selectedServices, srv]);
                             };
                             return (
-                              <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-4 border rounded-xl cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)] shadow-[0_0_10px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'}`}>
-                                <div className="font-bold text-sm flex items-center gap-3">
-                                  {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 16 }) : null}
+                              <div 
+                                key={srv.id} 
+                                tabIndex={0} 
+                                onClick={toggleSelection} 
+                                onKeyDown={(e) => { 
+                                  if(e.key === 'Enter') toggleSelection(); 
+                                  else handleGridKeyDown(e, index, arr.length, window.innerWidth >= 1024 ? 5 : window.innerWidth >= 768 ? 4 : window.innerWidth >= 640 ? 3 : 2);
+                                }} 
+                                className={`p-3 border rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center text-center focus:outline-none bg-[var(--color-panel)] shadow-sm ${
+                                  isSelected 
+                                    ? 'border-[var(--color-gold)] ring-1 ring-[var(--color-gold)]' 
+                                    : 'border-[var(--color-border)] hover:border-gray-500 hover:shadow-md'
+                                }`}
+                              >
+                                <div className="mb-1 text-blue-500">
+                                  {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 24 }) : <Scissors size={24} />}
+                                </div>
+                                <div className="font-bold text-[10px] sm:text-[11px] uppercase text-gray-200 mb-1 h-8 flex items-center justify-center leading-tight">
                                   {srv.name}
                                 </div>
-                                <div className={`text-sm ${isSelected ? 'font-bold' : ''}`}>₨ {srv.price}</div>
-                              </div>
-                            );
-                          })}
-                          
-                          {/* Sub Categories */}
-                          {cat.children && cat.children.map((sub: any) => {
-                            const subServices = services.filter((s: any) => s.service_category_id === sub.id);
-                            if (subServices.length === 0) return null;
-                            return (
-                              <div key={sub.id} className="mt-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl overflow-hidden p-3">
-                                <div className="text-xs font-bold text-gray-400 mb-3 ml-1 uppercase tracking-wider">{sub.name}</div>
-                                <div className="space-y-2">
-                                  {subServices.map((srv: any) => {
-                                    const isSelected = !!selectedServices.find(s => s.id === srv.id);
-                                    const toggleSelection = () => {
-                                      if (isSelected) setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
-                                      else setSelectedServices([...selectedServices, srv]);
-                                    };
-                                    return (
-                                      <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]' : 'border-[var(--color-border)] bg-[var(--color-panel)] hover:border-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'}`}>
-                                        <div className="font-bold text-sm flex items-center gap-3">
-                                          {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 14 }) : null}
-                                          {srv.name}
-                                        </div>
-                                        <div className={`text-sm ${isSelected ? 'font-bold' : ''}`}>₨ {srv.price}</div>
-                                      </div>
-                                    );
-                                  })}
+                                <div className="text-xs font-bold text-green-500">
+                                  {Number(srv.price).toLocaleString()}
                                 </div>
                               </div>
                             );
-                          })}
-                        </div>
-                      );
-                    })}
-                    
-                    {/* Uncategorized */}
-                    {expandedCategory === 'uncategorized' && (
-                      <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                        {services.filter((s: any) => !s.service_category_id).map((srv: any) => {
-                          const isSelected = !!selectedServices.find(s => s.id === srv.id);
+                        })}
+                      </div>
+                    )}
+
+                    {/* Packages */}
+                    {mainTab === 'packages' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
+                        {packages.filter((p: any) => p.is_active).map((pkg: any, index: number, arr: any[]) => {
+                          const isSelected = !!selectedServices.find(s => s.is_package && s.id === pkg.id);
                           const toggleSelection = () => {
-                            if (isSelected) setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
-                            else setSelectedServices([...selectedServices, srv]);
+                            if (isSelected) {
+                              setSelectedServices(selectedServices.filter(s => !(s.is_package && s.id === pkg.id)));
+                            } else {
+                              setSelectedServices([...selectedServices, { ...pkg, is_package: true, active_sub_services: pkg.services }]);
+                            }
                           };
                           return (
-                            <div key={srv.id} tabIndex={0} onClick={toggleSelection} onKeyDown={(e) => { if(e.key === 'Enter') toggleSelection(); }} className={`p-4 border rounded-xl cursor-pointer transition-all flex items-center justify-between focus:outline-none ${isSelected ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)] shadow-[0_0_10px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-gold)] hover:bg-[var(--color-gold)]/5'}`}>
-                              <div className="font-bold text-sm flex items-center gap-3">
-                                {srv.icon && AVAILABLE_ICONS[srv.icon] ? React.createElement(AVAILABLE_ICONS[srv.icon], { size: 16 }) : null}
-                                {srv.name}
+                            <div 
+                              key={`pkg-${pkg.id}`} 
+                              tabIndex={0} 
+                              onClick={toggleSelection} 
+                              onKeyDown={(e) => { 
+                                if(e.key === 'Enter') toggleSelection(); 
+                                else handleGridKeyDown(e, index, arr.length, window.innerWidth >= 768 ? 3 : window.innerWidth >= 640 ? 2 : 1);
+                              }} 
+                              className={`p-3 border rounded-xl cursor-pointer transition-all flex flex-col justify-between focus:outline-none bg-[var(--color-panel)] ${isSelected ? 'border-[var(--color-gold)] shadow-md ring-1 ring-[var(--color-gold)]' : 'border-[var(--color-border)] hover:shadow-md'}`}
+                            >
+                              <div>
+                                <div className="font-bold text-xs sm:text-sm flex items-center gap-2 mb-2">
+                                  <Layers size={16} className="text-blue-500" />
+                                  <span className="uppercase text-gray-200">{pkg.name}</span>
+                                </div>
+                                <div className="text-[10px] sm:text-xs text-gray-400 min-h-[30px] sm:min-h-[40px]">
+                                  {pkg.services?.map((s:any)=>s.name).join(' • ')}
+                                </div>
                               </div>
-                              <div className={`text-sm ${isSelected ? 'font-bold' : ''}`}>₨ {srv.price}</div>
+                              <div className={`text-xs sm:text-sm mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-[var(--color-border)] flex justify-between items-center ${isSelected ? 'font-bold' : ''}`}>
+                                <span className="text-[10px] sm:text-xs text-gray-500">Package Price</span>
+                                <span className="text-green-500 font-bold">₨ {Number(pkg.price).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Deals */}
+                    {mainTab === 'deals' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
+                        {deals.filter((d: any) => d.is_active).map((deal: any, index: number, arr: any[]) => {
+                          const isSelected = !!selectedServices.find(s => s.is_deal && s.id === deal.id);
+                          const toggleSelection = () => {
+                            if (isSelected) {
+                              setSelectedServices(selectedServices.filter(s => !(s.is_deal && s.id === deal.id)));
+                            } else {
+                              setSelectedServices([...selectedServices, { ...deal, is_deal: true, active_sub_services: deal.services }]);
+                            }
+                          };
+                          
+                          const discountedPrice = deal.price - (deal.price * (deal.discount_percentage / 100));
+
+                          return (
+                            <div 
+                              key={`deal-${deal.id}`} 
+                              tabIndex={0} 
+                              onClick={toggleSelection} 
+                              onKeyDown={(e) => { 
+                                if(e.key === 'Enter') toggleSelection(); 
+                                else handleGridKeyDown(e, index, arr.length, window.innerWidth >= 768 ? 3 : window.innerWidth >= 640 ? 2 : 1);
+                              }} 
+                              className={`p-3 border rounded-xl cursor-pointer transition-all flex flex-col justify-between focus:outline-none bg-[var(--color-panel)] ${isSelected ? 'border-[var(--color-gold)] shadow-md ring-1 ring-[var(--color-gold)]' : 'border-[var(--color-border)] hover:shadow-md'}`}
+                            >
+                              <div>
+                                <div className="font-bold text-xs sm:text-sm flex items-center justify-between gap-2 mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <Tag size={16} className="text-blue-500" />
+                                    <span className="uppercase text-gray-200">{deal.name}</span>
+                                  </div>
+                                  {deal.discount_percentage > 0 && <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">{deal.discount_percentage}% OFF</span>}
+                                </div>
+                                <div className="text-[10px] sm:text-xs text-gray-400 min-h-[30px] sm:min-h-[40px]">
+                                  {deal.services?.map((s:any)=>s.name).join(' • ')}
+                                </div>
+                              </div>
+                              <div className="text-xs sm:text-sm mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-[var(--color-border)] flex justify-between items-center">
+                                <span className="text-[10px] sm:text-xs text-gray-500">Deal Price</span>
+                                <div className="text-right">
+                                  {deal.discount_percentage > 0 ? (
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] text-gray-500 line-through">₨ {Number(deal.price).toLocaleString()}</span>
+                                      <span className="text-green-500 font-bold text-xs sm:text-sm">₨ {discountedPrice.toLocaleString()}</span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-green-500 font-bold text-xs sm:text-sm">₨ {Number(deal.price).toLocaleString()}</span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           );
                         })}
                       </div>
                     )}
                     
-                    {!expandedCategory && (
-                       <div className="text-center text-gray-500 italic py-8 border border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-background)]/50">
-                          Select a category above to view and select services
-                       </div>
-                    )}
                   </div>
                 </div>
               )}
@@ -365,12 +561,44 @@ export default function QuickBilling() {
             </div>
 
             <div className="space-y-3 mb-4 border-t border-[var(--color-border)] pt-4 min-h-[100px]">
-              {selectedServices.map(srv => (
-                <div key={srv.id} className="flex justify-between text-[var(--color-foreground)] text-sm">
-                  <span>{srv.name}</span>
-                  <span className="text-gray-300">₨ {srv.price}</span>
-                </div>
-              ))}
+              {selectedServices.map(srv => {
+                let displayPrice = srv.price;
+                if (srv.is_deal && srv.discount_percentage > 0) {
+                  displayPrice = srv.price - (srv.price * (srv.discount_percentage / 100));
+                }
+                
+                return (
+                  <div key={srv.is_package ? `pkg-${srv.id}` : (srv.is_deal ? `deal-${srv.id}` : `srv-${srv.id}`)} className="flex flex-col text-[var(--color-foreground)] text-sm mb-2">
+                    <div className="flex justify-between items-start">
+                      <span className="font-bold">
+                        {srv.name} 
+                        {srv.is_package && <span className="text-xs text-[var(--color-gold)] ml-1 border border-[var(--color-gold)] px-1 rounded">Package</span>}
+                        {srv.is_deal && <span className="text-xs text-orange-400 ml-1 border border-orange-400 px-1 rounded">Deal</span>}
+                      </span>
+                      <span className="text-gray-300">₨ {displayPrice}</span>
+                    </div>
+                    {(srv.is_package || srv.is_deal) && srv.active_sub_services && (
+                      <div className="mt-2 ml-2 pl-2 border-l border-[var(--color-border)] space-y-1">
+                        {srv.active_sub_services.map((sub: any) => (
+                          <div key={sub.id} className="flex items-center justify-between text-xs text-gray-400 group">
+                            <span className="flex items-center gap-2">
+                              <span className="w-1 h-1 rounded-full bg-gray-500"></span>
+                              {sub.name}
+                            </span>
+                            <button 
+                              onClick={() => removeSubService(srv.id, !!srv.is_package, !!srv.is_deal, sub.id)}
+                              className="text-red-500/70 hover:text-red-500 transition-colors"
+                              title="Remove from package"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
               {selectedServices.length === 0 && (
                 <div className="text-center text-gray-500 italic py-4">No services selected</div>
               )}
@@ -382,8 +610,30 @@ export default function QuickBilling() {
                   <span>Subtotal</span>
                   <span className="font-bold sm:font-normal text-[var(--color-foreground)] sm:text-gray-400">₨ {subtotal}</span>
                 </div>
+                
+                {/* Promo Code Input */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={promoCodeInput}
+                    onChange={e => setPromoCodeInput(e.target.value.toUpperCase())}
+                    placeholder="Enter Promo Code"
+                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 px-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-gold)] outline-none uppercase font-mono tracking-widest"
+                  />
+                  <button onClick={applyPromoCode} className="bg-gray-800 text-white px-4 rounded font-bold hover:bg-gray-700 transition-colors text-sm">Apply</button>
+                </div>
+                {appliedPromo && (
+                  <div className="flex justify-between items-center text-green-500 text-sm font-bold bg-green-500/10 p-2 rounded">
+                    <span>Promo: {appliedPromo.code}</span>
+                    <div className="flex items-center gap-2">
+                      <span>- ₨ {promoDiscountAmount.toFixed(2)}</span>
+                      <button onClick={() => { setAppliedPromo(null); setPromoCodeInput(''); }} className="text-green-500 hover:text-green-400"><X size={14}/></button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-gray-400 text-sm gap-2 sm:gap-1">
-                  <span>Discount</span>
+                  <span>Custom Discount</span>
                   <input type="number" value={discount} onChange={e => setDiscount(Number(e.target.value))} placeholder="0" className="w-full sm:w-20 bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 sm:py-1 px-2 text-left sm:text-right text-[var(--color-foreground)] focus:border-[var(--color-gold)] outline-none" />
                 </div>
                 {discountAmount > 0 && (
@@ -486,7 +736,21 @@ export default function QuickBilling() {
                       upfront_payment_method: paymentMethod === 'Udhar' ? upfrontPaymentMethod : paymentMethod,
                       discount_amount: discountAmount,
                       discount_reason: discountReason,
-                      items: selectedServices.map(s => ({ service_id: s.id, price: s.price }))
+                      promotion_id: appliedPromo?.id,
+                      promotion_code: appliedPromo?.code,
+                      items: selectedServices.map(s => {
+                        let price = s.price;
+                        if (s.is_deal && s.discount_percentage > 0) {
+                          price = s.price - (s.price * (s.discount_percentage / 100));
+                        }
+                        
+                        if (s.is_package) {
+                          return { package_id: s.id, price, package_services_json: s.active_sub_services.map((as:any) => as.name) };
+                        } else if (s.is_deal) {
+                          return { deal_id: s.id, price, deal_services_json: s.active_sub_services.map((as:any) => as.name) };
+                        }
+                        return { service_id: s.id, price: s.price };
+                      })
                     };
                     const res = await api.post('/bills', payload);
                     toast.success('Bill Saved Successfully!');

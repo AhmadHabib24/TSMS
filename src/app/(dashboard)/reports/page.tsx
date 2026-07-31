@@ -55,21 +55,25 @@ export default function ReportsPage() {
   const [udharReport, setUdharReport] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Sales Date Filters
   const [dateFilter, setDateFilter] = useState('month'); // today, yesterday, week, month, custom
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
 
   // Fetch logic
   useEffect(() => {
     setIsLoading(true);
+    let qs = '';
+    if (paymentMethod) qs = `?payment_method=${paymentMethod}`;
+
     if (activeTab === 'bills') {
-      api.get('/bills').then(res => {
+      api.get(`/bills${qs}`).then(res => {
         setBills(res.data);
         setIsLoading(false);
       });
     } else if (activeTab === 'staff') {
-      api.get('/reports/employee-performance').then(res => {
+      let staffQs = `/reports/employee-performance${qs}`;
+      api.get(staffQs).then(res => {
         setStaffPerformance(res.data);
         setIsLoading(false);
       });
@@ -99,13 +103,38 @@ export default function ReportsPage() {
 
   // When start or end date changes (and filter is custom or just set), fetch report
   useEffect(() => {
-    if ((activeTab === 'sales' || activeTab === 'pnl' || activeTab === 'inventory' || activeTab === 'discounts') && startDate && endDate) {
-      if (activeTab === 'sales') fetchSalesReport();
-      if (activeTab === 'pnl') fetchPnlReport();
-      if (activeTab === 'inventory') fetchInventoryReport();
-      if (activeTab === 'discounts') fetchDiscountReport();
+    if (activeTab === 'sales') fetchSalesReport();
+    if (activeTab === 'pnl') fetchPnlReport();
+    if (activeTab === 'inventory') fetchInventoryReport();
+    if (activeTab === 'discounts') fetchDiscountReport();
+    
+    // Also re-fetch bills and staff if payment method changes
+    if (activeTab === 'bills') {
+      setIsLoading(true);
+      let qs = '';
+      if (paymentMethod) qs = `?payment_method=${paymentMethod}`;
+      api.get(`/bills${qs}`).then(res => {
+        setBills(res.data);
+        setIsLoading(false);
+      });
     }
-  }, [startDate, endDate]);
+    if (activeTab === 'staff') {
+      setIsLoading(true);
+      let staffQs = `/reports/employee-performance`;
+      const params = new URLSearchParams();
+      if (startDate && endDate) {
+        params.append('start_date', startDate);
+        params.append('end_date', endDate);
+      }
+      if (paymentMethod) params.append('payment_method', paymentMethod);
+      if (params.toString()) staffQs += `?${params.toString()}`;
+      
+      api.get(staffQs).then(res => {
+        setStaffPerformance(res.data);
+        setIsLoading(false);
+      });
+    }
+  }, [startDate, endDate, paymentMethod]);
 
   const calculateDatesFromFilter = (filter: string) => {
     const today = new Date();
@@ -132,9 +161,14 @@ export default function ReportsPage() {
   const fetchSalesReport = () => {
     setIsLoading(true);
     let url = '/reports/sales-report';
+    const params = new URLSearchParams();
     if (startDate && endDate) {
-      url += `?start_date=${startDate}&end_date=${endDate}`;
+      params.append('start_date', startDate);
+      params.append('end_date', endDate);
     }
+    if (paymentMethod) params.append('payment_method', paymentMethod);
+    if (params.toString()) url += `?${params.toString()}`;
+    
     api.get(url).then(res => {
       setSalesReport(res.data);
       setIsLoading(false);
@@ -144,9 +178,14 @@ export default function ReportsPage() {
   const fetchPnlReport = () => {
     setIsLoading(true);
     let url = '/reports/pnl-report';
+    const params = new URLSearchParams();
     if (startDate && endDate) {
-      url += `?start_date=${startDate}&end_date=${endDate}`;
+      params.append('start_date', startDate);
+      params.append('end_date', endDate);
     }
+    if (paymentMethod) params.append('payment_method', paymentMethod);
+    if (params.toString()) url += `?${params.toString()}`;
+
     api.get(url).then(res => {
       setPnlReport(res.data);
       setIsLoading(false);
@@ -156,9 +195,15 @@ export default function ReportsPage() {
   const fetchInventoryReport = () => {
     setIsLoading(true);
     let url = '/reports/inventory-report';
+    const params = new URLSearchParams();
     if (startDate && endDate) {
-      url += `?start_date=${startDate}&end_date=${endDate}`;
+      params.append('start_date', startDate);
+      params.append('end_date', endDate);
     }
+    // inventory report may not have payment method, but doesn't hurt to pass
+    if (paymentMethod) params.append('payment_method', paymentMethod);
+    if (params.toString()) url += `?${params.toString()}`;
+
     api.get(url).then(res => {
       setInventoryReport(res.data);
       setIsLoading(false);
@@ -168,9 +213,14 @@ export default function ReportsPage() {
   const fetchDiscountReport = () => {
     setIsLoading(true);
     let url = '/reports/discount-report';
+    const params = new URLSearchParams();
     if (startDate && endDate) {
-      url += `?start_date=${startDate}&end_date=${endDate}`;
+      params.append('start_date', startDate);
+      params.append('end_date', endDate);
     }
+    if (paymentMethod) params.append('payment_method', paymentMethod);
+    if (params.toString()) url += `?${params.toString()}`;
+
     api.get(url).then(res => {
       setDiscountReport(res.data);
       setIsLoading(false);
@@ -286,7 +336,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {(activeTab === 'sales' || activeTab === 'pnl' || activeTab === 'inventory' || activeTab === 'discounts') && (
+      {(activeTab === 'sales' || activeTab === 'pnl' || activeTab === 'inventory' || activeTab === 'discounts' || activeTab === 'staff' || activeTab === 'bills') && (
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 flex flex-col xl:flex-row gap-4 sm:gap-6 justify-between items-start xl:items-center animate-in fade-in duration-500">
           <div className="flex flex-wrap gap-2 w-full xl:w-auto">
             {['today', 'yesterday', 'week', 'month', 'all'].map(f => (
@@ -304,6 +354,21 @@ export default function ReportsPage() {
             <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-4 py-2 flex items-center gap-2 w-full sm:w-auto">
               <Calendar size={16} className="text-[var(--color-gold)] shrink-0"/>
               <input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setDateFilter('custom'); }} className="bg-transparent w-full text-sm text-[var(--color-foreground)] outline-none" />
+            </div>
+            
+            <div className="bg-black/30 border border-[var(--color-border)] rounded-lg px-4 py-2 flex items-center gap-2 w-full sm:w-auto ml-0 xl:ml-4">
+              <DollarSign size={16} className="text-[var(--color-gold)] shrink-0"/>
+              <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} className="bg-transparent w-full text-sm text-[var(--color-foreground)] outline-none">
+                <option value="">All Methods</option>
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+                <option value="jazzcash">JazzCash</option>
+                <option value="easypaisa">EasyPaisa</option>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="sadapay">SadaPay</option>
+                <option value="nayapay">NayaPay</option>
+                <option value="udhar">Udhar</option>
+              </select>
             </div>
           </div>
         </div>

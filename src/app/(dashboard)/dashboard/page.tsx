@@ -45,26 +45,34 @@ export default function Dashboard() {
     discounts: []
   } as any);
 
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
   const fetchAllData = () => {
     setLoading(false);
     
-    api.get('/customers').then(res => setData((prev: any) => ({ ...prev, customers: res.data }))).catch(console.error);
-    api.get('/bills').then(res => setData((prev: any) => ({ ...prev, bills: res.data }))).catch(console.error);
-    api.get('/reports/pnl-report').then(res => setData((prev: any) => ({ ...prev, pnl: res.data }))).catch(console.error);
-    api.get('/reports/inventory-report').then(res => setData((prev: any) => ({ ...prev, inventory: res.data }))).catch(console.error);
-    api.get('/reports/employee-performance').then(res => setData((prev: any) => ({ ...prev, employees: res.data }))).catch(console.error);
-    api.get('/reports/sales-report').then(res => setData((prev: any) => ({ ...prev, sales: res.data }))).catch(console.error);
-    api.get('/reports/discount-report').then(res => setData((prev: any) => ({ ...prev, discounts: res.data }))).catch(console.error);
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+
+    api.get(`/customers${qs}`).then(res => setData((prev: any) => ({ ...prev, customers: res.data }))).catch(console.error);
+    api.get(`/bills${qs}`).then(res => setData((prev: any) => ({ ...prev, bills: res.data }))).catch(console.error);
+    api.get(`/reports/pnl-report${qs}`).then(res => setData((prev: any) => ({ ...prev, pnl: res.data }))).catch(console.error);
+    api.get(`/reports/inventory-report${qs}`).then(res => setData((prev: any) => ({ ...prev, inventory: res.data }))).catch(console.error);
+    api.get(`/reports/employee-performance${qs}`).then(res => setData((prev: any) => ({ ...prev, employees: res.data }))).catch(console.error);
+    api.get(`/reports/sales-report${qs}`).then(res => setData((prev: any) => ({ ...prev, sales: res.data }))).catch(console.error);
+    api.get(`/reports/discount-report${qs}`).then(res => setData((prev: any) => ({ ...prev, discounts: res.data }))).catch(console.error);
   };
 
-  // Initial load
+  // Initial load and filter change
   useEffect(() => {
     if (user && user.role_id === 1) {
       fetchAllData();
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, startDate, endDate]);
 
   // Re-fetch data instantly when a Pusher notification is received!
   useEffect(() => {
@@ -103,14 +111,30 @@ export default function Dashboard() {
     <div className="space-y-8 pb-10">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-3 bg-[var(--color-panel)] p-2 rounded-xl border border-[var(--color-border)] w-full sm:w-auto">
+          <div className="flex flex-col w-full sm:w-auto">
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-1.5 px-3 text-sm focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
+          </div>
+          <span className="text-gray-500 hidden sm:inline">-</span>
+          <div className="flex flex-col w-full sm:w-auto">
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-1.5 px-3 text-sm focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
+          </div>
+          {(startDate || endDate) && (
+            <button onClick={() => { setStartDate(''); setEndDate(''); }} className="w-full sm:w-auto px-3 py-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-sm font-bold transition-colors">
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Row 1: Top 4 Key Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      {/* Row 1: Top 5 Key Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
         <StatCard title="Total Customers" value={customers.length} icon={<Users size={24} />} />
-        <StatCard title="Total Revenue" value={`₨ ${pnl?.total_income?.toLocaleString() ?? 0}`} icon={<DollarSign size={24} />} />
+        <StatCard title="Collected Revenue" value={`₨ ${pnl?.total_income?.toLocaleString() ?? 0}`} icon={<DollarSign size={24} />} />
+        <StatCard title="Pending Payments" value={`₨ ${pnl?.pending_payments?.toLocaleString() ?? 0}`} icon={<Activity size={24} />} />
         <StatCard title="Total Expenses" value={`₨ ${pnl?.total_expenses?.toLocaleString() ?? 0}`} icon={<ArrowDownRight size={24} />} />
-        <StatCard title="Net Profit" value={`₨ ${pnl?.net_profit?.toLocaleString() ?? 0}`} icon={<Activity size={24} />} />
+        <StatCard title="Net Profit" value={`₨ ${pnl?.net_profit?.toLocaleString() ?? 0}`} icon={<DollarSign size={24} />} />
       </div>
 
       {/* Row 2: Overviews (2 per row) */}
@@ -228,16 +252,26 @@ export default function Dashboard() {
             <Line 
               data={{
                 labels: sales?.monthly?.map((m: any) => m.label) || [],
-                datasets: [{
-                  label: 'Revenue (₨)',
-                  data: sales?.monthly?.map((m: any) => m.value) || [],
-                  borderColor: '#E6B93D',
-                  backgroundColor: 'rgba(230, 185, 61, 0.2)',
-                  tension: 0.4,
-                  fill: true
-                }]
+                datasets: [
+                  {
+                    label: 'Collected (₨)',
+                    data: sales?.monthly?.map((m: any) => m.collected) || [],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                  },
+                  {
+                    label: 'Pending Udhar (₨)',
+                    data: sales?.monthly?.map((m: any) => m.pending) || [],
+                    borderColor: '#F44336',
+                    backgroundColor: 'rgba(244, 67, 54, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                  }
+                ]
               }}
-              options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }}
+              options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' as const } } }}
             />
           </div>
         </div>

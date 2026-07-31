@@ -14,12 +14,26 @@ export default function FinancePage() {
   const [formData, setFormData] = useState<any>({});
 
   const [expenseCategories, setExpenseCategories] = useState([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const PAYMENT_METHODS = ['Cash', 'Card', 'Online', 'Jazz Cash', 'POS Meezan', 'UBL'];
   const INCOME_SOURCES = ['Daily Closing', 'Investment', 'Other'];
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const endpoint = activeTab === 'expenses' ? '/expenses' : '/income-records';
+      let endpoint = activeTab === 'expenses' ? '/expenses' : '/income-records';
+      
+      const params = new URLSearchParams();
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+      
+      const queryString = params.toString();
+      if (queryString) {
+        endpoint += `?${queryString}`;
+      }
+
       const res = await api.get(endpoint);
       setData(res.data);
       
@@ -31,7 +45,7 @@ export default function FinancePage() {
     setIsLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, [activeTab]);
+  useEffect(() => { fetchData(); }, [activeTab, startDate, endDate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,16 +82,16 @@ export default function FinancePage() {
     if (item) {
       setEditingId(item.id);
       if (activeTab === 'expenses') {
-        setFormData({ category: item.category, amount: item.amount, expense_date: item.expense_date, description: item.description || '' });
+        setFormData({ category: item.category, amount: item.amount, expense_date: item.expense_date, description: item.description || '', payment_method: item.payment_method || 'Cash' });
       } else {
-        setFormData({ source: item.source, amount: item.amount, income_date: item.income_date });
+        setFormData({ source: item.source, amount: item.amount, income_date: item.income_date, payment_method: item.payment_method || 'Cash' });
       }
     } else {
       setEditingId(null);
       if (activeTab === 'expenses') {
-        setFormData({ category: 'Rent', amount: '', expense_date: new Date().toISOString().split('T')[0], description: '' });
+        setFormData({ category: 'Rent', amount: '', expense_date: new Date().toISOString().split('T')[0], description: '', payment_method: 'Cash' });
       } else {
-        setFormData({ source: 'Other', amount: '', income_date: new Date().toISOString().split('T')[0] });
+        setFormData({ source: 'Other', amount: '', income_date: new Date().toISOString().split('T')[0], payment_method: 'Cash' });
       }
     }
     setIsModalOpen(true);
@@ -108,6 +122,22 @@ export default function FinancePage() {
         </button>
       </div>
 
+      <div className="flex flex-col sm:flex-row items-center gap-4 bg-[var(--color-panel)] p-4 rounded-xl border border-[var(--color-border)]">
+        <div className="flex flex-col w-full sm:w-auto">
+          <label className="text-xs uppercase text-gray-400 font-bold mb-1">Start Date</label>
+          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
+        </div>
+        <div className="flex flex-col w-full sm:w-auto">
+          <label className="text-xs uppercase text-gray-400 font-bold mb-1">End Date</label>
+          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
+        </div>
+        {(startDate || endDate) && (
+          <button onClick={() => { setStartDate(''); setEndDate(''); }} className="mt-0 sm:mt-5 px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-sm font-bold transition-colors">
+            Clear Filters
+          </button>
+        )}
+      </div>
+
       <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin"></div></div>
@@ -119,6 +149,7 @@ export default function FinancePage() {
                 <th className="py-4 px-6 font-bold">Date</th>
                 <th className="py-4 px-6 font-bold">{activeTab === 'expenses' ? 'Category' : 'Source'}</th>
                 {activeTab === 'expenses' && <th className="py-4 px-6 font-bold">Description</th>}
+                <th className="py-4 px-6 font-bold">Payment Method</th>
                 <th className="py-4 px-6 font-bold">Amount</th>
                 <th className="py-4 px-6 font-bold text-right">Actions</th>
               </tr>
@@ -132,6 +163,7 @@ export default function FinancePage() {
                     {item.category || item.source}
                   </td>
                   {activeTab === 'expenses' && <td className="py-4 px-6 text-gray-400 text-sm max-w-xs truncate">{item.description || '--'}</td>}
+                  <td className="py-4 px-6 text-gray-300 text-sm">{item.payment_method || 'Cash'}</td>
                   <td className={`py-4 px-6 font-bold ${activeTab === 'expenses' ? 'text-red-400' : 'text-green-400'}`}>₨ {item.amount}</td>
                   <td className="py-4 px-6 flex justify-end gap-2">
                     <button onClick={() => openModal(item)} className="p-2 bg-black/50 text-[var(--color-foreground)] rounded hover:bg-[var(--color-gold)] hover:text-black transition-colors"><Edit size={16}/></button>
@@ -169,7 +201,7 @@ export default function FinancePage() {
                   <option value="">Select {activeTab === 'expenses' ? 'Category' : 'Source'}</option>
                   {activeTab === 'expenses' 
                     ? expenseCategories.map((c: any) => <option key={c.id} value={c.name}>{c.name}</option>) 
-                    : INCOME_SOURCES.map(c => <option key={c} value={c}>{c}</option>)
+                    : INCOME_SOURCES.map((c: string) => <option key={c} value={c}>{c}</option>)
                   }
                 </select>
               </div>
@@ -177,6 +209,13 @@ export default function FinancePage() {
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Amount (₨)</label>
                 <input required type="number" min="0" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none" placeholder="0" />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-bold text-gray-400 mb-2">Payment Method</label>
+                <select value={formData.payment_method || 'Cash'} onChange={e => setFormData({...formData, payment_method: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]">
+                  {PAYMENT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
               </div>
 
               {activeTab === 'expenses' && (

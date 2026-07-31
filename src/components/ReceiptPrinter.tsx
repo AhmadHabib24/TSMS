@@ -58,13 +58,31 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
           </thead>
           <tbody className="divide-y divide-gray-200">
             {bill.items?.map((item: any) => (
-              <tr key={item.id}>
-                <td className="py-4 px-2 font-medium">
-                  {item.service?.category ? `${item.service.category.name} - ` : ''}
-                  {item.service?.name}
-                </td>
-                <td className="py-4 px-2 text-right text-gray-900">₨ {item.price}</td>
-              </tr>
+              <React.Fragment key={item.id}>
+                <tr>
+                  <td className={`py-2 px-2 font-medium ${(item.package || item.deal) ? 'pt-4' : 'py-4'}`}>
+                    {item.package ? `${item.package.name} (Package)` : item.deal ? `${item.deal.name} (Deal)` : (item.service?.category ? `${item.service.category.name} - ` : '')}
+                    {(item.package || item.deal) ? '' : item.service?.name}
+                  </td>
+                  <td className={`px-2 text-right text-gray-900 ${(item.package || item.deal) ? 'pt-4 align-top' : 'py-4'}`}>₨ {item.price}</td>
+                </tr>
+                {item.package && item.package_services_json && item.package_services_json.map((sName: string, idx: number) => (
+                  <tr key={`${item.id}-pkg-sub-${idx}`}>
+                    <td className="py-1 px-4 text-xs text-gray-500">
+                      • {sName}
+                    </td>
+                    <td></td>
+                  </tr>
+                ))}
+                {item.deal && item.deal_services_json && item.deal_services_json.map((sName: string, idx: number) => (
+                  <tr key={`${item.id}-deal-sub-${idx}`}>
+                    <td className="py-1 px-4 text-xs text-gray-500">
+                      • {sName}
+                    </td>
+                    <td></td>
+                  </tr>
+                ))}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
@@ -81,6 +99,12 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
               <span>Discount</span>
               <span>- ₨ {bill.discount_amount}</span>
             </div>
+            {bill.promotion_code && (
+              <div className="flex justify-between text-gray-600">
+                <span>Promo ({bill.promotion_code})</span>
+                <span>Applied in total</span>
+              </div>
+            )}
             <div className="flex justify-between text-2xl font-black text-gray-900 pt-2 border-t border-gray-200">
               <span>Total</span>
               <span>₨ {bill.total}</span>
@@ -132,9 +156,24 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
         <div className="mb-4">
           <div className="font-bold text-xs uppercase border-b border-black pb-1 mb-2">Services</div>
           {bill.items?.map((item: any) => (
-            <div key={item.id} className="flex justify-between mb-1 text-xs">
-              <span>{item.service?.category ? `${item.service.category.name} - ` : ''}{item.service?.name}</span>
-              <span>{item.price}</span>
+            <div key={item.id} className="mb-1">
+              <div className="flex justify-between text-xs">
+                <span>
+                  {item.package ? `${item.package.name} (PKG)` : item.deal ? `${item.deal.name} (DEAL)` : (item.service?.category ? `${item.service.category.name} - ` : '')}
+                  {(item.package || item.deal) ? '' : item.service?.name}
+                </span>
+                <span>{item.price}</span>
+              </div>
+              {item.package && item.package_services_json && item.package_services_json.map((sName: string, idx: number) => (
+                <div key={`${item.id}-pkg-sub-${idx}`} className="text-[10px] text-gray-600 ml-2">
+                  • {sName}
+                </div>
+              ))}
+              {item.deal && item.deal_services_json && item.deal_services_json.map((sName: string, idx: number) => (
+                <div key={`${item.id}-deal-sub-${idx}`} className="text-[10px] text-gray-600 ml-2">
+                  • {sName}
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -142,6 +181,9 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
         <div className="border-t border-black pt-2 space-y-1 text-xs">
           <div className="flex justify-between"><span>Subtotal:</span> <span>{bill.subtotal}</span></div>
           <div className="flex justify-between"><span>Discount:</span> <span>{bill.discount_amount}</span></div>
+          {bill.promotion_code && (
+            <div className="flex justify-between text-[10px]"><span>Promo ({bill.promotion_code}):</span> <span>Applied</span></div>
+          )}
           <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t border-black"><span>Total:</span> <span>₨ {bill.total}</span></div>
         </div>
 
@@ -191,13 +233,31 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
         </thead>
         <tbody>
           {bill.items?.map((item: any) => (
-            <tr key={item.id}>
-              <td className="py-1">
-                {item.service?.category ? `${item.service.category.name} - ` : ''}
-                {item.service?.name}
-              </td>
-              <td className="py-1 text-right">{item.price}</td>
-            </tr>
+            <React.Fragment key={item.id}>
+              <tr>
+                <td className="py-1">
+                  {item.package ? `${item.package.name} (PKG)` : item.deal ? `${item.deal.name} (DEAL)` : (item.service?.category ? `${item.service.category.name} - ` : '')}
+                  {(item.package || item.deal) ? '' : item.service?.name}
+                </td>
+                <td className="py-1 text-right">{item.price}</td>
+              </tr>
+              {item.package && item.package_services_json && item.package_services_json.map((sName: string, idx: number) => (
+                <tr key={`${item.id}-pkg-sub-${idx}`}>
+                  <td className="py-0.5 text-[10px] text-gray-600 pl-2">
+                    • {sName}
+                  </td>
+                  <td></td>
+                </tr>
+              ))}
+              {item.deal && item.deal_services_json && item.deal_services_json.map((sName: string, idx: number) => (
+                <tr key={`${item.id}-deal-sub-${idx}`}>
+                  <td className="py-0.5 text-[10px] text-gray-600 pl-2">
+                    • {sName}
+                  </td>
+                  <td></td>
+                </tr>
+              ))}
+            </React.Fragment>
           ))}
         </tbody>
       </table>
@@ -206,6 +266,9 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
       <div className="text-right text-xs space-y-1 mb-4 border-t border-dashed border-black pt-2">
         <div>Subtotal: ₨ {bill.subtotal}</div>
         <div>Discount: - ₨ {bill.discount_amount}</div>
+        {bill.promotion_code && (
+          <div>Promo ({bill.promotion_code}): Applied</div>
+        )}
         <div className="text-xl font-bold mt-2 pt-2 border-t border-black">Total: ₨ {bill.total}</div>
       </div>
 
