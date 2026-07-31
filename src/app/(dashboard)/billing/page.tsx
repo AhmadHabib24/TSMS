@@ -10,12 +10,12 @@ const AVAILABLE_ICONS: Record<string, any> = {
 
 export default function QuickBilling() {
   const [step, setStep] = useState(1);
-  const [customers, setCustomers] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [services, setServices] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [packages, setPackages] = useState([]);
-  const [deals, setDeals] = useState([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [packages, setPackages] = useState<any[]>([]);
+  const [deals, setDeals] = useState<any[]>([]);
 
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
