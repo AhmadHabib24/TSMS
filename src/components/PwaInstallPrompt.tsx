@@ -11,7 +11,7 @@ export default function PwaInstallPrompt() {
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowPrompt(true);
+      // setShowPrompt(true); // Hidden as requested
     };
 
     window.addEventListener('beforeinstallprompt', handler);
