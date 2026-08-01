@@ -311,7 +311,7 @@ export default function ReportsPage() {
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 border-b border-[var(--color-border)] pb-4">
         <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3 shrink-0"><FileText className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">Reports & Analytics</span></h1>
         
-        <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto w-full xl:w-auto shrink-0">
+        <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto custom-scrollbar w-full xl:w-auto min-w-0">
           <button onClick={() => handleTabClick('pnl', 'report_pnl')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'pnl' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'} ${(!hasFeature('report_pnl') || isPlanExpired()) ? 'opacity-50' : ''}`}>
             Profit & Loss {(!hasFeature('report_pnl') || isPlanExpired()) && <Lock size={14}/>}
           </button>

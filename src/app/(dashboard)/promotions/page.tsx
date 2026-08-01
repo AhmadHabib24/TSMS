@@ -23,7 +23,7 @@ export default function PromotionsPage() {
   });
 
   const fetchData = () => {
-    api.get('/promotions').then(res => setData(res.data)).catch(() => toast.error('Failed to load promotions'));
+    api.get('/promotions').then(res => setData(res.data)).catch(() => console.warn('Promotions API not ready yet.'));
   };
 
   useEffect(() => { fetchData(); }, []);

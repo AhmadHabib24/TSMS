@@ -31,6 +31,21 @@ ChartJS.register(
   LineElement
 );
 
+if (typeof window !== 'undefined') {
+  ChartJS.defaults.font.family = "'Outfit', sans-serif";
+  ChartJS.defaults.color = '#9ca3af'; // text-gray-400
+
+  const updateChartFontSize = () => {
+    if (window.innerWidth >= 2500) ChartJS.defaults.font.size = 18;
+    else if (window.innerWidth >= 1920) ChartJS.defaults.font.size = 14;
+    else if (window.innerWidth >= 1600) ChartJS.defaults.font.size = 14;
+    else ChartJS.defaults.font.size = 11;
+  };
+
+  updateChartFontSize();
+  window.addEventListener('resize', updateChartFontSize);
+}
+
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { notifications } = useNotifications();
@@ -50,19 +65,19 @@ export default function Dashboard() {
 
   const fetchAllData = () => {
     setLoading(false);
-    
+
     const params = new URLSearchParams();
     if (startDate) params.append('start_date', startDate);
     if (endDate) params.append('end_date', endDate);
     const qs = params.toString() ? `?${params.toString()}` : '';
 
-    api.get(`/customers${qs}`).then(res => setData((prev: any) => ({ ...prev, customers: res.data }))).catch(console.error);
-    api.get(`/bills${qs}`).then(res => setData((prev: any) => ({ ...prev, bills: res.data }))).catch(console.error);
-    api.get(`/reports/pnl-report${qs}`).then(res => setData((prev: any) => ({ ...prev, pnl: res.data }))).catch(console.error);
-    api.get(`/reports/inventory-report${qs}`).then(res => setData((prev: any) => ({ ...prev, inventory: res.data }))).catch(console.error);
-    api.get(`/reports/employee-performance${qs}`).then(res => setData((prev: any) => ({ ...prev, employees: res.data }))).catch(console.error);
-    api.get(`/reports/sales-report${qs}`).then(res => setData((prev: any) => ({ ...prev, sales: res.data }))).catch(console.error);
-    api.get(`/reports/discount-report${qs}`).then(res => setData((prev: any) => ({ ...prev, discounts: res.data }))).catch(console.error);
+    api.get(`/customers${qs}`).then(res => setData((prev: any) => ({ ...prev, customers: res.data }))).catch(console.warn);
+    api.get(`/bills${qs}`).then(res => setData((prev: any) => ({ ...prev, bills: res.data }))).catch(console.warn);
+    api.get(`/reports/pnl-report${qs}`).then(res => setData((prev: any) => ({ ...prev, pnl: res.data }))).catch(console.warn);
+    api.get(`/reports/inventory-report${qs}`).then(res => setData((prev: any) => ({ ...prev, inventory: res.data }))).catch(console.warn);
+    api.get(`/reports/employee-performance${qs}`).then(res => setData((prev: any) => ({ ...prev, employees: res.data }))).catch(console.warn);
+    api.get(`/reports/sales-report${qs}`).then(res => setData((prev: any) => ({ ...prev, sales: res.data }))).catch(console.warn);
+    api.get(`/reports/discount-report${qs}`).then(res => setData((prev: any) => ({ ...prev, discounts: res.data }))).catch(console.warn);
   };
 
   // Initial load and filter change
@@ -111,7 +126,7 @@ export default function Dashboard() {
     <div className="space-y-8 pb-10">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
-        
+
         <div className="flex flex-col sm:flex-row items-center gap-3 bg-[var(--color-panel)] p-2 rounded-xl border border-[var(--color-border)] w-full sm:w-auto">
           <div className="flex flex-col w-full sm:w-auto">
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-1.5 px-3 text-sm focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
@@ -143,7 +158,7 @@ export default function Dashboard() {
         {/* Inventory Overview */}
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6">
           <div className="flex items-center gap-3 sm:gap-4 mb-4">
-            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6"/></div>
+            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /></div>
             <h3 className="text-base sm:text-lg font-semibold">Inventory Overview</h3>
           </div>
           <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
@@ -156,7 +171,7 @@ export default function Dashboard() {
         {/* Employee Performance Overview */}
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6">
           <div className="flex items-center gap-3 sm:gap-4 mb-4">
-            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><UserCheck className="w-5 h-5 sm:w-6 sm:h-6"/></div>
+            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><UserCheck className="w-5 h-5 sm:w-6 sm:h-6" /></div>
             <h3 className="text-base sm:text-lg font-semibold">Top Employee</h3>
           </div>
           {topEmployee ? (
@@ -176,7 +191,7 @@ export default function Dashboard() {
         {/* Sales Overview */}
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6">
           <div className="flex items-center gap-3 sm:gap-4 mb-4">
-            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><DollarSign className="w-5 h-5 sm:w-6 sm:h-6"/></div>
+            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><DollarSign className="w-5 h-5 sm:w-6 sm:h-6" /></div>
             <h3 className="text-base sm:text-lg font-semibold">Sales Overview</h3>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 text-center">
@@ -188,7 +203,7 @@ export default function Dashboard() {
         {/* Discount Overview */}
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6">
           <div className="flex items-center gap-3 sm:gap-4 mb-4">
-            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><Percent className="w-5 h-5 sm:w-6 sm:h-6"/></div>
+            <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><Percent className="w-5 h-5 sm:w-6 sm:h-6" /></div>
             <h3 className="text-base sm:text-lg font-semibold">Discount Overview</h3>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 text-center">
@@ -244,12 +259,12 @@ export default function Dashboard() {
       {/* Row 4: Charts */}
       <h2 className="text-lg sm:text-xl font-bold mt-8 sm:mt-10 border-b border-[var(--color-border)] pb-2">Analytics Visualizations</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        
+
         {/* Sales Trend (Line Chart) */}
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
           <h3 className="text-base sm:text-lg font-semibold mb-4">Monthly Sales Trend</h3>
           <div className="h-full pb-8">
-            <Line 
+            <Line
               data={{
                 labels: sales?.monthly?.map((m: any) => m.label) || [],
                 datasets: [
@@ -280,7 +295,7 @@ export default function Dashboard() {
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
           <h3 className="text-base sm:text-lg font-semibold mb-4">Expenses by Category</h3>
           <div className="h-full pb-8 flex justify-center">
-            <Pie 
+            <Pie
               data={{
                 labels: pnl?.expenses_by_category?.map((e: any) => e.label) || [],
                 datasets: [{
@@ -298,7 +313,7 @@ export default function Dashboard() {
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
           <h3 className="text-base sm:text-lg font-semibold mb-4">Revenue by Employee</h3>
           <div className="h-full pb-8">
-            <Bar 
+            <Bar
               data={{
                 labels: employees.map((e: any) => e.name),
                 datasets: [{
@@ -317,7 +332,7 @@ export default function Dashboard() {
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
           <h3 className="text-base sm:text-lg font-semibold mb-4">Top Consumed Inventory</h3>
           <div className="h-full pb-8">
-            <Bar 
+            <Bar
               data={{
                 labels: inventory?.top_consumed?.map((i: any) => i.name) || [],
                 datasets: [{

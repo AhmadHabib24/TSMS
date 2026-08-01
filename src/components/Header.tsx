@@ -74,12 +74,12 @@ export default function Header() {
         <LanguageSwitcher />
         
         <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-[var(--color-panel)] transition-colors relative cursor-pointer text-gray-400 hover:text-[var(--color-gold)]">
-          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
         
         <div ref={notificationRef} className="relative flex items-center">
           <button onClick={() => setShowNotifications(!showNotifications)} className="p-2 rounded-full hover:bg-[var(--color-panel)] transition-colors relative cursor-pointer text-gray-400 hover:text-[var(--color-gold)]">
-            <Bell size={20} />
+            <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
             )}

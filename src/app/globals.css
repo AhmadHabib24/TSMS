@@ -65,3 +65,18 @@ body {
     color: black !important;
   }
 }
+
+/* Ultra-wide screen responsiveness (1600px to 2500px) */
+@media (min-width: 1600px) {
+  html {
+    /* At 1600px, 1vw = 16px. At 2500px, 1vw = 25px. Everything using rem (Tailwind defaults) will scale proportionally! */
+    font-size: 1vw;
+  }
+}
+
+@media (min-width: 2500px) {
+  html {
+    /* Cap the scaling at 2500px so it doesn't get ridiculously huge on 4K/8K screens */
+    font-size: 25px;
+  }
+}

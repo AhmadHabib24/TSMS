@@ -35,7 +35,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         const { setPlanDetails } = require('@/store/usePlanStore').usePlanStore.getState();
         setPlanDetails(planRes.data);
       } catch (err) {
-        console.error("Failed to fetch plan details", err);
+        // Suppress console.error to prevent Next.js dev overlay from popping up on 404
+        console.log("Failed to fetch plan details: Endpoint may not be available yet.");
       }
       
       setLoading(false);

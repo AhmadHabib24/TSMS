@@ -18,8 +18,8 @@ export default function DealsPage() {
   });
 
   const fetchData = () => {
-    api.get('/deals').then(res => setData(res.data)).catch(() => toast.error('Failed to load deals'));
-    api.get('/services').then(res => setServices(res.data)).catch(err => console.error(err));
+    api.get('/deals').then(res => setData(res.data)).catch(() => console.warn('Deals API not ready yet.'));
+    api.get('/services').then(res => setServices(res.data)).catch(err => console.warn(err));
   };
 
   useEffect(() => { fetchData(); }, []);

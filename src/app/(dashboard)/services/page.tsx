@@ -20,7 +20,7 @@ export default function ServicesPage() {
 
   const fetchData = () => {
     api.get('/services').then(res => setData(res.data)).catch(() => toast.error('Failed to load data'));
-    api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.error(err));
+    api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.warn("Failed to load categories", err));
   };
 
   useEffect(() => { fetchData(); }, []);

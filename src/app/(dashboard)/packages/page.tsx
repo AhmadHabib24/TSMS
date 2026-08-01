@@ -17,8 +17,8 @@ export default function PackagesPage() {
   });
 
   const fetchData = () => {
-    api.get('/packages').then(res => setData(res.data)).catch(() => toast.error('Failed to load packages'));
-    api.get('/services').then(res => setServices(res.data)).catch(err => console.error(err));
+    api.get('/packages').then(res => setData(res.data)).catch(() => console.warn('Packages API not ready yet.'));
+    api.get('/services').then(res => setServices(res.data)).catch(err => console.warn(err));
   };
 
   useEffect(() => { fetchData(); }, []);

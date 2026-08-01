@@ -43,12 +43,12 @@ export default function QuickBilling() {
   
   // Fetch live data from Laravel API
   useEffect(() => {
-    api.get('/customers').then(res => setCustomers(res.data)).catch(err => console.error(err));
-    api.get('/employees').then(res => setEmployees(res.data)).catch(err => console.error(err));
-    api.get('/services').then(res => setServices(res.data)).catch(err => console.error(err));
-    api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.error(err));
-    api.get('/packages').then(res => setPackages(res.data)).catch(err => console.error(err));
-    api.get('/deals').then(res => setDeals(res.data)).catch(err => console.error(err));
+    api.get('/customers').then(res => setCustomers(res.data)).catch(err => console.warn(err));
+    api.get('/employees').then(res => setEmployees(res.data)).catch(err => console.warn(err));
+    api.get('/services').then(res => setServices(res.data)).catch(err => console.warn(err));
+    api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.warn(err));
+    api.get('/packages').then(res => setPackages(res.data)).catch(err => console.warn(err));
+    api.get('/deals').then(res => setDeals(res.data)).catch(err => console.warn(err));
   }, []);
 
   const subtotal = selectedServices.reduce((sum, s) => {
