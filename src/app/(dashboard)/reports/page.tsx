@@ -136,6 +136,13 @@ export default function ReportsPage() {
     }
   }, [startDate, endDate, paymentMethod]);
 
+  const toLocalISODate = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
   const calculateDatesFromFilter = (filter: string) => {
     const today = new Date();
     let start = new Date();
@@ -154,8 +161,8 @@ export default function ReportsPage() {
       start.setFullYear(2000, 0, 1);
     }
 
-    setStartDate(start.toISOString().split('T')[0]);
-    setEndDate(end.toISOString().split('T')[0]);
+    setStartDate(toLocalISODate(start));
+    setEndDate(toLocalISODate(end));
   };
 
   const fetchSalesReport = () => {
@@ -306,6 +313,15 @@ export default function ReportsPage() {
     }]
   };
 
+  const salesPaymentMethodsDoughnutData = {
+    labels: salesReport?.payment_methods?.map((c: any) => c.label) || [],
+    datasets: [{
+      data: salesReport?.payment_methods?.map((c: any) => c.collected) || [],
+      backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#f97316', '#06b6d4', '#84cc16', '#d946ef'],
+      borderWidth: 0,
+    }]
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 border-b border-[var(--color-border)] pb-4">
@@ -360,14 +376,13 @@ export default function ReportsPage() {
               <DollarSign size={16} className="text-[var(--color-gold)] shrink-0"/>
               <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} className="bg-transparent w-full text-sm text-[var(--color-foreground)] outline-none">
                 <option value="">All Methods</option>
-                <option value="cash">Cash</option>
-                <option value="card">Card</option>
-                <option value="jazzcash">JazzCash</option>
-                <option value="easypaisa">EasyPaisa</option>
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="sadapay">SadaPay</option>
-                <option value="nayapay">NayaPay</option>
-                <option value="udhar">Udhar</option>
+                <option value="Cash">Cash</option>
+                <option value="Transfer Mezan">Transfer Mezan</option>
+                <option value="Transfer UBL">Transfer UBL</option>
+                <option value="Jazz Cash">Jazz Cash</option>
+                <option value="POS Meezan">POS Meezan</option>
+                <option value="POS UBL">POS UBL</option>
+                <option value="Udhar">Udhar</option>
               </select>
             </div>
           </div>
@@ -450,6 +465,41 @@ export default function ReportsPage() {
               <div className="h-[270px]">
                 <Line data={yearlyChartData} options={commonOptions} />
               </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><PieChart size={18} className="text-[var(--color-gold)]"/> Payment Methods Breakdown</h3>
+              {salesReport?.payment_methods?.length > 0 ? (
+                <div className="h-[280px]">
+                  <Doughnut data={salesPaymentMethodsDoughnutData} options={doughnutOptions} />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-[280px] text-gray-500">No payment data for this period.</div>
+              )}
+            </div>
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 overflow-x-auto">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><FileText size={18} className="text-[var(--color-gold)]"/> Breakdown Details</h3>
+              <table className="w-full text-left whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm">
+                    <th className="py-2">Method</th>
+                    <th className="py-2 text-right">Collected</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--color-border)]">
+                  {salesReport?.payment_methods?.map((pm: any, i: number) => (
+                    <tr key={i}>
+                      <td className="py-3 text-[var(--color-foreground)] font-bold">{pm.label}</td>
+                      <td className="py-3 text-green-500 font-black text-right">₨ {pm.collected.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                  {(!salesReport?.payment_methods || salesReport.payment_methods.length === 0) && (
+                    <tr><td colSpan={2} className="py-6 text-center text-gray-500">No data available</td></tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -552,7 +602,7 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          <h2 className="text-xl font-bold flex items-center gap-2 mt-8 mb-4"><TrendingUp className="text-[var(--color-gold)]"/> Staff Leaderboard</h2>
+          <h2 className="text-xl font-bold flex items-center gap-2 mt-8 mb-4"><TrendingUp className="text-[var(--color-gold)]"/> Staff Leaderboard <span className="text-sm font-normal text-gray-400 capitalize">({dateFilter === 'custom' ? `${startDate} to ${endDate}` : dateFilter === 'week' ? 'This Week' : dateFilter === 'month' ? 'This Month' : dateFilter === 'all' ? 'All Time' : dateFilter})</span></h2>
           
           <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl overflow-hidden">
             <div className="overflow-x-auto">

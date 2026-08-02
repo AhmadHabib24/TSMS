@@ -101,9 +101,9 @@ export default function Dashboard() {
 
   const { customers, bills, pnl, inventory, employees, sales, discounts } = data;
 
-  // Sorting for recents
   const recentCustomers = [...customers].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 10);
   const recentBills = [...bills].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 10);
+  const topPendingUdhar = [...customers].filter((c: any) => c.pending_balance > 0).sort((a: any, b: any) => b.pending_balance - a.pending_balance).slice(0, 10);
 
   const topEmployee = employees.length > 0 ? employees[0] : null;
 
@@ -198,11 +198,10 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Row 3: Recent Customers & Recent Bills */}
-      <h2 className="text-lg sm:text-xl font-bold mt-8 sm:mt-10 border-b border-[var(--color-border)] pb-2">Recent Activity</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <h2 className="text-lg sm:text-xl font-bold mt-8 sm:mt-10 border-b border-[var(--color-border)] pb-2">Recent Activity & Udhar</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 overflow-hidden flex flex-col h-96">
-          <h3 className="text-base sm:text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent 10 Customers</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent Customers</h3>
           <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar">
             <div className="space-y-3">
               {recentCustomers.map((c: any) => (
@@ -220,7 +219,7 @@ export default function Dashboard() {
         </div>
 
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 overflow-hidden flex flex-col h-96">
-          <h3 className="text-base sm:text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent 10 Bills</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent Bills</h3>
           <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar">
             <div className="space-y-3">
               {recentBills.map((b: any) => (
@@ -236,6 +235,26 @@ export default function Dashboard() {
                 </div>
               ))}
               {recentBills.length === 0 && <p className="text-sm text-gray-500">No bills found.</p>}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-[var(--color-panel)] border border-orange-500/30 rounded-xl p-4 sm:p-6 overflow-hidden flex flex-col h-96 shadow-[0_0_15px_rgba(249,115,22,0.05)]">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 text-orange-500 flex items-center gap-2"><Activity size={18}/> Top Pending Udhar</h3>
+          <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar">
+            <div className="space-y-3">
+              {topPendingUdhar.map((c: any) => (
+                <div key={c.id} className="flex justify-between items-center py-2 border-b border-[var(--color-border)] last:border-0">
+                  <div>
+                    <p className="font-medium">{c.name}</p>
+                    <p className="text-xs text-gray-400">{c.mobile || 'No Phone'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-orange-500">₨ {c.pending_balance.toLocaleString()}</p>
+                  </div>
+                </div>
+              ))}
+              {topPendingUdhar.length === 0 && <p className="text-sm text-gray-500">No pending udhar found.</p>}
             </div>
           </div>
         </div>

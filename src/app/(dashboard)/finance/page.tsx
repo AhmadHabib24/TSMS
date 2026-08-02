@@ -17,7 +17,7 @@ export default function FinancePage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const PAYMENT_METHODS = ['Cash', 'Card', 'Online', 'Jazz Cash', 'POS Meezan', 'UBL'];
+  const PAYMENT_METHODS = ['Cash', 'Transfer Mezan', 'Transfer UBL', 'Jazz Cash', 'POS Meezan', 'POS UBL'];
   const INCOME_SOURCES = ['Daily Closing', 'Investment', 'Other'];
 
   const fetchData = async () => {

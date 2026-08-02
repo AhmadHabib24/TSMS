@@ -161,7 +161,7 @@ export default function QuickBilling() {
   return (
     <>
       {/* mx-auto */}
-      <div className="max-w-6xl  space-y-4 md:space-y-6 no-print">
+      <div className="w-full max-w-full px-2 sm:px-4 space-y-4 md:space-y-6 no-print">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold">Quick Billing</h1>
@@ -546,7 +546,7 @@ export default function QuickBilling() {
           </div>
 
           {/* Right Column - Receipt Preview */}
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-fit relative lg:sticky top-24 shadow-2xl flex flex-col mt-4 lg:mt-0">
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-fit max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar relative lg:sticky top-24 shadow-2xl flex flex-col mt-4 lg:mt-0">
             <h3 className="text-base sm:text-lg font-bold text-center border-b border-[var(--color-border)] pb-4 mb-4 uppercase tracking-widest text-gray-400">Bill Summary</h3>
 
             <div className="space-y-4 mb-6">
@@ -661,11 +661,11 @@ export default function QuickBilling() {
                 <button onClick={() => setPaymentMethod('Cash')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Cash' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
                   <Banknote size={16} /> Cash
                 </button>
-                <button onClick={() => setPaymentMethod('Card')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Card' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
-                  <CreditCard size={16} /> Card
+                <button onClick={() => setPaymentMethod('Transfer Mezan')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Transfer Mezan' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
+                  <Smartphone size={16} /> Transfer Mezan
                 </button>
-                <button onClick={() => setPaymentMethod('Online')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Online' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
-                  <Smartphone size={16} /> Online
+                <button onClick={() => setPaymentMethod('Transfer UBL')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Transfer UBL' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
+                  <Smartphone size={16} /> Transfer UBL
                 </button>
                 <button onClick={() => setPaymentMethod('Jazz Cash')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Jazz Cash' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
                   <Smartphone size={16} /> Jazz Cash
@@ -673,8 +673,8 @@ export default function QuickBilling() {
                 <button onClick={() => setPaymentMethod('POS Meezan')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'POS Meezan' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
                   <CreditCard size={16} /> POS Meezan
                 </button>
-                <button onClick={() => setPaymentMethod('UBL')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'UBL' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
-                  <CreditCard size={16} /> UBL
+                <button onClick={() => setPaymentMethod('POS UBL')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'POS UBL' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
+                  <CreditCard size={16} /> POS UBL
                 </button>
                 <button onClick={() => setPaymentMethod('Udhar')} className={`col-span-2 sm:col-span-3 py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Udhar' ? 'bg-orange-500 text-black border-orange-500 font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-orange-500 hover:text-orange-500'}`}>
                   <Clock size={16} /> Udhar (Pending)
@@ -705,11 +705,11 @@ export default function QuickBilling() {
                       className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded py-2 px-3 text-[var(--color-foreground)] focus:border-orange-500 outline-none appearance-none"
                     >
                       <option value="Cash">Cash</option>
-                      <option value="Card">Card</option>
-                      <option value="Online">Online</option>
+                      <option value="Transfer Mezan">Transfer Mezan</option>
+                      <option value="Transfer UBL">Transfer UBL</option>
                       <option value="Jazz Cash">Jazz Cash</option>
                       <option value="POS Meezan">POS Meezan</option>
-                      <option value="UBL">UBL</option>
+                      <option value="POS UBL">POS UBL</option>
                     </select>
                   </div>
                 </div>
