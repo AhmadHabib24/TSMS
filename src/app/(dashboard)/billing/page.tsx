@@ -546,7 +546,7 @@ export default function QuickBilling() {
           </div>
 
           {/* Right Column - Receipt Preview */}
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-[calc(100vh-6rem)] relative lg:sticky top-24 shadow-2xl flex flex-col mt-4 lg:mt-0">
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-[calc(100vh-6rem)] overflow-y-auto relative lg:sticky top-24 shadow-2xl flex flex-col mt-4 lg:mt-0">
             <h3 className="text-base sm:text-lg font-bold text-center border-b border-[var(--color-border)] pb-4 mb-4 shrink-0 uppercase tracking-widest text-gray-400">Bill Summary</h3>
 
             <div className="space-y-4 mb-4 shrink-0">
@@ -560,7 +560,7 @@ export default function QuickBilling() {
               </div>
             </div>
 
-            <div className="space-y-3 mb-4 border-t border-[var(--color-border)] pt-4 min-h-[100px] flex-1 overflow-y-auto custom-scrollbar pr-2">
+            <div className="space-y-3 mb-4 border-t border-[var(--color-border)] pt-4 min-h-[50px] flex-1 overflow-y-auto custom-scrollbar pr-2">
               {selectedServices.map(srv => {
                 let displayPrice = srv.price;
                 if (srv.is_deal && srv.discount_percentage > 0) {
