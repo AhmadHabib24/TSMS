@@ -546,10 +546,10 @@ export default function QuickBilling() {
           </div>
 
           {/* Right Column - Receipt Preview */}
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-fit max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar relative lg:sticky top-24 shadow-2xl flex flex-col mt-4 lg:mt-0">
-            <h3 className="text-base sm:text-lg font-bold text-center border-b border-[var(--color-border)] pb-4 mb-4 uppercase tracking-widest text-gray-400">Bill Summary</h3>
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-[calc(100vh-6rem)] relative lg:sticky top-24 shadow-2xl flex flex-col mt-4 lg:mt-0">
+            <h3 className="text-base sm:text-lg font-bold text-center border-b border-[var(--color-border)] pb-4 mb-4 shrink-0 uppercase tracking-widest text-gray-400">Bill Summary</h3>
 
-            <div className="space-y-4 mb-6">
+            <div className="space-y-4 mb-4 shrink-0">
               <div className="flex justify-between text-sm items-center">
                 <span className="text-gray-400">Customer:</span>
                 <span className="font-medium text-[var(--color-foreground)] bg-[var(--color-background)] px-3 py-1 rounded-full border border-[var(--color-border)]">{selectedCustomer ? selectedCustomer.name : 'Walk-in'}</span>
@@ -560,7 +560,7 @@ export default function QuickBilling() {
               </div>
             </div>
 
-            <div className="space-y-3 mb-4 border-t border-[var(--color-border)] pt-4 min-h-[100px]">
+            <div className="space-y-3 mb-4 border-t border-[var(--color-border)] pt-4 min-h-[100px] flex-1 overflow-y-auto custom-scrollbar pr-2">
               {selectedServices.map(srv => {
                 let displayPrice = srv.price;
                 if (srv.is_deal && srv.discount_percentage > 0) {
@@ -605,7 +605,7 @@ export default function QuickBilling() {
             </div>
 
             {selectedServices.length > 0 && (
-              <div className="border-t border-b border-[var(--color-border)] py-4 mb-6 space-y-3 sm:space-y-2">
+              <div className="border-t border-b border-[var(--color-border)] py-4 mb-4 space-y-3 shrink-0 sm:space-y-2">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-gray-400 text-sm gap-1">
                   <span>Subtotal</span>
                   <span className="font-bold sm:font-normal text-[var(--color-foreground)] sm:text-gray-400">₨ {subtotal}</span>
@@ -655,7 +655,7 @@ export default function QuickBilling() {
             )}
 
             {/* Payment Method */}
-            <div className="mb-6">
+            <div className="mb-6 shrink-0">
               <label className="block text-xs font-bold uppercase text-gray-400 mb-3 tracking-wider">Payment Method</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <button onClick={() => setPaymentMethod('Cash')} className={`py-2 rounded-lg flex flex-col items-center justify-center gap-1 text-xs border transition-colors ${paymentMethod === 'Cash' ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)] font-bold' : 'bg-[var(--color-background)] text-gray-400 border-[var(--color-border)] hover:border-[var(--color-gold)]'}`}>
@@ -683,7 +683,7 @@ export default function QuickBilling() {
             </div>
 
             {paymentMethod === 'Udhar' && (
-              <div className="mb-6 p-4 border border-orange-500/50 bg-orange-500/5 rounded-xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="mb-6 p-4 border border-orange-500/50 bg-orange-500/5 rounded-xl space-y-4 shrink-0 animate-in fade-in slide-in-from-top-2 duration-300">
                 <h4 className="font-bold text-orange-500 text-sm uppercase tracking-wider">Partial Payment (Optional)</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -722,7 +722,7 @@ export default function QuickBilling() {
               </div>
             )}
 
-            <div className="space-y-3 mt-auto">
+            <div className="space-y-3 mt-auto shrink-0">
               <button
                 disabled={selectedServices.length === 0 || !selectedEmployee}
                 onClick={async () => {
