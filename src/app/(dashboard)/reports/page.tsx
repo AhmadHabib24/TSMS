@@ -60,31 +60,43 @@ export default function ReportsPage() {
   const [endDate, setEndDate] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
 
-  // Fetch logic
+  // Fetch logic when active tab changes
   useEffect(() => {
-    setIsLoading(true);
-    let qs = '';
-    if (paymentMethod) qs = `?payment_method=${paymentMethod}`;
-
+    if (activeTab === 'sales') fetchSalesReport();
+    if (activeTab === 'pnl') fetchPnlReport();
+    if (activeTab === 'inventory') fetchInventoryReport();
+    if (activeTab === 'discounts') fetchDiscountReport();
+    
     if (activeTab === 'bills') {
-      api.get(`/bills${qs}`).then(res => {
+      setIsLoading(true);
+      let url = '/bills';
+      const params = new URLSearchParams();
+      if (startDate && endDate) {
+        params.append('start_date', startDate);
+        params.append('end_date', endDate);
+      }
+      if (paymentMethod) params.append('payment_method', paymentMethod);
+      if (params.toString()) url += `?${params.toString()}`;
+      
+      api.get(url).then(res => {
         setBills(res.data);
         setIsLoading(false);
       });
     } else if (activeTab === 'staff') {
-      let staffQs = `/reports/employee-performance${qs}`;
+      setIsLoading(true);
+      let staffQs = `/reports/employee-performance`;
+      const params = new URLSearchParams();
+      if (startDate && endDate) {
+        params.append('start_date', startDate);
+        params.append('end_date', endDate);
+      }
+      if (paymentMethod) params.append('payment_method', paymentMethod);
+      if (params.toString()) staffQs += `?${params.toString()}`;
+      
       api.get(staffQs).then(res => {
         setStaffPerformance(res.data);
         setIsLoading(false);
       });
-    } else if (activeTab === 'sales') {
-      fetchSalesReport();
-    } else if (activeTab === 'pnl') {
-      fetchPnlReport();
-    } else if (activeTab === 'inventory') {
-      fetchInventoryReport();
-    } else if (activeTab === 'discounts') {
-      fetchDiscountReport();
     } else if (activeTab === 'udhar') {
       api.get('/reports/udhar-report').then(res => {
         setUdharReport(res.data);
@@ -94,10 +106,8 @@ export default function ReportsPage() {
   }, [activeTab]);
 
   useEffect(() => {
-    if (activeTab === 'sales' || activeTab === 'pnl' || activeTab === 'inventory' || activeTab === 'discounts') {
-      if (dateFilter !== 'custom') {
-        calculateDatesFromFilter(dateFilter);
-      }
+    if (activeTab !== 'udhar' && dateFilter !== 'custom') {
+      calculateDatesFromFilter(dateFilter);
     }
   }, [dateFilter]);
 
@@ -108,16 +118,23 @@ export default function ReportsPage() {
     if (activeTab === 'inventory') fetchInventoryReport();
     if (activeTab === 'discounts') fetchDiscountReport();
     
-    // Also re-fetch bills and staff if payment method changes
     if (activeTab === 'bills') {
       setIsLoading(true);
-      let qs = '';
-      if (paymentMethod) qs = `?payment_method=${paymentMethod}`;
-      api.get(`/bills${qs}`).then(res => {
+      let url = '/bills';
+      const params = new URLSearchParams();
+      if (startDate && endDate) {
+        params.append('start_date', startDate);
+        params.append('end_date', endDate);
+      }
+      if (paymentMethod) params.append('payment_method', paymentMethod);
+      if (params.toString()) url += `?${params.toString()}`;
+      
+      api.get(url).then(res => {
         setBills(res.data);
         setIsLoading(false);
       });
     }
+    
     if (activeTab === 'staff') {
       setIsLoading(true);
       let staffQs = `/reports/employee-performance`;
@@ -313,6 +330,25 @@ export default function ReportsPage() {
     }]
   };
 
+  const pnlBreakdownData = {
+    labels: ['Total Income', 'Total Expenses', 'Net Profit'],
+    datasets: [{
+      label: 'Amount (₨)',
+      data: [
+        pnlReport?.total_income || 0,
+        pnlReport?.total_expenses || 0,
+        pnlReport?.net_profit || 0
+      ],
+      backgroundColor: [
+        'rgba(16, 185, 129, 0.8)', 
+        'rgba(239, 68, 68, 0.8)',  
+        (pnlReport?.net_profit || 0) >= 0 ? 'rgba(59, 130, 246, 0.8)' : 'rgba(249, 115, 22, 0.8)' 
+      ],
+      borderRadius: 6,
+      borderWidth: 0,
+    }]
+  };
+
   const salesPaymentMethodsDoughnutData = {
     labels: salesReport?.payment_methods?.map((c: any) => c.label) || [],
     datasets: [{
@@ -422,6 +458,13 @@ export default function ReportsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 h-[400px]">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><TrendingUp size={18} className="text-[var(--color-gold)]"/> P&L Breakdown</h3>
+              <div className="h-[280px]">
+                <Bar data={pnlBreakdownData} options={commonOptions} />
+              </div>
+            </div>
+
             <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 h-[400px]">
               <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><PieChart size={18} className="text-[var(--color-gold)]"/> Expense Breakdown</h3>
               {pnlReport?.expenses_by_category?.length > 0 ? (
