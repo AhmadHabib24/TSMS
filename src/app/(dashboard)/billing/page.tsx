@@ -161,17 +161,18 @@ export default function QuickBilling() {
   return (
     <>
       {/* mx-auto */}
-      <div className="w-full max-w-full px-2 sm:px-4 space-y-4 md:space-y-6 no-print">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Quick Billing</h1>
-            <p className="text-sm md:text-base text-gray-400">Generate a bill in under 30 seconds</p>
-          </div>
-        </div>
+      <div className="w-full max-w-full px-2 sm:px-4 no-print">
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left Column - Workflow */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold">Quick Billing</h1>
+                <p className="text-sm md:text-base text-gray-400">Generate a bill in under 30 seconds</p>
+              </div>
+            </div>
 
             {/* Step 1: Customer */}
             <div className={`p-4 md:p-6 rounded-xl border transition-all duration-300 ${step === 1 ? 'border-[var(--color-gold)] bg-[var(--color-panel)] shadow-[0_0_15px_rgba(212,175,55,0.1)]' : 'border-[var(--color-border)] bg-[var(--color-background)] opacity-60'}`}>

@@ -425,11 +425,11 @@ export default function CustomersPage() {
                   className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 focus:border-[var(--color-gold)] outline-none"
                 >
                   <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                  <option value="Online">Online</option>
+                  <option value="Transfer Mezan">Transfer Mezan</option>
+                  <option value="Transfer UBL">Transfer UBL</option>
                   <option value="Jazz Cash">Jazz Cash</option>
                   <option value="POS Meezan">POS Meezan</option>
-                  <option value="UBL">UBL</option>
+                  <option value="POS UBL">POS UBL</option>
                 </select>
               </div>
               <button type="submit" className="w-full bg-[var(--color-gold)] text-black font-bold py-3 rounded-lg hover:bg-[var(--color-gold-hover)] mt-2">

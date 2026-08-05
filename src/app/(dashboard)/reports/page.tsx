@@ -350,9 +350,18 @@ export default function ReportsPage() {
   };
 
   const salesPaymentMethodsDoughnutData = {
-    labels: salesReport?.payment_methods?.map((c: any) => c.label) || [],
+    labels: salesReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.label) || [],
     datasets: [{
-      data: salesReport?.payment_methods?.map((c: any) => c.collected) || [],
+      data: salesReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.collected) || [],
+      backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#f97316', '#06b6d4', '#84cc16', '#d946ef'],
+      borderWidth: 0,
+    }]
+  };
+
+  const pnlPaymentMethodsDoughnutData = {
+    labels: pnlReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.label) || [],
+    datasets: [{
+      data: pnlReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.collected) || [],
       backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#f97316', '#06b6d4', '#84cc16', '#d946ef'],
       borderWidth: 0,
     }]
@@ -476,6 +485,41 @@ export default function ReportsPage() {
               )}
             </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><PieChart size={18} className="text-[var(--color-gold)]"/> Payment Methods Breakdown</h3>
+              {pnlReport?.payment_methods?.length > 0 ? (
+                <div className="h-[280px]">
+                  <Doughnut data={pnlPaymentMethodsDoughnutData} options={doughnutOptions} />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-[280px] text-gray-500">No payment data for this period.</div>
+              )}
+            </div>
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 overflow-x-auto">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><FileText size={18} className="text-[var(--color-gold)]"/> Breakdown Details</h3>
+              <table className="w-full text-left whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm">
+                    <th className="py-2">Method</th>
+                    <th className="py-2 text-right">Collected</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--color-border)]">
+                  {pnlReport?.payment_methods?.map((pm: any, i: number) => (
+                    <tr key={i}>
+                      <td className={`py-3 font-bold ${pm.is_pending ? 'text-orange-500' : 'text-[var(--color-foreground)]'}`}>{pm.label}</td>
+                      <td className={`py-3 font-black text-right ${pm.is_pending ? 'text-orange-500' : 'text-green-500'}`}>₨ {pm.collected.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                  {(!pnlReport?.payment_methods || pnlReport.payment_methods.length === 0) && (
+                    <tr><td colSpan={2} className="py-6 text-center text-gray-500">No data available</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
       ) : activeTab === 'sales' ? (
@@ -534,8 +578,8 @@ export default function ReportsPage() {
                 <tbody className="divide-y divide-[var(--color-border)]">
                   {salesReport?.payment_methods?.map((pm: any, i: number) => (
                     <tr key={i}>
-                      <td className="py-3 text-[var(--color-foreground)] font-bold">{pm.label}</td>
-                      <td className="py-3 text-green-500 font-black text-right">₨ {pm.collected.toLocaleString()}</td>
+                      <td className={`py-3 font-bold ${pm.is_pending ? 'text-orange-500' : 'text-[var(--color-foreground)]'}`}>{pm.label}</td>
+                      <td className={`py-3 font-black text-right ${pm.is_pending ? 'text-orange-500' : 'text-green-500'}`}>₨ {pm.collected.toLocaleString()}</td>
                     </tr>
                   ))}
                   {(!salesReport?.payment_methods || salesReport.payment_methods.length === 0) && (
