@@ -16,9 +16,14 @@ export default function PackagesPage() {
     name: '', price: '', is_active: true, service_ids: [] 
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const fetchData = () => {
-    api.get('/packages').then(res => setData(res.data)).catch(() => toast.error('Failed to load packages'));
-    api.get('/services').then(res => setServices(res.data)).catch(err => console.error(err));
+    setIsLoading(true);
+    Promise.all([
+      api.get('/packages').then(res => setData(res.data)).catch(() => toast.error('Failed to load packages')),
+      api.get('/services').then(res => setServices(res.data)).catch(err => console.error(err))
+    ]).finally(() => setIsLoading(false));
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -103,7 +108,20 @@ export default function PackagesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-border)]">
-            {data.map((item: any) => (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="hover:bg-[var(--color-background)] transition-colors">
+                  <td className="py-3 sm:py-4 pr-4"><div className="h-4 w-32 bg-white/10 animate-pulse rounded"></div></td>
+                  <td className="py-3 sm:py-4 pr-4"><div className="h-4 w-48 bg-white/5 animate-pulse rounded"></div></td>
+                  <td className="py-3 sm:py-4 pr-4"><div className="h-4 w-16 bg-white/10 animate-pulse rounded"></div></td>
+                  <td className="py-3 sm:py-4 pr-4"><div className="h-5 w-16 bg-white/5 animate-pulse rounded"></div></td>
+                  <td className="py-3 sm:py-4 flex gap-2 sm:gap-3">
+                    <div className="w-5 h-5 bg-white/5 animate-pulse rounded"></div>
+                    <div className="w-5 h-5 bg-white/5 animate-pulse rounded"></div>
+                  </td>
+                </tr>
+              ))
+            ) : data.map((item: any) => (
               <tr key={item.id} className="hover:bg-[var(--color-background)] transition-colors">
                 <td className="py-3 sm:py-4 pr-4 font-bold">{item.name}</td>
                 <td className="py-3 sm:py-4 pr-4 text-gray-400 text-xs sm:text-sm whitespace-normal max-w-xs">
@@ -126,7 +144,7 @@ export default function PackagesPage() {
                 </td>
               </tr>
             ))}
-            {data.length === 0 && <tr><td colSpan={5} className="py-8 text-center text-gray-500">No packages found</td></tr>}
+            {data.length === 0 && !isLoading && <tr><td colSpan={5} className="py-8 text-center text-gray-500">No packages found</td></tr>}
           </tbody>
         </table>
       </div>

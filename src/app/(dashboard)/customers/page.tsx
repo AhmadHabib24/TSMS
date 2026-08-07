@@ -21,9 +21,11 @@ export default function CustomersPage() {
   // Profile data fetched from backend (includes bills and favorites)
   const [customerProfile, setCustomerProfile] = useState<any>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = () => {
-    api.get('/customers').then(res => setData(res.data)).catch(() => toast.error('Failed to load data'));
+    setIsLoading(true);
+    api.get('/customers').then(res => setData(res.data)).catch(() => toast.error('Failed to load data')).finally(() => setIsLoading(false));
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -151,8 +153,26 @@ export default function CustomersPage() {
       </div>
       
       <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 overflow-x-auto custom-scrollbar">
-        <table className="w-full text-left whitespace-nowrap min-w-[500px]">
-          <thead><tr className="border-b border-[var(--color-border)] text-gray-400"><th className="pb-3">Image</th><th className="pb-3">Name</th><th className="pb-3">Mobile</th><th className="pb-3">Actions</th></tr></thead>
+        {isLoading ? (
+          <div className="w-full">
+            <div className="border-b border-[var(--color-border)] pb-3 flex gap-4">
+               <div className="h-4 w-12 bg-white/10 animate-pulse rounded"></div>
+               <div className="h-4 w-32 bg-white/10 animate-pulse rounded"></div>
+               <div className="h-4 w-32 bg-white/10 animate-pulse rounded"></div>
+               <div className="h-4 w-24 bg-white/10 animate-pulse rounded ml-auto"></div>
+            </div>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="border-b border-[var(--color-border)] py-4 flex gap-4 items-center">
+                 <div className="h-10 w-10 bg-white/5 animate-pulse rounded-full"></div>
+                 <div className="h-4 w-32 bg-white/5 animate-pulse rounded"></div>
+                 <div className="h-4 w-24 bg-white/5 animate-pulse rounded"></div>
+                 <div className="h-6 w-24 bg-white/5 animate-pulse rounded ml-auto"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <table className="w-full text-left whitespace-nowrap min-w-[500px]">
+            <thead><tr className="border-b border-[var(--color-border)] text-gray-400"><th className="pb-3">Image</th><th className="pb-3">Name</th><th className="pb-3">Mobile</th><th className="pb-3">Actions</th></tr></thead>
           <tbody className="divide-y divide-[var(--color-border)]">
             {filteredData.map((item: any) => (
               <tr key={item.id} className="hover:bg-[var(--color-background)] transition-colors">
@@ -179,6 +199,7 @@ export default function CustomersPage() {
             {filteredData.length === 0 && <tr><td colSpan={4} className="py-8 text-center text-gray-500">No customers found</td></tr>}
           </tbody>
         </table>
+        )}
       </div>
 
       {isModalOpen && (
@@ -225,7 +246,21 @@ export default function CustomersPage() {
               {activeTab === 'history' && (
                 <div>
                   {isLoadingProfile ? (
-                    <div className="flex justify-center py-12"><div className="w-8 h-8 border-2 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin"></div></div>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <div key={i} className={`bg-[var(--color-background)] border border-[var(--color-border)] p-3 sm:p-4 rounded-xl flex flex-col items-center gap-2 ${i === 3 ? 'col-span-2' : ''}`}>
+                            <div className="h-3 w-16 bg-white/10 animate-pulse rounded"></div>
+                            <div className="h-6 w-20 bg-white/10 animate-pulse rounded"></div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="space-y-3">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="h-24 bg-white/5 animate-pulse rounded-xl"></div>
+                        ))}
+                      </div>
+                    </div>
                   ) : customerProfile ? (
                     <div className="space-y-8 animate-in fade-in duration-300">
                       
@@ -334,7 +369,12 @@ export default function CustomersPage() {
               {activeTab === 'udhar' && (
                 <div>
                   {isLoadingProfile ? (
-                    <div className="flex justify-center py-12"><div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div></div>
+                    <div className="space-y-4">
+                      <h3 className="h-4 w-40 bg-white/10 animate-pulse rounded mb-4"></h3>
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="h-24 bg-white/5 animate-pulse rounded-xl"></div>
+                      ))}
+                    </div>
                   ) : customerProfile ? (
                     <div className="space-y-4 animate-in fade-in duration-300">
                       <h3 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3 sm:mb-4"><Clock size={16} className="w-4 h-4 text-orange-500"/> Udhar Bills (Pending & Paid)</h3>

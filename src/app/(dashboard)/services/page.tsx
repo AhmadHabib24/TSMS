@@ -18,9 +18,14 @@ export default function ServicesPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ name: '', price: '', service_category_id: '', icon: '', is_active: true });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const fetchData = () => {
-    api.get('/services').then(res => setData(res.data)).catch(() => toast.error('Failed to load data'));
-    api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.error(err));
+    setIsLoading(true);
+    Promise.all([
+      api.get('/services').then(res => setData(res.data)).catch(() => toast.error('Failed to load data')),
+      api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.error(err))
+    ]).finally(() => setIsLoading(false));
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -91,7 +96,25 @@ export default function ServicesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-border)]">
-            {data.map((item: any) => (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="hover:bg-[var(--color-background)] transition-colors">
+                  <td className="py-3 sm:py-4 pr-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-white/10 animate-pulse rounded-full"></div>
+                      <div className="h-4 w-32 bg-white/10 animate-pulse rounded"></div>
+                    </div>
+                  </td>
+                  <td className="py-3 sm:py-4 pr-4"><div className="h-4 w-24 bg-white/5 animate-pulse rounded"></div></td>
+                  <td className="py-3 sm:py-4 pr-4"><div className="h-4 w-16 bg-white/10 animate-pulse rounded"></div></td>
+                  <td className="py-3 sm:py-4 pr-4"><div className="h-5 w-16 bg-white/5 animate-pulse rounded"></div></td>
+                  <td className="py-3 sm:py-4 flex gap-2 sm:gap-3">
+                    <div className="w-5 h-5 bg-white/5 animate-pulse rounded"></div>
+                    <div className="w-5 h-5 bg-white/5 animate-pulse rounded"></div>
+                  </td>
+                </tr>
+              ))
+            ) : data.map((item: any) => (
               <tr key={item.id} className="hover:bg-[var(--color-background)] transition-colors">
                 <td className="py-3 sm:py-4 pr-4">
                   <div className="flex items-center gap-2">
@@ -119,7 +142,7 @@ export default function ServicesPage() {
                 </td>
               </tr>
             ))}
-            {data.length === 0 && <tr><td colSpan={6} className="py-8 text-center text-gray-500">No data found</td></tr>}
+            {data.length === 0 && !isLoading && <tr><td colSpan={5} className="py-8 text-center text-gray-500">No data found</td></tr>}
           </tbody>
         </table>
       </div>

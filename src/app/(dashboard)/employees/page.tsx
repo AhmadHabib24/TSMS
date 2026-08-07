@@ -25,12 +25,18 @@ export default function EmployeesPage() {
   const [salaryForm, setSalaryForm] = useState<any>({});
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const [isLoadingDirectory, setIsLoadingDirectory] = useState(true);
+
   const fetchData = () => {
-    api.get('/employees').then(res => setData(res.data)).catch(() => toast.error('Failed to load data'));
+    setIsLoadingDirectory(true);
+    api.get('/employees').then(res => setData(res.data)).catch(() => toast.error('Failed to load data')).finally(() => setIsLoadingDirectory(false));
   };
 
+  const [isLoadingSalary, setIsLoadingSalary] = useState(true);
+
   const fetchSalaries = () => {
-    api.get(`/salaries?salary_month=${salaryMonth}`).then(res => setSalaries(res.data)).catch(() => toast.error('Failed to load salaries'));
+    setIsLoadingSalary(true);
+    api.get(`/salaries?salary_month=${salaryMonth}`).then(res => setSalaries(res.data)).catch(() => toast.error('Failed to load salaries')).finally(() => setIsLoadingSalary(false));
   };
 
   useEffect(() => { 
@@ -182,7 +188,27 @@ export default function EmployeesPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredData.map((item: any) => (
+            {isLoadingDirectory ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl overflow-hidden p-6 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-white/10 animate-pulse shrink-0"></div>
+                    <div className="space-y-2 flex-1">
+                      <div className="h-5 w-32 bg-white/10 animate-pulse rounded"></div>
+                      <div className="h-3 w-20 bg-white/10 animate-pulse rounded"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2 pt-2">
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <div key={j} className="flex justify-between border-b border-[var(--color-border)] pb-2">
+                        <div className="h-3 w-16 bg-white/5 animate-pulse rounded"></div>
+                        <div className="h-3 w-24 bg-white/5 animate-pulse rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            ) : filteredData.map((item: any) => (
               <div key={item.id} className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl overflow-hidden hover:border-[var(--color-gold)] transition-colors group">
                 <div className="p-6 relative">
                   <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -270,7 +296,23 @@ export default function EmployeesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
-                {salaries.map((s: any) => {
+                {isLoadingSalary ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i} className="hover:bg-[var(--color-background)] transition-colors">
+                      <td className="py-4 px-6 flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse"></div>
+                        <div className="h-4 w-24 bg-white/10 animate-pulse rounded"></div>
+                      </td>
+                      <td className="py-4 px-4 text-right"><div className="h-4 w-16 bg-white/5 animate-pulse rounded ml-auto"></div></td>
+                      <td className="py-4 px-4 text-right"><div className="h-4 w-12 bg-white/5 animate-pulse rounded ml-auto"></div></td>
+                      <td className="py-4 px-4 text-right"><div className="h-4 w-12 bg-white/5 animate-pulse rounded ml-auto"></div></td>
+                      <td className="py-4 px-4 text-right"><div className="h-4 w-12 bg-white/5 animate-pulse rounded ml-auto"></div></td>
+                      <td className="py-4 px-4 text-right"><div className="h-6 w-20 bg-white/10 animate-pulse rounded ml-auto"></div></td>
+                      <td className="py-4 px-4 text-center"><div className="h-6 w-16 bg-white/5 animate-pulse rounded-full mx-auto"></div></td>
+                      <td className="py-4 px-6 text-right"><div className="h-5 w-5 bg-white/10 animate-pulse rounded ml-auto"></div></td>
+                    </tr>
+                  ))
+                ) : salaries.map((s: any) => {
                   const total = totalPayable(s);
                   return (
                     <tr key={s.id} className="hover:bg-[var(--color-background)] transition-colors">

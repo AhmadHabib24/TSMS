@@ -41,14 +41,18 @@ export default function QuickBilling() {
   const [mainTab, setMainTab] = useState<'services' | 'deals' | 'packages'>('services');
   const [subTab, setSubTab] = useState<number | 'all' | 'uncategorized' | null>(null);
   
+  const [isLoading, setIsLoading] = useState(true);
+
   // Fetch live data from Laravel API
   useEffect(() => {
-    api.get('/customers').then(res => setCustomers(res.data)).catch(err => console.error(err));
-    api.get('/employees').then(res => setEmployees(res.data)).catch(err => console.error(err));
-    api.get('/services').then(res => setServices(res.data)).catch(err => console.error(err));
-    api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.error(err));
-    api.get('/packages').then(res => setPackages(res.data)).catch(err => console.error(err));
-    api.get('/deals').then(res => setDeals(res.data)).catch(err => console.error(err));
+    Promise.all([
+      api.get('/customers').then(res => setCustomers(res.data)).catch(err => console.error(err)),
+      api.get('/employees').then(res => setEmployees(res.data)).catch(err => console.error(err)),
+      api.get('/services').then(res => setServices(res.data)).catch(err => console.error(err)),
+      api.get('/service-categories').then(res => setCategories(res.data)).catch(err => console.error(err)),
+      api.get('/packages').then(res => setPackages(res.data)).catch(err => console.error(err)),
+      api.get('/deals').then(res => setDeals(res.data)).catch(err => console.error(err))
+    ]).finally(() => setIsLoading(false));
   }, []);
 
   const subtotal = selectedServices.reduce((sum, s) => {
@@ -163,8 +167,44 @@ export default function QuickBilling() {
       {/* mx-auto */}
       <div className="w-full max-w-full px-2 sm:px-4 no-print">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Left Column - Workflow */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="lg:col-span-2 space-y-4 md:space-y-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="h-8 w-48 bg-white/10 animate-pulse rounded mb-2"></div>
+                  <div className="h-4 w-64 bg-white/10 animate-pulse rounded"></div>
+                </div>
+              </div>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="p-4 md:p-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] opacity-60">
+                  <div className="h-6 w-40 bg-white/10 animate-pulse rounded mb-4"></div>
+                </div>
+              ))}
+            </div>
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-[calc(100vh-6rem)] relative lg:sticky top-24 shadow-2xl mt-4 lg:mt-0">
+              <div className="h-6 w-32 bg-white/10 animate-pulse rounded mx-auto mb-6"></div>
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex justify-between">
+                    <div className="h-4 w-24 bg-white/5 animate-pulse rounded"></div>
+                    <div className="h-4 w-16 bg-white/5 animate-pulse rounded"></div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 pt-4 border-t border-[var(--color-border)]">
+                <div className="h-8 w-full bg-white/10 animate-pulse rounded mb-4"></div>
+                <div className="grid grid-cols-2 gap-2">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="h-12 bg-white/5 animate-pulse rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            {/* Left Column - Workflow */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
             
             <div className="flex items-center justify-between">
@@ -773,8 +813,8 @@ export default function QuickBilling() {
               </button>
             </div>
           </div>
-
         </div>
+        )}
       </div>
 
       {/* Print Options Modal */}

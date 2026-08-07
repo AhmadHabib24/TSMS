@@ -363,7 +363,18 @@ export default function SettingsPage() {
       ) : (
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 overflow-x-auto custom-scrollbar animate-in fade-in slide-in-from-bottom-4 duration-500">
           {isLoading ? (
-            <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin"></div></div>
+            <div className="w-full">
+              <div className="border-b border-[var(--color-border)] p-4 flex gap-4">
+                 <div className="h-4 w-48 bg-white/10 animate-pulse rounded"></div>
+                 <div className="h-4 w-16 bg-white/10 animate-pulse rounded ml-auto"></div>
+              </div>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="border-b border-[var(--color-border)] p-4 flex gap-4 items-center">
+                   <div className="h-4 w-40 bg-white/5 animate-pulse rounded"></div>
+                   <div className="h-6 w-16 bg-white/5 animate-pulse rounded ml-auto"></div>
+                </div>
+              ))}
+            </div>
           ) : (
             <table className="w-full text-left whitespace-nowrap [&_td]:pr-4 [&_th]:pr-4">
               <thead>

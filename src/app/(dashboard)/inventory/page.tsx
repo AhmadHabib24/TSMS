@@ -22,12 +22,18 @@ export default function InventoryPage() {
   const [adjustForm, setAdjustForm] = useState({ quantity_change: '', reason: 'Purchase' });
   const [imageFile, setImageFile] = useState<File | null>(null);
 
+  const [isLoadingStock, setIsLoadingStock] = useState(true);
+
   const fetchData = () => {
-    api.get('/inventory-items').then(res => setData(res.data)).catch(() => toast.error('Failed to load data'));
+    setIsLoadingStock(true);
+    api.get('/inventory-items').then(res => setData(res.data)).catch(() => toast.error('Failed to load data')).finally(() => setIsLoadingStock(false));
   };
 
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+
   const fetchHistory = () => {
-    api.get('/inventory-items/history').then(res => setHistoryData(res.data)).catch(() => toast.error('Failed to load history'));
+    setIsLoadingHistory(true);
+    api.get('/inventory-items/history').then(res => setHistoryData(res.data)).catch(() => toast.error('Failed to load history')).finally(() => setIsLoadingHistory(false));
   };
 
   useEffect(() => {
@@ -145,7 +151,22 @@ export default function InventoryPage() {
             <table className="w-full text-left whitespace-nowrap [&_td]:pr-4 [&_th]:pr-4">
               <thead><tr className="border-b border-[var(--color-border)] text-gray-400"><th className="pb-3">Image</th><th className="pb-3">Item Name</th><th className="pb-3">Stock Level</th><th className="pb-3">Threshold</th><th className="pb-3">Status</th><th className="pb-3">Actions</th></tr></thead>
               <tbody className="divide-y divide-[var(--color-border)]">
-                {data.map((item: any) => {
+                {isLoadingStock ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i} className="hover:bg-[var(--color-background)] transition-colors">
+                      <td className="py-4"><div className="w-12 h-12 rounded-full bg-white/5 animate-pulse"></div></td>
+                      <td className="py-4"><div className="h-4 w-32 bg-white/10 animate-pulse rounded"></div></td>
+                      <td className="py-4"><div className="h-6 w-16 bg-white/10 animate-pulse rounded"></div></td>
+                      <td className="py-4"><div className="h-4 w-12 bg-white/5 animate-pulse rounded"></div></td>
+                      <td className="py-4"><div className="h-6 w-24 bg-white/5 animate-pulse rounded-full"></div></td>
+                      <td className="py-4 flex gap-3">
+                        <div className="h-8 w-16 bg-white/5 animate-pulse rounded"></div>
+                        <div className="h-8 w-8 bg-white/5 animate-pulse rounded ml-3"></div>
+                        <div className="h-8 w-8 bg-white/5 animate-pulse rounded"></div>
+                      </td>
+                    </tr>
+                  ))
+                ) : data.map((item: any) => {
                   const isLowStock = item.stock_level <= item.low_stock_threshold;
                   return (
                     <tr key={item.id} className={`transition-colors ${isLowStock ? 'bg-red-500/10' : 'hover:bg-[var(--color-background)]'}`}>
@@ -182,7 +203,7 @@ export default function InventoryPage() {
                     </tr>
                   )
                 })}
-                {data.length === 0 && <tr><td colSpan={6} className="py-8 text-center text-gray-500">No data found</td></tr>}
+                {data.length === 0 && !isLoadingStock && <tr><td colSpan={6} className="py-8 text-center text-gray-500">No data found</td></tr>}
               </tbody>
             </table>
           </div>
@@ -202,7 +223,16 @@ export default function InventoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
-                {historyData.map((record: any) => (
+                {isLoadingHistory ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i} className="hover:bg-[var(--color-background)] transition-colors">
+                      <td className="py-4 px-4"><div className="h-4 w-32 bg-white/5 animate-pulse rounded"></div></td>
+                      <td className="py-4 px-4"><div className="h-4 w-40 bg-white/10 animate-pulse rounded"></div></td>
+                      <td className="py-4 px-4"><div className="h-6 w-24 bg-white/10 animate-pulse rounded-full"></div></td>
+                      <td className="py-4 px-4"><div className="h-6 w-12 bg-white/10 animate-pulse rounded ml-auto"></div></td>
+                    </tr>
+                  ))
+                ) : historyData.map((record: any) => (
                   <tr key={record.id} className="hover:bg-[var(--color-background)] transition-colors">
                     <td className="py-4 px-4 text-gray-300">{new Date(record.created_at).toLocaleString()}</td>
                     <td className="py-4 px-4 font-bold text-[var(--color-foreground)]">{record.item?.name}</td>
@@ -216,7 +246,7 @@ export default function InventoryPage() {
                     </td>
                   </tr>
                 ))}
-                {historyData.length === 0 && <tr><td colSpan={4} className="py-8 text-center text-gray-500">No stock history found</td></tr>}
+                {historyData.length === 0 && !isLoadingHistory && <tr><td colSpan={4} className="py-8 text-center text-gray-500">No stock history found</td></tr>}
               </tbody>
             </table>
           </div>
