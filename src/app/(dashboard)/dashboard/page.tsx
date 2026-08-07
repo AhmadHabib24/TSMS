@@ -33,6 +33,7 @@ ChartJS.register(
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(true);
   const { notifications } = useNotifications();
   const { user } = useAuthStore();
   const [data, setData] = useState({
@@ -48,21 +49,39 @@ export default function Dashboard() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const fetchAllData = () => {
+  const fetchAllData = async () => {
     setLoading(false);
+    setIsFetching(true);
     
     const params = new URLSearchParams();
     if (startDate) params.append('start_date', startDate);
     if (endDate) params.append('end_date', endDate);
     const qs = params.toString() ? `?${params.toString()}` : '';
 
-    api.get(`/customers${qs}`).then(res => setData((prev: any) => ({ ...prev, customers: res.data }))).catch(console.error);
-    api.get(`/bills${qs}`).then(res => setData((prev: any) => ({ ...prev, bills: res.data }))).catch(console.error);
-    api.get(`/reports/pnl-report${qs}`).then(res => setData((prev: any) => ({ ...prev, pnl: res.data }))).catch(console.error);
-    api.get(`/reports/inventory-report${qs}`).then(res => setData((prev: any) => ({ ...prev, inventory: res.data }))).catch(console.error);
-    api.get(`/reports/employee-performance${qs}`).then(res => setData((prev: any) => ({ ...prev, employees: res.data }))).catch(console.error);
-    api.get(`/reports/sales-report${qs}`).then(res => setData((prev: any) => ({ ...prev, sales: res.data }))).catch(console.error);
-    api.get(`/reports/discount-report${qs}`).then(res => setData((prev: any) => ({ ...prev, discounts: res.data }))).catch(console.error);
+    try {
+      const [customers, bills, pnl, inventory, employees, sales, discounts] = await Promise.all([
+        api.get(`/customers${qs}`),
+        api.get(`/bills${qs}`),
+        api.get(`/reports/pnl-report${qs}`),
+        api.get(`/reports/inventory-report${qs}`),
+        api.get(`/reports/employee-performance${qs}`),
+        api.get(`/reports/sales-report${qs}`),
+        api.get(`/reports/discount-report${qs}`)
+      ]);
+      setData({
+        customers: customers.data,
+        bills: bills.data,
+        pnl: pnl.data,
+        inventory: inventory.data,
+        employees: employees.data,
+        sales: sales.data,
+        discounts: discounts.data
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsFetching(false);
+    }
   };
 
   // Initial load and filter change
@@ -81,9 +100,7 @@ export default function Dashboard() {
     }
   }, [notifications.length]);
 
-  if (loading) {
-    return <div className="flex h-full items-center justify-center text-xl text-gray-400">Loading Dashboard...</div>;
-  }
+  if (loading) return null;
 
   if (user?.role_id !== 1) {
     return (
@@ -130,11 +147,11 @@ export default function Dashboard() {
 
       {/* Row 1: Top 5 Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
-        <StatCard title="Total Customers" value={customers.length} icon={<Users size={24} />} />
-        <StatCard title="Collected Revenue" value={`₨ ${pnl?.total_income?.toLocaleString() ?? 0}`} icon={<DollarSign size={24} />} />
-        <StatCard title="Pending Payments" value={`₨ ${pnl?.pending_payments?.toLocaleString() ?? 0}`} icon={<Activity size={24} />} />
-        <StatCard title="Total Expenses" value={`₨ ${pnl?.total_expenses?.toLocaleString() ?? 0}`} icon={<ArrowDownRight size={24} />} />
-        <StatCard title="Net Profit" value={`₨ ${pnl?.net_profit?.toLocaleString() ?? 0}`} icon={<DollarSign size={24} />} />
+        <StatCard isFetching={isFetching} title="Total Customers" value={customers.length} icon={<Users size={24} />} />
+        <StatCard isFetching={isFetching} title="Collected Revenue" value={`₨ ${pnl?.total_income?.toLocaleString() ?? 0}`} icon={<DollarSign size={24} />} />
+        <StatCard isFetching={isFetching} title="Pending Payments" value={`₨ ${pnl?.pending_payments?.toLocaleString() ?? 0}`} icon={<Activity size={24} />} />
+        <StatCard isFetching={isFetching} title="Total Expenses" value={`₨ ${pnl?.total_expenses?.toLocaleString() ?? 0}`} icon={<ArrowDownRight size={24} />} />
+        <StatCard isFetching={isFetching} title="Net Profit" value={`₨ ${pnl?.net_profit?.toLocaleString() ?? 0}`} icon={<DollarSign size={24} />} />
       </div>
 
       {/* Row 2: Overviews (2 per row) */}
@@ -147,9 +164,9 @@ export default function Dashboard() {
             <h3 className="text-base sm:text-lg font-semibold">Inventory Overview</h3>
           </div>
           <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
-            <div><p className="text-gray-400 text-xs sm:text-sm">Total Items</p><p className="text-lg sm:text-xl font-bold">{inventory?.total_unique_items || 0}</p></div>
-            <div><p className="text-gray-400 text-xs sm:text-sm">Total Stock</p><p className="text-lg sm:text-xl font-bold">{inventory?.total_stock || 0}</p></div>
-            <div><p className="text-red-400 text-xs sm:text-sm">Low Stock</p><p className="text-lg sm:text-xl font-bold text-red-500">{inventory?.low_stock_count || 0}</p></div>
+            <div><p className="text-gray-400 text-xs sm:text-sm">Total Items</p>{isFetching ? <div className="h-7 w-12 bg-white/10 animate-pulse rounded mx-auto mt-1"></div> : <p className="text-lg sm:text-xl font-bold">{inventory?.total_unique_items || 0}</p>}</div>
+            <div><p className="text-gray-400 text-xs sm:text-sm">Total Stock</p>{isFetching ? <div className="h-7 w-12 bg-white/10 animate-pulse rounded mx-auto mt-1"></div> : <p className="text-lg sm:text-xl font-bold">{inventory?.total_stock || 0}</p>}</div>
+            <div><p className="text-red-400 text-xs sm:text-sm">Low Stock</p>{isFetching ? <div className="h-7 w-12 bg-white/10 animate-pulse rounded mx-auto mt-1"></div> : <p className="text-lg sm:text-xl font-bold text-red-500">{inventory?.low_stock_count || 0}</p>}</div>
           </div>
         </div>
 
@@ -159,7 +176,12 @@ export default function Dashboard() {
             <div className="p-2 sm:p-3 bg-[var(--color-gold)]/10 text-[var(--color-gold)] rounded-lg"><UserCheck className="w-5 h-5 sm:w-6 sm:h-6"/></div>
             <h3 className="text-base sm:text-lg font-semibold">Top Employee</h3>
           </div>
-          {topEmployee ? (
+          {isFetching ? (
+            <div className="flex justify-between items-center">
+              <div><div className="h-6 w-24 bg-white/10 animate-pulse rounded mb-1"></div><div className="h-4 w-16 bg-white/10 animate-pulse rounded"></div></div>
+              <div className="text-right"><div className="h-4 w-20 bg-white/10 animate-pulse rounded mb-1 ml-auto"></div><div className="h-6 w-20 bg-white/10 animate-pulse rounded ml-auto"></div></div>
+            </div>
+          ) : topEmployee ? (
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
               <div>
                 <p className="font-bold text-base sm:text-lg">{topEmployee.name}</p>
@@ -180,8 +202,8 @@ export default function Dashboard() {
             <h3 className="text-base sm:text-lg font-semibold">Sales Overview</h3>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 text-center">
-            <div><p className="text-gray-400 text-xs sm:text-sm">Total Bills Generated</p><p className="text-lg sm:text-xl font-bold">{bills.length}</p></div>
-            <div><p className="text-gray-400 text-xs sm:text-sm">Average Bill Size</p><p className="text-lg sm:text-xl font-bold">₨ {bills.length ? Math.round(pnl?.total_sales / bills.length).toLocaleString() : 0}</p></div>
+            <div><p className="text-gray-400 text-xs sm:text-sm">Total Bills Generated</p>{isFetching ? <div className="h-7 w-12 bg-white/10 animate-pulse rounded mx-auto mt-1"></div> : <p className="text-lg sm:text-xl font-bold">{bills.length}</p>}</div>
+            <div><p className="text-gray-400 text-xs sm:text-sm">Average Bill Size</p>{isFetching ? <div className="h-7 w-20 bg-white/10 animate-pulse rounded mx-auto mt-1"></div> : <p className="text-lg sm:text-xl font-bold">₨ {bills.length ? Math.round(pnl?.total_sales / bills.length).toLocaleString() : 0}</p>}</div>
           </div>
         </div>
 
@@ -192,8 +214,8 @@ export default function Dashboard() {
             <h3 className="text-base sm:text-lg font-semibold">Discount Overview</h3>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 text-center">
-            <div><p className="text-gray-400 text-xs sm:text-sm">Bills with Discount</p><p className="text-lg sm:text-xl font-bold">{discounts.length}</p></div>
-            <div><p className="text-gray-400 text-xs sm:text-sm">Total Discount Given</p><p className="text-lg sm:text-xl font-bold text-yellow-500">₨ {discounts.reduce((sum: number, b: any) => sum + (Number(b.discount_amount) || 0), 0).toLocaleString()}</p></div>
+            <div><p className="text-gray-400 text-xs sm:text-sm">Bills with Discount</p>{isFetching ? <div className="h-7 w-12 bg-white/10 animate-pulse rounded mx-auto mt-1"></div> : <p className="text-lg sm:text-xl font-bold">{discounts.length}</p>}</div>
+            <div><p className="text-gray-400 text-xs sm:text-sm">Total Discount Given</p>{isFetching ? <div className="h-7 w-20 bg-white/10 animate-pulse rounded mx-auto mt-1"></div> : <p className="text-lg sm:text-xl font-bold text-yellow-500">₨ {discounts.reduce((sum: number, b: any) => sum + (Number(b.discount_amount) || 0), 0).toLocaleString()}</p>}</div>
           </div>
         </div>
       </div>
@@ -204,7 +226,14 @@ export default function Dashboard() {
           <h3 className="text-base sm:text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent Customers</h3>
           <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar">
             <div className="space-y-3">
-              {recentCustomers.map((c: any) => (
+              {isFetching ? (
+                Array.from({length: 5}).map((_, i) => (
+                  <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--color-border)] last:border-0">
+                    <div><div className="h-4 w-24 bg-white/10 animate-pulse rounded mb-1"></div><div className="h-3 w-16 bg-white/10 animate-pulse rounded"></div></div>
+                    <div><div className="h-3 w-16 bg-white/10 animate-pulse rounded"></div></div>
+                  </div>
+                ))
+              ) : recentCustomers.length > 0 ? recentCustomers.map((c: any) => (
                 <div key={c.id} className="flex justify-between items-center py-2 border-b border-[var(--color-border)] last:border-0">
                   <div>
                     <p className="font-medium">{c.name}</p>
@@ -212,8 +241,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-xs text-gray-500">{new Date(c.created_at).toLocaleDateString()}</div>
                 </div>
-              ))}
-              {recentCustomers.length === 0 && <p className="text-sm text-gray-500">No customers found.</p>}
+              )) : <p className="text-sm text-gray-500">No customers found.</p>}
             </div>
           </div>
         </div>
@@ -222,7 +250,14 @@ export default function Dashboard() {
           <h3 className="text-base sm:text-lg font-semibold mb-4 text-[var(--color-gold)]">Recent Bills</h3>
           <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar">
             <div className="space-y-3">
-              {recentBills.map((b: any) => (
+              {isFetching ? (
+                Array.from({length: 5}).map((_, i) => (
+                  <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--color-border)] last:border-0">
+                    <div><div className="h-4 w-20 bg-white/10 animate-pulse rounded mb-1"></div><div className="h-3 w-24 bg-white/10 animate-pulse rounded"></div></div>
+                    <div className="text-right"><div className="h-4 w-16 bg-white/10 animate-pulse rounded mb-1 ml-auto"></div><div className="h-3 w-16 bg-white/10 animate-pulse rounded ml-auto"></div></div>
+                  </div>
+                ))
+              ) : recentBills.length > 0 ? recentBills.map((b: any) => (
                 <div key={b.id} className="flex justify-between items-center py-2 border-b border-[var(--color-border)] last:border-0">
                   <div>
                     <p className="font-medium">Invoice #{b.id}</p>
@@ -233,8 +268,7 @@ export default function Dashboard() {
                     <p className="text-xs text-gray-500">{new Date(b.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
-              ))}
-              {recentBills.length === 0 && <p className="text-sm text-gray-500">No bills found.</p>}
+              )) : <p className="text-sm text-gray-500">No bills found.</p>}
             </div>
           </div>
         </div>
@@ -243,7 +277,14 @@ export default function Dashboard() {
           <h3 className="text-base sm:text-lg font-semibold mb-4 text-orange-500 flex items-center gap-2"><Activity size={18}/> Top Pending Udhar</h3>
           <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar">
             <div className="space-y-3">
-              {topPendingUdhar.map((c: any) => (
+              {isFetching ? (
+                Array.from({length: 5}).map((_, i) => (
+                  <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--color-border)] last:border-0">
+                    <div><div className="h-4 w-24 bg-white/10 animate-pulse rounded mb-1"></div><div className="h-3 w-16 bg-white/10 animate-pulse rounded"></div></div>
+                    <div className="text-right"><div className="h-4 w-20 bg-white/10 animate-pulse rounded ml-auto"></div></div>
+                  </div>
+                ))
+              ) : topPendingUdhar.length > 0 ? topPendingUdhar.map((c: any) => (
                 <div key={c.id} className="flex justify-between items-center py-2 border-b border-[var(--color-border)] last:border-0">
                   <div>
                     <p className="font-medium">{c.name}</p>
@@ -253,8 +294,7 @@ export default function Dashboard() {
                     <p className="font-bold text-orange-500">₨ {c.pending_balance.toLocaleString()}</p>
                   </div>
                 </div>
-              ))}
-              {topPendingUdhar.length === 0 && <p className="text-sm text-gray-500">No pending udhar found.</p>}
+              )) : <p className="text-sm text-gray-500">No pending udhar found.</p>}
             </div>
           </div>
         </div>
@@ -268,6 +308,7 @@ export default function Dashboard() {
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
           <h3 className="text-base sm:text-lg font-semibold mb-4">Monthly Sales Trend</h3>
           <div className="h-full pb-8">
+            {isFetching ? <div className="w-full h-full bg-white/5 animate-pulse rounded-lg"></div> : 
             <Line 
               data={{
                 labels: sales?.monthly?.map((m: any) => m.label) || [],
@@ -291,7 +332,7 @@ export default function Dashboard() {
                 ]
               }}
               options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' as const } } }}
-            />
+            />}
           </div>
         </div>
 
@@ -299,6 +340,7 @@ export default function Dashboard() {
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
           <h3 className="text-base sm:text-lg font-semibold mb-4">Expenses by Category</h3>
           <div className="h-full pb-8 flex justify-center">
+            {isFetching ? <div className="w-full h-full aspect-square bg-white/5 animate-pulse rounded-full"></div> : 
             <Pie 
               data={{
                 labels: pnl?.expenses_by_category?.map((e: any) => e.label) || [],
@@ -309,7 +351,7 @@ export default function Dashboard() {
                 }]
               }}
               options={{ responsive: true, maintainAspectRatio: false }}
-            />
+            />}
           </div>
         </div>
 
@@ -317,6 +359,7 @@ export default function Dashboard() {
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
           <h3 className="text-base sm:text-lg font-semibold mb-4">Revenue by Employee</h3>
           <div className="h-full pb-8">
+            {isFetching ? <div className="w-full h-full bg-white/5 animate-pulse rounded-lg"></div> : 
             <Bar 
               data={{
                 labels: employees.map((e: any) => e.name),
@@ -328,7 +371,7 @@ export default function Dashboard() {
                 }]
               }}
               options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }}
-            />
+            />}
           </div>
         </div>
 
@@ -336,6 +379,7 @@ export default function Dashboard() {
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 h-96">
           <h3 className="text-base sm:text-lg font-semibold mb-4">Top Consumed Inventory</h3>
           <div className="h-full pb-8">
+            {isFetching ? <div className="w-full h-full bg-white/5 animate-pulse rounded-lg"></div> : 
             <Bar 
               data={{
                 labels: inventory?.top_consumed?.map((i: any) => i.name) || [],
@@ -347,7 +391,7 @@ export default function Dashboard() {
                 }]
               }}
               options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }}
-            />
+            />}
           </div>
         </div>
 
@@ -357,7 +401,7 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ title, value, icon, trend }: { title: string, value: string | number, icon: React.ReactNode, trend?: string }) {
+function StatCard({ title, value, icon, trend, isFetching }: { title: string, value: string | number, icon: React.ReactNode, trend?: string, isFetching?: boolean }) {
   return (
     <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 flex flex-col justify-between group hover:border-[var(--color-gold)] transition-colors">
       <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -367,7 +411,7 @@ function StatCard({ title, value, icon, trend }: { title: string, value: string 
         </div>
       </div>
       <div>
-        <div className="text-xl sm:text-2xl md:text-3xl font-bold break-words">{value}</div>
+        {isFetching ? <div className="h-8 w-24 bg-white/10 animate-pulse rounded"></div> : <div className="text-xl sm:text-2xl md:text-3xl font-bold break-words">{value}</div>}
         {trend && (
           <div className={`text-xs sm:text-sm mt-2 ${trend.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
             {trend} from yesterday
