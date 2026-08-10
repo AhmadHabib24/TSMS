@@ -313,7 +313,7 @@ export default function ReportsPage() {
   const salesPaymentMethodsDoughnutData = {
     labels: salesReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.label) || [],
     datasets: [{
-      data: salesReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.collected) || [],
+      data: salesReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.net ?? c.collected) || [],
       backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#f97316', '#06b6d4', '#84cc16', '#d946ef'],
       borderWidth: 0,
     }]
@@ -322,7 +322,7 @@ export default function ReportsPage() {
   const pnlPaymentMethodsDoughnutData = {
     labels: pnlReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.label) || [],
     datasets: [{
-      data: pnlReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.collected) || [],
+      data: pnlReport?.payment_methods?.filter((c: any) => !c.is_pending).map((c: any) => c.net ?? c.collected) || [],
       backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#f97316', '#06b6d4', '#84cc16', '#d946ef'],
       borderWidth: 0,
     }]
@@ -477,6 +477,8 @@ export default function ReportsPage() {
                   <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm">
                     <th className="py-2">Method</th>
                     <th className="py-2 text-right">Collected</th>
+                    <th className="py-2 text-right">Expense</th>
+                    <th className="py-2 text-right">Net</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--color-border)]">
@@ -485,16 +487,20 @@ export default function ReportsPage() {
                       <tr key={i}>
                         <td className="py-3"><div className="h-5 w-24 animate-pulse bg-white/10 rounded"></div></td>
                         <td className="py-3 flex justify-end"><div className="h-5 w-20 animate-pulse bg-white/10 rounded"></div></td>
+                        <td className="py-3 flex justify-end"><div className="h-5 w-20 animate-pulse bg-white/10 rounded"></div></td>
+                        <td className="py-3 flex justify-end"><div className="h-5 w-20 animate-pulse bg-white/10 rounded"></div></td>
                       </tr>
                     ))
                   ) : pnlReport?.payment_methods?.map((pm: any, i: number) => (
                     <tr key={i}>
                       <td className={`py-3 font-bold ${pm.is_pending ? 'text-orange-500' : 'text-[var(--color-foreground)]'}`}>{pm.label}</td>
-                      <td className={`py-3 font-black text-right ${pm.is_pending ? 'text-orange-500' : 'text-green-500'}`}>₨ {pm.collected.toLocaleString()}</td>
+                      <td className={`py-3 font-black text-right text-gray-300`}>₨ {pm.collected?.toLocaleString()}</td>
+                      <td className={`py-3 font-black text-right text-red-500`}>₨ {pm.expense?.toLocaleString() || 0}</td>
+                      <td className={`py-3 font-black text-right ${pm.is_pending ? 'text-orange-500' : 'text-green-500'}`}>₨ {(pm.net ?? pm.collected)?.toLocaleString()}</td>
                     </tr>
                   ))}
                   {!isLoading && (!pnlReport?.payment_methods || pnlReport.payment_methods.length === 0) && (
-                    <tr><td colSpan={2} className="py-6 text-center text-gray-500">No data available</td></tr>
+                    <tr><td colSpan={4} className="py-6 text-center text-gray-500">No data available</td></tr>
                   )}
                 </tbody>
               </table>
@@ -557,6 +563,8 @@ export default function ReportsPage() {
                   <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm">
                     <th className="py-2">Method</th>
                     <th className="py-2 text-right">Collected</th>
+                    <th className="py-2 text-right">Expense</th>
+                    <th className="py-2 text-right">Net</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--color-border)]">
@@ -565,16 +573,20 @@ export default function ReportsPage() {
                       <tr key={i}>
                         <td className="py-3"><div className="h-5 w-24 animate-pulse bg-white/10 rounded"></div></td>
                         <td className="py-3 flex justify-end"><div className="h-5 w-20 animate-pulse bg-white/10 rounded"></div></td>
+                        <td className="py-3 flex justify-end"><div className="h-5 w-20 animate-pulse bg-white/10 rounded"></div></td>
+                        <td className="py-3 flex justify-end"><div className="h-5 w-20 animate-pulse bg-white/10 rounded"></div></td>
                       </tr>
                     ))
                   ) : salesReport?.payment_methods?.map((pm: any, i: number) => (
                     <tr key={i}>
                       <td className={`py-3 font-bold ${pm.is_pending ? 'text-orange-500' : 'text-[var(--color-foreground)]'}`}>{pm.label}</td>
-                      <td className={`py-3 font-black text-right ${pm.is_pending ? 'text-orange-500' : 'text-green-500'}`}>₨ {pm.collected.toLocaleString()}</td>
+                      <td className={`py-3 font-black text-right text-gray-300`}>₨ {pm.collected?.toLocaleString()}</td>
+                      <td className={`py-3 font-black text-right text-red-500`}>₨ {pm.expense?.toLocaleString() || 0}</td>
+                      <td className={`py-3 font-black text-right ${pm.is_pending ? 'text-orange-500' : 'text-green-500'}`}>₨ {(pm.net ?? pm.collected)?.toLocaleString()}</td>
                     </tr>
                   ))}
                   {!isLoading && (!salesReport?.payment_methods || salesReport.payment_methods.length === 0) && (
-                    <tr><td colSpan={2} className="py-6 text-center text-gray-500">No data available</td></tr>
+                    <tr><td colSpan={4} className="py-6 text-center text-gray-500">No data available</td></tr>
                   )}
                 </tbody>
               </table>
