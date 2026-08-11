@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Users, DollarSign, ArrowDownRight, Activity, ShoppingCart, Percent, UserCheck } from 'lucide-react';
+import { Users, DollarSign, ArrowDownRight, Activity, ShoppingCart, Percent, UserCheck, Calendar } from 'lucide-react';
 import api from '@/lib/axios';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAuthStore } from '@/store/useAuthStore';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -124,6 +128,21 @@ export default function Dashboard() {
 
   const topEmployee = employees.length > 0 ? employees[0] : null;
 
+  const allScheduledEvents: any[] = [];
+  customers.forEach((c: any) => {
+    c.events?.forEach((ev: any) => {
+      if (ev.event_date) {
+        allScheduledEvents.push({
+          customerName: c.name,
+          mobile: c.mobile,
+          eventName: ev.event_name,
+          eventDate: ev.event_date
+        });
+      }
+    });
+  });
+  allScheduledEvents.sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+
   return (
     <div className="space-y-8 pb-10">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -218,6 +237,44 @@ export default function Dashboard() {
             <div><p className="text-gray-400 text-xs sm:text-sm">Total Discount Given</p>{isFetching ? <div className="h-7 w-20 bg-white/10 animate-pulse rounded mx-auto mt-1"></div> : <p className="text-lg sm:text-xl font-bold text-yellow-500">₨ {discounts.reduce((sum: number, b: any) => sum + (Number(b.discount_amount) || 0), 0).toLocaleString()}</p>}</div>
           </div>
         </div>
+      </div>
+
+      <h2 className="text-lg sm:text-xl font-bold mt-8 sm:mt-10 border-b border-[var(--color-border)] pb-2">Scheduled Groom Events</h2>
+      <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 mb-8">
+        {allScheduledEvents.length > 0 ? (
+          <Swiper
+            modules={[Autoplay, Pagination]}
+            spaceBetween={20}
+            slidesPerView={1}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 }
+            }}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            pagination={{ clickable: true }}
+            className="pb-10"
+          >
+            {allScheduledEvents.map((ev, i) => (
+              <SwiperSlide key={i}>
+                <div className="bg-[var(--color-background)] border border-[var(--color-gold)] p-4 rounded-xl flex flex-col justify-center shadow-[0_0_15px_rgba(212,175,55,0.05)] h-32 hover:scale-[1.02] transition-transform">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="font-bold text-lg truncate text-[var(--color-foreground)]">{ev.customerName}</div>
+                      <div className="text-xs text-gray-400">{ev.mobile}</div>
+                    </div>
+                    <span className="text-[10px] bg-[var(--color-gold)] text-black px-2 py-1 rounded font-bold">{ev.eventName}</span>
+                  </div>
+                  <div className="mt-auto flex items-center gap-2 text-sm font-semibold text-gray-300">
+                    <Calendar size={14} className="text-[var(--color-gold)]" />
+                    {new Date(ev.eventDate).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                  </div>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        ) : (
+          <p className="text-sm text-gray-500 text-center py-4">No scheduled events found.</p>
+        )}
       </div>
 
       <h2 className="text-lg sm:text-xl font-bold mt-8 sm:mt-10 border-b border-[var(--color-border)] pb-2">Recent Activity & Udhar</h2>

@@ -31,18 +31,45 @@ export default function CustomersPage() {
   useEffect(() => { fetchData(); }, []);
 
   const filteredData = data.filter((c: any) => 
-    !c.event && (
+    (!c.events || c.events.length === 0) && (
       c.name.toLowerCase().includes(search.toLowerCase()) || 
       (c.mobile && String(c.mobile).includes(search))
     )
   );
+
+  const availableEvents = ['Mehndi', 'Barat', 'Walima'];
+
+  const toggleEvent = (eventName: string) => {
+      let newEvents = [...(formData.events || [])];
+      const index = newEvents.findIndex((e: any) => e.name === eventName || e.event_name === eventName);
+      if (index >= 0) {
+          newEvents.splice(index, 1);
+      } else {
+          newEvents.push({ name: eventName, date: '' });
+      }
+      setFormData({...formData, events: newEvents});
+  };
+
+  const updateEventDate = (eventName: string, date: string) => {
+      let newEvents = [...(formData.events || [])];
+      const index = newEvents.findIndex((e: any) => e.name === eventName || e.event_name === eventName);
+      if (index >= 0) {
+          newEvents[index].date = date;
+      }
+      setFormData({...formData, events: newEvents});
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const payload = new FormData();
       Object.keys(formData).forEach(key => {
-        if (formData[key]) payload.append(key, formData[key]);
+        if (key === 'events') {
+            formData.events.forEach((ev: any, index: number) => {
+                payload.append(`events[${index}][name]`, ev.name || ev.event_name);
+                if (ev.date || ev.event_date) payload.append(`events[${index}][date]`, ev.date || ev.event_date);
+            });
+        } else if (formData[key]) payload.append(key, formData[key]);
       });
       if (imageFile) {
         payload.append('image', imageFile);
@@ -86,7 +113,7 @@ export default function CustomersPage() {
     
     if (item) {
       setEditingId(item.id);
-      setFormData({ name: item.name || '', mobile: item.mobile || '', event: item.event || '' });
+      setFormData({ name: item.name || '', mobile: item.mobile || '', events: item.events || [] });
       setIsModalOpen(true);
       
       // Fetch deep profile
@@ -101,7 +128,7 @@ export default function CustomersPage() {
       }
     } else {
       setEditingId(null);
-      setFormData({ name: '', mobile: '', event: '' });
+      setFormData({ name: '', mobile: '', events: [] });
       setIsModalOpen(true);
     }
   };
@@ -188,7 +215,7 @@ export default function CustomersPage() {
                 <td className="py-3 sm:py-4 pr-4 font-bold">
                   <div className="flex items-center gap-2">
                     {item.name}
-                    {item.event && <span className="text-[10px] bg-[var(--color-gold)] text-black px-1.5 py-0.5 rounded font-bold whitespace-nowrap">GC {item.event}</span>}
+                    {item.events?.map((ev: any) => <span key={ev.id || ev.event_name} className="text-[10px] bg-[var(--color-gold)] text-black px-1.5 py-0.5 rounded font-bold whitespace-nowrap">GC {ev.event_name}</span>)}
                   </div>
                 </td>
                 <td className="py-3 sm:py-4 pr-4 text-gray-400">{item.mobile}</td>
@@ -221,6 +248,7 @@ export default function CustomersPage() {
             {editingId && (
               <div className="flex border-b border-[var(--color-border)] px-2 sm:px-6 shrink-0 bg-[var(--color-background)] overflow-x-auto custom-scrollbar">
                 <button onClick={() => setActiveTab('profile')} className={`py-3 sm:py-4 px-4 sm:px-6 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'profile' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>Edit Details</button>
+                <button onClick={() => setActiveTab('events')} className={`py-3 sm:py-4 px-4 sm:px-6 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'events' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>Event Details</button>
                 <button onClick={() => setActiveTab('history')} className={`py-3 sm:py-4 px-4 sm:px-6 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'history' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>History & Favorites</button>
                 <button onClick={() => setActiveTab('udhar')} className={`py-3 sm:py-4 px-4 sm:px-6 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'udhar' ? 'border-[var(--color-gold)] text-[var(--color-gold)]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>Udhar (Pending)</button>
               </div>
@@ -245,13 +273,22 @@ export default function CustomersPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Event (Optional - For Groom Customers)</label>
-                    <select value={formData.event || ''} onChange={e => setFormData({...formData, event: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 focus:border-[var(--color-gold)] outline-none text-sm sm:text-base">
-                      <option value="">None</option>
-                      <option value="Mehndi">Mehndi</option>
-                      <option value="Barat">Barat</option>
-                      <option value="Walima">Walima</option>
-                    </select>
+                    <label className="block text-xs sm:text-sm text-gray-400 mb-2">Events (Optional - For Groom Customers)</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {availableEvents.map(ev => (
+                        <button type="button" key={ev} onClick={() => toggleEvent(ev)} className={`px-3 py-1 rounded-full text-xs font-bold border ${formData.events?.find((e: any) => e.name === ev || e.event_name === ev) ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)]' : 'bg-transparent text-gray-400 border-[var(--color-border)] hover:border-gray-500'}`}>
+                          {ev}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="space-y-2">
+                      {formData.events?.map((ev: any) => (
+                        <div key={ev.name || ev.event_name} className="flex items-center gap-2">
+                          <span className="text-xs text-[var(--color-gold)] font-bold w-16">{ev.name || ev.event_name}:</span>
+                          <input type="date" value={ev.date || ev.event_date || ''} onChange={e => updateEventDate(ev.name || ev.event_name, e.target.value)} className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded px-2 py-1 text-xs focus:border-[var(--color-gold)] outline-none" />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   
                   <button type="submit" className="w-full bg-[var(--color-gold)] text-black py-2.5 sm:py-3 rounded-lg font-bold mt-2 sm:mt-4 hover:bg-[var(--color-gold-hover)] transition-colors text-sm sm:text-base">
@@ -376,6 +413,32 @@ export default function CustomersPage() {
                         </div>
                       </div>
 
+                    </div>
+                  ) : (
+                    <div className="text-center text-red-500">Error loading profile data.</div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'events' && (
+                <div>
+                  {isLoadingProfile ? (
+                    <div className="h-24 bg-white/5 animate-pulse rounded-xl"></div>
+                  ) : customerProfile ? (
+                    <div className="space-y-4 animate-in fade-in duration-300">
+                      <h3 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3"><Star size={16} className="text-[var(--color-gold)] w-4 h-4"/> Scheduled Events</h3>
+                      {customerProfile?.customer?.events?.length > 0 ? (
+                        <div className="grid gap-3">
+                          {customerProfile.customer.events.map((ev: any) => (
+                            <div key={ev.id} className="bg-[var(--color-background)] border border-[var(--color-border)] p-4 rounded-xl flex justify-between items-center hover:border-[var(--color-gold)] transition-colors">
+                               <div className="font-bold text-[var(--color-foreground)]">{ev.event_name}</div>
+                               <div className="text-[var(--color-gold)] font-medium text-sm">{ev.event_date ? new Date(ev.event_date).toLocaleDateString() : 'No date set'}</div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-gray-500 italic text-sm text-center py-8 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl">No events assigned.</div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center text-red-500">Error loading profile data.</div>

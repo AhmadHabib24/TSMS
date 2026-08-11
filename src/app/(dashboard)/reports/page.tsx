@@ -432,7 +432,7 @@ export default function ReportsPage() {
               <DollarSign size={48} className="text-green-500 mx-auto mb-4" />
               <div className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-1">Total Revenue</div>
               <div className="text-4xl font-black text-green-500">
-                {isLoading ? <div className="h-10 w-32 animate-pulse bg-white/10 mx-auto rounded"></div> : `₨ ${groomCustomersReport?.total_revenue || 0}`}
+                {isLoading ? <div className="h-10 w-32 animate-pulse bg-white/10 mx-auto rounded"></div> : `PKR ${groomCustomersReport?.total_revenue || 0}`}
               </div>
             </div>
 
@@ -447,45 +447,12 @@ export default function ReportsPage() {
               <AlertTriangle size={48} className="text-orange-500 mx-auto mb-4" />
               <div className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-1">Total Pending (Udhar)</div>
               <div className="text-4xl font-black text-orange-500">
-                {isLoading ? <div className="h-10 w-24 animate-pulse bg-white/10 mx-auto rounded"></div> : `₨ ${groomCustomersReport?.total_pending || 0}`}
+                {isLoading ? <div className="h-10 w-24 animate-pulse bg-white/10 mx-auto rounded"></div> : `PKR ${groomCustomersReport?.total_pending || 0}`}
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
-              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><PieChart size={18} className="text-[var(--color-gold)]" /> Events Breakdown</h3>
-              <table className="w-full text-left whitespace-nowrap">
-                <thead>
-                  <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm">
-                    <th className="py-2">Event</th>
-                    <th className="py-2 text-center">Count</th>
-                    <th className="py-2 text-right">Revenue</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--color-border)]">
-                  {isLoading ? (
-                    [1,2,3].map(i => (
-                      <tr key={i}>
-                        <td className="py-3"><div className="h-5 w-24 animate-pulse bg-white/10 rounded"></div></td>
-                        <td className="py-3 flex justify-center"><div className="h-5 w-10 animate-pulse bg-white/10 rounded"></div></td>
-                        <td className="py-3 flex justify-end"><div className="h-5 w-20 animate-pulse bg-white/10 rounded"></div></td>
-                      </tr>
-                    ))
-                  ) : groomCustomersReport?.events_breakdown?.map((ev: any, i: number) => (
-                    <tr key={i}>
-                      <td className="py-3 font-bold text-[var(--color-foreground)]">{ev.label}</td>
-                      <td className="py-3 font-black text-center text-gray-300">{ev.count}</td>
-                      <td className="py-3 font-black text-right text-green-500">₨ {ev.revenue?.toLocaleString() || 0}</td>
-                    </tr>
-                  ))}
-                  {!isLoading && (!groomCustomersReport?.events_breakdown || groomCustomersReport.events_breakdown.length === 0) && (
-                    <tr><td colSpan={3} className="py-6 text-center text-gray-500">No events data</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
               <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><CreditCard size={18} className="text-[var(--color-gold)]" /> Payment Methods</h3>
               <table className="w-full text-left whitespace-nowrap">
@@ -506,7 +473,7 @@ export default function ReportsPage() {
                   ) : groomCustomersReport?.payment_methods?.map((pm: any, i: number) => (
                     <tr key={i}>
                       <td className={`py-3 font-bold ${pm.is_pending ? 'text-orange-500' : 'text-[var(--color-foreground)]'}`}>{pm.label}</td>
-                      <td className={`py-3 font-black text-right ${pm.is_pending ? 'text-orange-500' : 'text-green-500'}`}>₨ {(pm.net ?? pm.collected)?.toLocaleString()}</td>
+                      <td className={`py-3 font-black text-right ${pm.is_pending ? 'text-orange-500' : 'text-green-500'}`}>PKR {(pm.net ?? pm.collected)?.toLocaleString()}</td>
                     </tr>
                   ))}
                   {!isLoading && (!groomCustomersReport?.payment_methods || groomCustomersReport.payment_methods.length === 0) && (
@@ -530,10 +497,13 @@ export default function ReportsPage() {
                   groomCustomersReport.recent_bills.map((bill: any, i: number) => (
                     <div key={i} className="flex justify-between items-center border-b border-[var(--color-border)] pb-3 last:border-0">
                       <div>
-                        <div className="font-bold text-[var(--color-foreground)]">{bill.customer?.name} <span className="text-[10px] bg-[var(--color-gold)] text-black px-1 rounded ml-2">{bill.customer?.event}</span></div>
+                        <div className="font-bold text-[var(--color-foreground)]">
+                          {bill.customer?.name}
+                          {bill.customer?.events?.map((ev: any) => <span key={ev.id} className="text-[10px] bg-[var(--color-gold)] text-black px-1 rounded ml-1">{ev.event_name}</span>)}
+                        </div>
                         <div className="text-xs text-gray-400">{new Date(bill.created_at).toLocaleString()}</div>
                       </div>
-                      <div className="font-black text-[var(--color-gold)]">₨ {bill.total}</div>
+                      <div className="font-black text-[var(--color-gold)]">PKR {bill.total}</div>
                     </div>
                   ))
                 ) : (
@@ -541,6 +511,42 @@ export default function ReportsPage() {
                 )}
               </div>
             </div>
+          </div>
+
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 mt-6 overflow-x-auto">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><Users size={18} className="text-[var(--color-gold)]" /> Customer Wise Breakdown</h3>
+            <table className="w-full text-left whitespace-nowrap">
+              <thead>
+                <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm">
+                  <th className="py-2">Customer Name</th>
+                  <th className="py-2 text-center">Events Count</th>
+                  <th className="py-2">Events</th>
+                  <th className="py-2 text-right">Total Revenue</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-border)]">
+                {isLoading ? (
+                  [1,2,3].map(i => (
+                    <tr key={i}>
+                      <td className="py-3"><div className="h-5 w-32 animate-pulse bg-white/10 rounded"></div></td>
+                      <td className="py-3 flex justify-center"><div className="h-5 w-10 animate-pulse bg-white/10 rounded"></div></td>
+                      <td className="py-3"><div className="h-5 w-48 animate-pulse bg-white/10 rounded"></div></td>
+                      <td className="py-3 flex justify-end"><div className="h-5 w-24 animate-pulse bg-white/10 rounded"></div></td>
+                    </tr>
+                  ))
+                ) : groomCustomersReport?.customer_breakdown?.map((cb: any, i: number) => (
+                  <tr key={i}>
+                    <td className="py-3 font-bold text-[var(--color-foreground)]">{cb.name}</td>
+                    <td className="py-3 font-black text-center text-gray-300">{cb.events_count}</td>
+                    <td className="py-3 text-sm text-gray-400">{cb.events_list || 'None'}</td>
+                    <td className="py-3 font-black text-right text-green-500">PKR {cb.revenue?.toLocaleString() || 0}</td>
+                  </tr>
+                ))}
+                {!isLoading && (!groomCustomersReport?.customer_breakdown || groomCustomersReport.customer_breakdown.length === 0) && (
+                  <tr><td colSpan={4} className="py-6 text-center text-gray-500">No customer data</td></tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
