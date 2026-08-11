@@ -66,7 +66,7 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
                   </td>
                   <td className={`px-2 text-right text-gray-900 ${(item.package || item.deal) ? 'pt-4 align-top' : 'py-4'}`}>₨ {item.price}</td>
                 </tr>
-                {item.package && item.package_services_json && item.package_services_json.map((sName: string, idx: number) => (
+                {item.package && item.package_services_json && (typeof item.package_services_json === 'string' ? JSON.parse(item.package_services_json) : item.package_services_json).map((sName: string, idx: number) => (
                   <tr key={`${item.id}-pkg-sub-${idx}`}>
                     <td className="py-1 px-4 text-xs text-gray-500">
                       • {sName}
@@ -74,7 +74,7 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
                     <td></td>
                   </tr>
                 ))}
-                {item.deal && item.deal_services_json && item.deal_services_json.map((sName: string, idx: number) => (
+                {item.deal && item.deal_services_json && (typeof item.deal_services_json === 'string' ? JSON.parse(item.deal_services_json) : item.deal_services_json).map((sName: string, idx: number) => (
                   <tr key={`${item.id}-deal-sub-${idx}`}>
                     <td className="py-1 px-4 text-xs text-gray-500">
                       • {sName}
@@ -249,7 +249,7 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
                   <td></td>
                 </tr>
               ))}
-              {item.deal && item.deal_services_json && item.deal_services_json.map((sName: string, idx: number) => (
+              {item.deal && item.deal_services_json && (typeof item.deal_services_json === 'string' ? JSON.parse(item.deal_services_json) : item.deal_services_json).map((sName: string, idx: number) => (
                 <tr key={`${item.id}-deal-sub-${idx}`}>
                   <td className="py-0.5 text-[10px] text-gray-600 pl-2">
                     • {sName}

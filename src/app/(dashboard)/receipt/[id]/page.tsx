@@ -1,12 +1,14 @@
 'use client';
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import { Printer, ArrowLeft, Loader2 } from 'lucide-react';
 import api from '@/lib/axios';
 import ReceiptPrinter from '@/components/ReceiptPrinter';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
-export default function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
-  const unwrappedParams = use(params);
+export default function ReceiptPage() {
+  const params = useParams();
+  const id = params?.id as string;
   
   const [bill, setBill] = useState<any>(null);
   const [settings, setSettings] = useState<any>(null);
@@ -16,7 +18,7 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
     const fetchAll = async () => {
       try {
         const [billRes, settingsRes] = await Promise.all([
-          api.get(`/bills/${unwrappedParams.id}`),
+          api.get(`/bills/${id}`),
           api.get('/print-settings')
         ]);
         setBill(billRes.data);
@@ -26,8 +28,10 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
       }
       setLoading(false);
     };
-    fetchAll();
-  }, [unwrappedParams.id]);
+    if (id) {
+      fetchAll();
+    }
+  }, [id]);
 
   const handlePrint = () => {
     window.print();
