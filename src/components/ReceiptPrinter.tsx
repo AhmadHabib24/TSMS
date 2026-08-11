@@ -164,12 +164,12 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
                 </span>
                 <span>{item.price}</span>
               </div>
-              {item.package && item.package_services_json && item.package_services_json.map((sName: string, idx: number) => (
+              {item.package && item.package_services_json && (typeof item.package_services_json === 'string' ? JSON.parse(item.package_services_json) : item.package_services_json).map((sName: string, idx: number) => (
                 <div key={`${item.id}-pkg-sub-${idx}`} className="text-[10px] text-gray-600 ml-2">
                   • {sName}
                 </div>
               ))}
-              {item.deal && item.deal_services_json && item.deal_services_json.map((sName: string, idx: number) => (
+              {item.deal && item.deal_services_json && (typeof item.deal_services_json === 'string' ? JSON.parse(item.deal_services_json) : item.deal_services_json).map((sName: string, idx: number) => (
                 <div key={`${item.id}-deal-sub-${idx}`} className="text-[10px] text-gray-600 ml-2">
                   • {sName}
                 </div>
@@ -241,7 +241,7 @@ export default function ReceiptPrinter({ bill, settings }: ReceiptPrinterProps) 
                 </td>
                 <td className="py-1 text-right">{item.price}</td>
               </tr>
-              {item.package && item.package_services_json && item.package_services_json.map((sName: string, idx: number) => (
+              {item.package && item.package_services_json && (typeof item.package_services_json === 'string' ? JSON.parse(item.package_services_json) : item.package_services_json).map((sName: string, idx: number) => (
                 <tr key={`${item.id}-pkg-sub-${idx}`}>
                   <td className="py-0.5 text-[10px] text-gray-600 pl-2">
                     • {sName}
