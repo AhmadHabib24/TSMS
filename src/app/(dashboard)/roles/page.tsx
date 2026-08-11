@@ -5,7 +5,7 @@ import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { usePermissions } from '@/hooks/usePermissions';
 
-const MODULES = ['dashboard', 'billing', 'customers', 'services', 'service_categories', 'employees', 'inventory', 'reports', 'roles', 'users', 'finance', 'settings', 'expense_categories', 'salaries'];
+const MODULES = ['dashboard', 'billing', 'customers', 'groom_customers', 'services', 'service_categories', 'employees', 'inventory', 'reports', 'roles', 'users', 'finance', 'settings', 'expense_categories', 'salaries'];
 const ACTIONS = ['view', 'add', 'edit', 'delete'];
 
 export default function RolesPage() {

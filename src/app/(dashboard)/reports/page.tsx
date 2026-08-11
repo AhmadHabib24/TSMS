@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { FileText, Trophy, TrendingUp, TrendingDown, Users, DollarSign, Activity, Image as ImageIcon, Calendar, PieChart, Package, AlertTriangle, Lock } from 'lucide-react';
+import { FileText, Trophy, TrendingUp, TrendingDown, Users, DollarSign, Activity, Image as ImageIcon, Calendar, PieChart, Package, AlertTriangle, Lock, CreditCard, Clock } from 'lucide-react';
 import api from '@/lib/axios';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -35,7 +35,7 @@ ChartJS.register(
 
 export default function ReportsPage() {
   const { hasFeature, isPlanExpired } = usePermissions();
-  const [activeTab, setActiveTab] = useState<'sales' | 'staff' | 'bills' | 'pnl' | 'inventory' | 'discounts' | 'udhar'>('pnl');
+  const [activeTab, setActiveTab] = useState<'sales' | 'staff' | 'bills' | 'pnl' | 'inventory' | 'discounts' | 'udhar' | 'groom_customers'>('pnl');
 
   const handleTabClick = (tab: any, featureName: string) => {
     if (!hasFeature(featureName) || isPlanExpired()) {
@@ -54,6 +54,7 @@ export default function ReportsPage() {
   const [inventoryReport, setInventoryReport] = useState<any>(null);
   const [discountReport, setDiscountReport] = useState<any[]>([]);
   const [udharReport, setUdharReport] = useState<any[]>([]);
+  const [groomCustomersReport, setGroomCustomersReport] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [dateFilter, setDateFilter] = useState('all'); // today, yesterday, week, month, custom
@@ -87,6 +88,7 @@ export default function ReportsPage() {
     else if (activeTab === 'pnl') fetchPnlReport();
     else if (activeTab === 'inventory') fetchInventoryReport();
     else if (activeTab === 'discounts') fetchDiscountReport();
+    else if (activeTab === 'groom_customers') fetchGroomCustomersReport();
     else if (activeTab === 'bills') {
       setIsLoading(true);
       let url = '/bills';
@@ -212,6 +214,23 @@ export default function ReportsPage() {
     });
   };
 
+  const fetchGroomCustomersReport = () => {
+    setIsLoading(true);
+    let url = '/reports/groom-customers-report';
+    const params = new URLSearchParams();
+    if (startDate && endDate) {
+      params.append('start_date', startDate);
+      params.append('end_date', endDate);
+    }
+    if (paymentMethod) params.append('payment_method', paymentMethod);
+    if (params.toString()) url += `?${params.toString()}`;
+
+    api.get(url).then(res => {
+      setGroomCustomersReport(res.data);
+      setIsLoading(false);
+    });
+  };
+
   // Chart Options
   const commonOptions = {
     responsive: true,
@@ -333,7 +352,7 @@ export default function ReportsPage() {
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 border-b border-[var(--color-border)] pb-4">
         <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3 shrink-0"><FileText className="text-[var(--color-gold)] shrink-0" size={32} /> <span className="truncate">Reports & Analytics</span></h1>
 
-        <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto w-full xl:w-auto shrink-0">
+        <div className="flex bg-[var(--color-background)] border border-[var(--color-border)] p-1 rounded-lg overflow-x-auto w-full max-w-full">
           <button onClick={() => handleTabClick('pnl', 'report_pnl')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'pnl' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'} ${(!hasFeature('report_pnl') || isPlanExpired()) ? 'opacity-50' : ''}`}>
             Profit & Loss {(!hasFeature('report_pnl') || isPlanExpired()) && <Lock size={14} />}
           </button>
@@ -352,13 +371,16 @@ export default function ReportsPage() {
           <button onClick={() => handleTabClick('discounts', 'report_discounts')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'discounts' ? 'bg-[var(--color-gold)] text-black shadow-md' : 'text-gray-400 hover:text-[var(--color-foreground)]'} ${(!hasFeature('report_discounts') || isPlanExpired()) ? 'opacity-50' : ''}`}>
             Discounts {(!hasFeature('report_discounts') || isPlanExpired()) && <Lock size={14} />}
           </button>
+          <button onClick={() => handleTabClick('groom_customers', 'groom_customers')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'groom_customers' ? 'bg-[var(--color-gold)] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]' : 'text-gray-400 hover:text-[var(--color-gold)]'} ${(!hasFeature('groom_customers') || isPlanExpired()) ? 'opacity-50' : ''}`}>
+            <Users size={16} className={activeTab === 'groom_customers' ? 'text-black' : ''} /> Groom Report {(!hasFeature('groom_customers') || isPlanExpired()) && <Lock size={14} />}
+          </button>
           <button onClick={() => handleTabClick('udhar', 'report_udhar')} className={`px-4 xl:px-6 py-2 rounded-md font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'udhar' ? 'bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]' : 'text-gray-400 hover:text-orange-400'} ${(!hasFeature('report_udhar') || isPlanExpired()) ? 'opacity-50' : ''}`}>
             <AlertTriangle size={16} className={activeTab === 'udhar' ? 'text-black' : ''} /> Udhar Report {(!hasFeature('report_udhar') || isPlanExpired()) && <Lock size={14} />}
           </button>
         </div>
       </div>
 
-      {(activeTab === 'sales' || activeTab === 'pnl' || activeTab === 'inventory' || activeTab === 'discounts' || activeTab === 'staff' || activeTab === 'bills') && (
+      {(activeTab === 'sales' || activeTab === 'pnl' || activeTab === 'inventory' || activeTab === 'discounts' || activeTab === 'staff' || activeTab === 'bills' || activeTab === 'groom_customers') && (
         <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 sm:p-6 flex flex-col xl:flex-row gap-4 sm:gap-6 justify-between items-start xl:items-center animate-in fade-in duration-500">
           <div className="flex flex-wrap gap-2 w-full xl:w-auto">
             {['today', 'yesterday', 'week', 'month', 'all'].map(f => (
@@ -395,7 +417,134 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {activeTab === 'pnl' ? (
+      {activeTab === 'groom_customers' ? (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-[var(--color-panel)] border border-[var(--color-gold)] rounded-xl p-6 shadow-[0_0_15px_rgba(212,175,55,0.05)] text-center">
+              <Users size={48} className="text-[var(--color-gold)] mx-auto mb-4" />
+              <div className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-1">Total Groom Customers</div>
+              <div className="text-4xl font-black text-[var(--color-foreground)]">
+                {isLoading ? <div className="h-10 w-24 animate-pulse bg-white/10 mx-auto rounded"></div> : groomCustomersReport?.total_customers || 0}
+              </div>
+            </div>
+
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 text-center">
+              <DollarSign size={48} className="text-green-500 mx-auto mb-4" />
+              <div className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-1">Total Revenue</div>
+              <div className="text-4xl font-black text-green-500">
+                {isLoading ? <div className="h-10 w-32 animate-pulse bg-white/10 mx-auto rounded"></div> : `₨ ${groomCustomersReport?.total_revenue || 0}`}
+              </div>
+            </div>
+
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 text-center">
+              <FileText size={48} className="text-blue-500 mx-auto mb-4" />
+              <div className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-1">Total Bills Generated</div>
+              <div className="text-4xl font-black text-[var(--color-foreground)]">
+                {isLoading ? <div className="h-10 w-24 animate-pulse bg-white/10 mx-auto rounded"></div> : groomCustomersReport?.total_bills || 0}
+              </div>
+            </div>
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 text-center">
+              <AlertTriangle size={48} className="text-orange-500 mx-auto mb-4" />
+              <div className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-1">Total Pending (Udhar)</div>
+              <div className="text-4xl font-black text-orange-500">
+                {isLoading ? <div className="h-10 w-24 animate-pulse bg-white/10 mx-auto rounded"></div> : `₨ ${groomCustomersReport?.total_pending || 0}`}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><PieChart size={18} className="text-[var(--color-gold)]" /> Events Breakdown</h3>
+              <table className="w-full text-left whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm">
+                    <th className="py-2">Event</th>
+                    <th className="py-2 text-center">Count</th>
+                    <th className="py-2 text-right">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--color-border)]">
+                  {isLoading ? (
+                    [1,2,3].map(i => (
+                      <tr key={i}>
+                        <td className="py-3"><div className="h-5 w-24 animate-pulse bg-white/10 rounded"></div></td>
+                        <td className="py-3 flex justify-center"><div className="h-5 w-10 animate-pulse bg-white/10 rounded"></div></td>
+                        <td className="py-3 flex justify-end"><div className="h-5 w-20 animate-pulse bg-white/10 rounded"></div></td>
+                      </tr>
+                    ))
+                  ) : groomCustomersReport?.events_breakdown?.map((ev: any, i: number) => (
+                    <tr key={i}>
+                      <td className="py-3 font-bold text-[var(--color-foreground)]">{ev.label}</td>
+                      <td className="py-3 font-black text-center text-gray-300">{ev.count}</td>
+                      <td className="py-3 font-black text-right text-green-500">₨ {ev.revenue?.toLocaleString() || 0}</td>
+                    </tr>
+                  ))}
+                  {!isLoading && (!groomCustomersReport?.events_breakdown || groomCustomersReport.events_breakdown.length === 0) && (
+                    <tr><td colSpan={3} className="py-6 text-center text-gray-500">No events data</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><CreditCard size={18} className="text-[var(--color-gold)]" /> Payment Methods</h3>
+              <table className="w-full text-left whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-[var(--color-border)] text-gray-400 text-sm">
+                    <th className="py-2">Method</th>
+                    <th className="py-2 text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--color-border)]">
+                  {isLoading ? (
+                    [1,2,3].map(i => (
+                      <tr key={i}>
+                        <td className="py-3"><div className="h-5 w-24 animate-pulse bg-white/10 rounded"></div></td>
+                        <td className="py-3 flex justify-end"><div className="h-5 w-20 animate-pulse bg-white/10 rounded"></div></td>
+                      </tr>
+                    ))
+                  ) : groomCustomersReport?.payment_methods?.map((pm: any, i: number) => (
+                    <tr key={i}>
+                      <td className={`py-3 font-bold ${pm.is_pending ? 'text-orange-500' : 'text-[var(--color-foreground)]'}`}>{pm.label}</td>
+                      <td className={`py-3 font-black text-right ${pm.is_pending ? 'text-orange-500' : 'text-green-500'}`}>₨ {(pm.net ?? pm.collected)?.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                  {!isLoading && (!groomCustomersReport?.payment_methods || groomCustomersReport.payment_methods.length === 0) && (
+                    <tr><td colSpan={2} className="py-6 text-center text-gray-500">No payment data</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-6 overflow-y-auto max-h-[400px]">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><Clock size={18} className="text-[var(--color-gold)]" /> Recent Groom Customer Bills</h3>
+              <div className="space-y-4">
+                {isLoading ? (
+                  [1,2,3,4].map(i => (
+                    <div key={i} className="flex justify-between items-center border-b border-[var(--color-border)] pb-3">
+                      <div className="h-8 w-32 animate-pulse bg-white/10 rounded"></div>
+                      <div className="h-8 w-20 animate-pulse bg-white/10 rounded"></div>
+                    </div>
+                  ))
+                ) : groomCustomersReport?.recent_bills?.length > 0 ? (
+                  groomCustomersReport.recent_bills.map((bill: any, i: number) => (
+                    <div key={i} className="flex justify-between items-center border-b border-[var(--color-border)] pb-3 last:border-0">
+                      <div>
+                        <div className="font-bold text-[var(--color-foreground)]">{bill.customer?.name} <span className="text-[10px] bg-[var(--color-gold)] text-black px-1 rounded ml-2">{bill.customer?.event}</span></div>
+                        <div className="text-xs text-gray-400">{new Date(bill.created_at).toLocaleString()}</div>
+                      </div>
+                      <div className="font-black text-[var(--color-gold)]">₨ {bill.total}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center h-32 text-gray-500">No recent bills found.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      ) : activeTab === 'pnl' ? (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

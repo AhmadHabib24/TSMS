@@ -34,6 +34,7 @@ export default function QuickBilling() {
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
   const [newCustName, setNewCustName] = useState('');
   const [newCustMobile, setNewCustMobile] = useState('');
+  const [newCustEvent, setNewCustEvent] = useState('');
 
   const [savedBill, setSavedBill] = useState<any>(null);
   const [printFormat, setPrintFormat] = useState<'thermal' | 'a4'>('thermal');
@@ -83,12 +84,15 @@ export default function QuickBilling() {
   const handleAddCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post('/customers', { name: newCustName, mobile: newCustMobile });
+      const payload: any = { name: newCustName, mobile: newCustMobile };
+      if (newCustEvent) payload.event = newCustEvent;
+      const res = await api.post('/customers', payload);
       setCustomers([res.data, ...customers] as any);
       setSelectedCustomer(res.data);
       setIsAddingCustomer(false);
       setNewCustName('');
       setNewCustMobile('');
+      setNewCustEvent('');
       setStep(2);
       toast.success('Customer added!');
     } catch (err: any) {
@@ -234,6 +238,12 @@ export default function QuickBilling() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <input required value={newCustName} onChange={e => setNewCustName(e.target.value)} type="text" placeholder="Full Name" className="w-full bg-[var(--color-panel)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm focus:border-[var(--color-gold)] outline-none" />
                         <input required value={newCustMobile} onChange={e => setNewCustMobile(e.target.value)} type="text" placeholder="Mobile Number" className="w-full bg-[var(--color-panel)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm focus:border-[var(--color-gold)] outline-none" />
+                        <select value={newCustEvent} onChange={e => setNewCustEvent(e.target.value)} className="w-full bg-[var(--color-panel)] border border-[var(--color-border)] rounded-lg py-2 px-3 text-sm focus:border-[var(--color-gold)] outline-none sm:col-span-2">
+                          <option value="">Event (Optional - For Groom Customer)</option>
+                          <option value="Mehndi">Mehndi</option>
+                          <option value="Barat">Barat</option>
+                          <option value="Walima">Walima</option>
+                        </select>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                         <button type="submit" className="flex-1 bg-[var(--color-gold)] text-black py-2 rounded-lg font-bold hover:bg-[var(--color-gold-hover)] transition-colors text-sm sm:text-base">Save & Continue</button>
@@ -274,7 +284,10 @@ export default function QuickBilling() {
                             className="p-4 border border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-gold)] focus:border-[var(--color-gold)] focus:outline-none transition-colors bg-[var(--color-background)] relative"
                           >
                             <div className="flex justify-between items-start gap-2">
-                              <div className="font-bold break-words whitespace-normal">{cust.name}</div>
+                              <div className="font-bold break-words whitespace-normal flex items-center gap-2">
+                                {cust.name}
+                                {cust.event && <span className="text-[10px] bg-[var(--color-gold)] text-black px-1.5 py-0.5 rounded font-bold whitespace-nowrap">GC {cust.event}</span>}
+                              </div>
                               {Number(cust.pending_balance) > 0 && (
                                 <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
                                   Udhar: ₨ {cust.pending_balance}

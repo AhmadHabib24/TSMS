@@ -31,8 +31,10 @@ export default function CustomersPage() {
   useEffect(() => { fetchData(); }, []);
 
   const filteredData = data.filter((c: any) => 
-    c.name.toLowerCase().includes(search.toLowerCase()) || 
-    (c.mobile && String(c.mobile).includes(search))
+    !c.event && (
+      c.name.toLowerCase().includes(search.toLowerCase()) || 
+      (c.mobile && String(c.mobile).includes(search))
+    )
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,7 +86,7 @@ export default function CustomersPage() {
     
     if (item) {
       setEditingId(item.id);
-      setFormData({ name: item.name || '', mobile: item.mobile || '' });
+      setFormData({ name: item.name || '', mobile: item.mobile || '', event: item.event || '' });
       setIsModalOpen(true);
       
       // Fetch deep profile
@@ -99,7 +101,7 @@ export default function CustomersPage() {
       }
     } else {
       setEditingId(null);
-      setFormData({ name: '', mobile: '' });
+      setFormData({ name: '', mobile: '', event: '' });
       setIsModalOpen(true);
     }
   };
@@ -183,7 +185,12 @@ export default function CustomersPage() {
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--color-border)] flex items-center justify-center text-gray-400"><ImageIcon size={18} className="sm:w-5 sm:h-5"/></div>
                   )}
                 </td>
-                <td className="py-3 sm:py-4 pr-4 font-bold">{item.name}</td>
+                <td className="py-3 sm:py-4 pr-4 font-bold">
+                  <div className="flex items-center gap-2">
+                    {item.name}
+                    {item.event && <span className="text-[10px] bg-[var(--color-gold)] text-black px-1.5 py-0.5 rounded font-bold whitespace-nowrap">GC {item.event}</span>}
+                  </div>
+                </td>
                 <td className="py-3 sm:py-4 pr-4 text-gray-400">{item.mobile}</td>
                 <td className="py-3 sm:py-4 flex flex-wrap gap-2 sm:gap-3 items-center min-w-[150px]">
                   <button onClick={() => openModal(item, 'history')} className="text-gray-400 hover:text-[var(--color-gold)] transition-colors flex items-center gap-1 text-xs sm:text-sm bg-black/20 px-2 sm:px-3 py-1 rounded-full border border-[var(--color-border)]"><Eye size={14} className="sm:w-4 sm:h-4"/> Profile</button>
@@ -235,6 +242,16 @@ export default function CustomersPage() {
                   <div>
                     <label className="block text-xs sm:text-sm text-gray-400 mb-1">Mobile Number</label>
                     <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} type="text" className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 focus:border-[var(--color-gold)] outline-none text-sm sm:text-base" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Event (Optional - For Groom Customers)</label>
+                    <select value={formData.event || ''} onChange={e => setFormData({...formData, event: e.target.value})} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 sm:py-3 px-3 sm:px-4 focus:border-[var(--color-gold)] outline-none text-sm sm:text-base">
+                      <option value="">None</option>
+                      <option value="Mehndi">Mehndi</option>
+                      <option value="Barat">Barat</option>
+                      <option value="Walima">Walima</option>
+                    </select>
                   </div>
                   
                   <button type="submit" className="w-full bg-[var(--color-gold)] text-black py-2.5 sm:py-3 rounded-lg font-bold mt-2 sm:mt-4 hover:bg-[var(--color-gold-hover)] transition-colors text-sm sm:text-base">
