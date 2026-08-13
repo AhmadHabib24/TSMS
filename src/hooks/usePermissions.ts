@@ -28,5 +28,11 @@ export const usePermissions = () => {
     return new Date(planDetails.expires_at) < new Date();
   };
 
-  return { can, user, hasFeature, isPlanExpired };
+  const hasAddon = (addonIdentifier: string): boolean => {
+    const { planDetails } = require('@/store/usePlanStore').usePlanStore.getState();
+    if (!planDetails || !planDetails.active_addons) return false;
+    return planDetails.active_addons.includes(addonIdentifier);
+  };
+
+  return { can, user, hasFeature, hasAddon, isPlanExpired };
 };

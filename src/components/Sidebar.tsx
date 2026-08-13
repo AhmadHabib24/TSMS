@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Users, Scissors, Briefcase, FileText, Settings, LogOut, Package, Receipt, UserCog, Layers, DollarSign } from 'lucide-react';
+import { Home, Users, Scissors, Briefcase, FileText, Settings, LogOut, Package, Receipt, UserCog, Layers, DollarSign, Blocks, LayoutTemplate, CalendarClock, MessageSquare, Ticket } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
@@ -16,7 +16,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const logout = useAuthStore(state => state.logout);
-  const { can, hasFeature, isPlanExpired } = usePermissions();
+  const { can, hasFeature, isPlanExpired, hasAddon } = usePermissions();
   const { settings } = useSettings();
   const { isMobileSidebarOpen, closeMobileSidebar } = useLayoutStore();
   const { t } = useTranslation();
@@ -72,7 +72,17 @@ export default function Sidebar() {
           {can('reports', 'view') && <NavItem href="/reports" icon={<FileText size={20} />} label="Reports" active={pathname === '/reports'} onClick={closeMobileSidebar} locked={!hasFeature('reports') || isPlanExpired()} isExpired={isPlanExpired()} />}
           {can('reports', 'view') && <NavItem href="/finance" icon={<DollarSign size={20} />} label="Finance" active={pathname === '/finance'} onClick={closeMobileSidebar} locked={!hasFeature('finance') || isPlanExpired()} isExpired={isPlanExpired()} />}
 
+          <NavItem href="/addons" icon={<Blocks size={20} />} label="Addons" active={pathname === '/addons'} onClick={closeMobileSidebar} locked={false} isExpired={false} />
+
+          {/* Dynamic Addon Menus */}
+          {hasAddon('landing_page') && <NavItem href="/website-builder" icon={<LayoutTemplate size={20} />} label="Website Builder" active={pathname === '/website-builder'} onClick={closeMobileSidebar} locked={false} isExpired={false} />}
+          {hasAddon('booking_system') && <NavItem href="/bookings-manager" icon={<CalendarClock size={20} />} label="Booking Manager" active={pathname === '/bookings-manager'} onClick={closeMobileSidebar} locked={false} isExpired={false} />}
+          {hasAddon('ai_chatbot') && <NavItem href="/chatbot-settings" icon={<MessageSquare size={20} />} label="AI Chatbot Settings" active={pathname === '/chatbot-settings'} onClick={closeMobileSidebar} locked={false} isExpired={false} />}
+          {hasAddon('fast_support') && <NavItem href="/support-tickets" icon={<Ticket size={20} />} label="Support Tickets" active={pathname === '/support-tickets'} onClick={closeMobileSidebar} locked={false} isExpired={false} />}
+
           {can('service_categories', 'view') && <NavItem href="/settings" icon={<Settings size={20} />} label="Settings" active={pathname === '/settings'} onClick={closeMobileSidebar} locked={!hasFeature('settings') || isPlanExpired()} isExpired={isPlanExpired()} />}
+
+
         </nav>
         <div className="p-4 border-t border-[var(--color-border)]">
           <button
