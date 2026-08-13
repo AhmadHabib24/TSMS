@@ -16,7 +16,7 @@
   --border-color: #e5e7eb;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-gold: var(--gold-primary);
@@ -42,13 +42,16 @@ body {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--background);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gold-primary);
 }
@@ -57,9 +60,11 @@ body {
   .no-print {
     display: none !important;
   }
+
   .print-only {
     display: block !important;
   }
+
   body {
     background: white !important;
     color: black !important;

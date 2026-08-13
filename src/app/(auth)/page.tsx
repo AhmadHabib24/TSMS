@@ -5,7 +5,7 @@ import api from '@/lib/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSettings } from '@/providers/SettingsProvider';
 import toast from 'react-hot-toast';
-import { LogIn } from 'lucide-react';
+import { LogIn, Eye, EyeOff } from 'lucide-react';
 import BookingWidget from '@/components/BookingWidget';
 import FloatingChatbot from '@/components/FloatingChatbot';
 import SupportWidget from '@/components/SupportWidget';
@@ -15,8 +15,9 @@ export default function RootPage() {
   const [loadingPage, setLoadingPage] = useState(true);
 
   // Login States
-  const [email, setEmail] = useState('admin@playboy.com');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loadingLogin, setLoadingLogin] = useState(false);
   const login = useAuthStore(state => state.login);
   const router = useRouter();
@@ -170,14 +171,23 @@ export default function RootPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">Password</label>
-            <input 
-              type="password" 
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl py-3 px-4 text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-gold)] transition-colors"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl py-3 pl-4 pr-12 text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-gold)] transition-colors"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[var(--color-gold)] transition-colors focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           <button 
