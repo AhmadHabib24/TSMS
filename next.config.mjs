@@ -1,5 +1,4 @@
-import type { NextConfig } from "next";
-import withPWAInit from "next-pwa";
+import withPWAInit from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
   dest: "public",
@@ -8,7 +7,8 @@ const withPWA = withPWAInit({
   skipWaiting: true,
 });
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: { unoptimized: true },
   turbopack: {}
 };

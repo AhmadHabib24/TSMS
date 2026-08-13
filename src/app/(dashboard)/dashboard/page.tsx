@@ -148,16 +148,16 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
         
-        <div className="flex flex-col sm:flex-row items-center gap-3 bg-[var(--color-panel)] p-2 rounded-xl border border-[var(--color-border)] w-full sm:w-auto">
-          <div className="flex flex-col w-full sm:w-auto">
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-1.5 px-3 text-sm focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
+        <div className="flex flex-row items-center gap-2 sm:gap-3 bg-[var(--color-panel)] p-2 rounded-xl border border-[var(--color-border)] w-full sm:w-auto justify-between">
+          <div className="flex-1 sm:w-auto">
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-1.5 px-2 sm:px-3 text-xs sm:text-sm focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
           </div>
           <span className="text-gray-500 hidden sm:inline">-</span>
-          <div className="flex flex-col w-full sm:w-auto">
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-1.5 px-3 text-sm focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
+          <div className="flex-1 sm:w-auto">
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-1.5 px-2 sm:px-3 text-xs sm:text-sm focus:border-[var(--color-gold)] outline-none text-[var(--color-foreground)]" />
           </div>
           {(startDate || endDate) && (
-            <button onClick={() => { setStartDate(''); setEndDate(''); }} className="w-full sm:w-auto px-3 py-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-sm font-bold transition-colors">
+            <button onClick={() => { setStartDate(''); setEndDate(''); }} className="px-2 sm:px-3 py-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-xs sm:text-sm font-bold transition-colors">
               Clear
             </button>
           )}

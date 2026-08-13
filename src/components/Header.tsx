@@ -69,11 +69,15 @@ export default function Header() {
           <p className="text-xs md:text-sm text-gray-400 truncate">Role: <span className="text-[var(--color-gold)]">{user?.role?.name || 'Unknown'}</span></p>
         </div>
       </div>
-      <div className="flex items-center space-x-2 sm:space-x-4 relative shrink-0 pl-2">
-        <ExpiryTimer />
-        <LanguageSwitcher />
+      <div className="flex items-center space-x-1 sm:space-x-4 relative shrink-0 pl-1 sm:pl-2">
+        <div className="hidden sm:block">
+          <ExpiryTimer />
+        </div>
+        <div className="hidden sm:block">
+          <LanguageSwitcher />
+        </div>
         
-        <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-[var(--color-panel)] transition-colors relative cursor-pointer text-gray-400 hover:text-[var(--color-gold)]">
+        <button onClick={toggleTheme} className="p-1.5 sm:p-2 rounded-full hover:bg-[var(--color-panel)] transition-colors relative cursor-pointer text-gray-400 hover:text-[var(--color-gold)]">
           {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
         

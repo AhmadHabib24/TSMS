@@ -30,9 +30,13 @@ export default function RootPage() {
   const fetchLandingPage = async () => {
     try {
       const res = await api.get('/public/landing-page');
-      setLandingPage(res.data);
+      if (res.data && res.data.isActive === false) {
+        setLandingPage(null);
+      } else {
+        setLandingPage(res.data);
+      }
     } catch (error) {
-      // 403 or 404 means no landing page or not active, just fallback to login
+      // API or network failure fallback
       setLandingPage(null);
     } finally {
       setLoadingPage(false);
@@ -64,7 +68,7 @@ export default function RootPage() {
   // --- Dynamic Landing Page Render ---
   if (landingPage) {
     let blocks = [];
-    try { blocks = typeof landingPage.blocks === 'string' ? JSON.parse(landingPage.blocks) : (landingPage.blocks || []); } catch(e){}
+    try { blocks = typeof landingPage.blocks === 'string' ? JSON.parse(landingPage.blocks) : (landingPage.blocks || []); } catch (e) { }
     const themeColor = landingPage.settings?.themeColor || '#eab308';
 
     return (
@@ -159,8 +163,8 @@ export default function RootPage() {
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
@@ -172,8 +176,8 @@ export default function RootPage() {
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">Password</label>
             <div className="relative">
-              <input 
-                type={showPassword ? "text" : "password"} 
+              <input
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -190,8 +194,8 @@ export default function RootPage() {
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loadingLogin}
             className="w-full bg-[var(--color-gold)] text-black font-bold py-3 px-4 rounded-xl hover:bg-[var(--color-gold-hover)] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
           >
