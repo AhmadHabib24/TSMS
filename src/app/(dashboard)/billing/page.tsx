@@ -61,7 +61,7 @@ export default function QuickBilling() {
   const [savedBill, setSavedBill] = useState<any>(null);
   const [printFormat, setPrintFormat] = useState<'thermal' | 'a4'>('thermal');
   
-  const [mainTab, setMainTab] = useState<'services' | 'deals' | 'packages'>('services');
+  const [mainTab, setMainTab] = useState<'services' | 'deals' | 'packages' | 'custom'>('services');
   const [subTab, setSubTab] = useState<number | 'all' | 'uncategorized' | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
