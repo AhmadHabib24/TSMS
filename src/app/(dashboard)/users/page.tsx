@@ -10,6 +10,7 @@ export default function UsersPage() {
   const [roles, setRoles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingItem, setEditingItem] = useState<any>(null);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', role_id: '' });
   const { can, user } = usePermissions();
 
@@ -52,9 +53,11 @@ export default function UsersPage() {
   const openModal = (item?: any) => {
     if (item) {
       setEditingId(item.id);
+      setEditingItem(item);
       setFormData({ name: item.name, email: item.email, password: '', role_id: item.role_id });
     } else {
       setEditingId(null);
+      setEditingItem(null);
       setFormData({ name: '', email: '', password: '', role_id: '' });
     }
     setIsModalOpen(true);
@@ -112,7 +115,21 @@ export default function UsersPage() {
 
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Password {editingId && <span className="text-xs text-gray-500">(Leave blank to keep current)</span>}</label>
-                <input required={!editingId} minLength={8} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} type="password" placeholder={editingId ? '••••••••' : ''} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 focus:border-[var(--color-gold)] outline-none" />
+                {editingItem && editingItem.has_changed_password ? (
+                   <div className="bg-red-500/10 border border-red-500/50 p-3 rounded-lg flex flex-col gap-2">
+                     <span className="text-xs sm:text-sm text-red-400">Password has already been changed once. You must request a change from Master Admin.</span>
+                     <button type="button" onClick={async () => {
+                        try {
+                          await api.post('/users/request-password-change');
+                          toast.success('Password change request sent!');
+                        } catch (e: any) {
+                          toast.error(e.response?.data?.message || 'Failed to send request');
+                        }
+                     }} className="bg-red-500 text-white text-xs font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors self-start">Request Password Change</button>
+                   </div>
+                ) : (
+                  <input required={!editingId} minLength={8} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} type="password" placeholder={editingId ? '••••••••' : ''} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-2 px-3 focus:border-[var(--color-gold)] outline-none" />
+                )}
               </div>
 
               <div>

@@ -83,7 +83,7 @@ export default function QuickBilling() {
     if (s.is_deal && s.discount_percentage) {
       p = p - (p * (Number(s.discount_percentage) / 100));
     }
-    return sum + p;
+    return sum + (p * (s.quantity || 1));
   }, 0);
   
   let promoDiscountAmount = 0;
@@ -429,6 +429,16 @@ export default function QuickBilling() {
                         <Layers size={16} /> Session Package
                       </button>
                     )}
+                    <button
+                      onClick={() => setMainTab('custom')}
+                      className={`whitespace-nowrap px-6 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                        mainTab === 'custom'
+                          ? 'bg-[var(--color-gold)] text-black' 
+                          : 'bg-transparent text-gray-400 hover:text-[var(--color-gold)]'
+                      }`}
+                    >
+                      <Plus size={16} /> Custom Amount
+                    </button>
                   </div>
 
                   {mainTab === 'services' && (
@@ -495,10 +505,14 @@ export default function QuickBilling() {
                             return false;
                           })
                           .map((srv: any, index: number, arr: any[]) => {
-                            const isSelected = !!selectedServices.find(s => s.id === srv.id);
+                            const existingSrv = selectedServices.find(s => s.id === srv.id && !s.is_package && !s.is_deal && !s.is_manual);
+                            const isSelected = !!existingSrv;
                             const toggleSelection = () => {
-                              if (isSelected) setSelectedServices(selectedServices.filter(s => s.id !== srv.id));
-                              else setSelectedServices([...selectedServices, srv]);
+                              if (isSelected) {
+                                setSelectedServices(selectedServices.map(s => s === existingSrv ? { ...s, quantity: (s.quantity || 1) + 1 } : s));
+                              } else {
+                                setSelectedServices([...selectedServices, { ...srv, quantity: 1 }]);
+                              }
                             };
                             return (
                               <div 
@@ -534,12 +548,13 @@ export default function QuickBilling() {
                     {mainTab === 'packages' && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
                         {packages.filter((p: any) => p.is_active).map((pkg: any, index: number, arr: any[]) => {
-                          const isSelected = !!selectedServices.find(s => s.is_package && s.id === pkg.id);
+                          const existingPkg = selectedServices.find(s => s.is_package && s.id === pkg.id);
+                          const isSelected = !!existingPkg;
                           const toggleSelection = () => {
                             if (isSelected) {
-                              setSelectedServices(selectedServices.filter(s => !(s.is_package && s.id === pkg.id)));
+                              setSelectedServices(selectedServices.map(s => s === existingPkg ? { ...s, quantity: (s.quantity || 1) + 1 } : s));
                             } else {
-                              setSelectedServices([...selectedServices, { ...pkg, is_package: true, active_sub_services: pkg.services }]);
+                              setSelectedServices([...selectedServices, { ...pkg, is_package: true, active_sub_services: pkg.services, quantity: 1 }]);
                             }
                           };
                           return (
@@ -576,12 +591,13 @@ export default function QuickBilling() {
                     {mainTab === 'deals' && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
                         {deals.filter((d: any) => d.is_active).map((deal: any, index: number, arr: any[]) => {
-                          const isSelected = !!selectedServices.find(s => s.is_deal && s.id === deal.id);
+                          const existingDeal = selectedServices.find(s => s.is_deal && s.id === deal.id);
+                          const isSelected = !!existingDeal;
                           const toggleSelection = () => {
                             if (isSelected) {
-                              setSelectedServices(selectedServices.filter(s => !(s.is_deal && s.id === deal.id)));
+                              setSelectedServices(selectedServices.map(s => s === existingDeal ? { ...s, quantity: (s.quantity || 1) + 1 } : s));
                             } else {
-                              setSelectedServices([...selectedServices, { ...deal, is_deal: true, active_sub_services: deal.services }]);
+                              setSelectedServices([...selectedServices, { ...deal, is_deal: true, active_sub_services: deal.services, quantity: 1 }]);
                             }
                           };
                           
@@ -628,6 +644,30 @@ export default function QuickBilling() {
                         })}
                       </div>
                     )}
+
+                    {/* Custom Amount */}
+                    {mainTab === 'custom' && (
+                      <div className="flex flex-col items-center justify-center p-8 border border-dashed border-[var(--color-border)] rounded-xl mt-4 animate-in fade-in duration-200 bg-[var(--color-panel)]">
+                        <div className="text-gray-400 mb-6 text-center text-sm">Add a custom amount for a service not listed above.</div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl font-bold text-[var(--color-gold)]">₨</span>
+                          <input type="number" id="manual_amount" placeholder="0" className="w-40 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg py-3 px-4 text-xl focus:border-[var(--color-gold)] outline-none text-white text-center shadow-inner" onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              document.getElementById('add_manual_btn')?.click();
+                            }
+                          }} />
+                          <button id="add_manual_btn" onClick={() => {
+                             const input = document.getElementById('manual_amount') as HTMLInputElement;
+                             const amt = input.value;
+                             if (amt && Number(amt) > 0) {
+                               setSelectedServices([...selectedServices, { id: 'manual_' + Date.now(), name: 'Custom Service', price: Number(amt), quantity: 1, is_manual: true }]);
+                               input.value = '';
+                               toast.success('Custom amount added to bill');
+                             }
+                           }} className="bg-[var(--color-gold)] text-black px-6 py-3 rounded-lg font-bold hover:bg-[var(--color-gold-hover)] transition-colors shadow-lg">Add</button>
+                        </div>
+                      </div>
+                    )}
                     
                   </div>
                 </div>
@@ -651,36 +691,52 @@ export default function QuickBilling() {
             </div>
 
             <div className="space-y-3 mb-4 border-t border-[var(--color-border)] pt-4 min-h-[50px] flex-1 overflow-y-auto custom-scrollbar pr-2">
-              {selectedServices.map(srv => {
+              {selectedServices.map((srv, idx) => {
                 let displayPrice = srv.price;
                 if (srv.is_deal && srv.discount_percentage > 0) {
                   displayPrice = srv.price - (srv.price * (srv.discount_percentage / 100));
                 }
+                const qty = srv.quantity || 1;
                 
                 return (
-                  <div key={srv.is_package ? `pkg-${srv.id}` : (srv.is_deal ? `deal-${srv.id}` : `srv-${srv.id}`)} className="flex flex-col text-[var(--color-foreground)] text-sm mb-2">
+                  <div key={srv.is_manual ? `manual-${srv.id}-${idx}` : (srv.is_package ? `pkg-${srv.id}-${idx}` : (srv.is_deal ? `deal-${srv.id}-${idx}` : `srv-${srv.id}-${idx}`))} className="flex flex-col text-[var(--color-foreground)] text-sm mb-2 group relative">
                     <div className="flex justify-between items-start">
                       <span className="font-bold">
-                        {srv.name} 
+                        {srv.name} {qty > 1 && <span className="text-[var(--color-gold)] ml-1">x{qty}</span>}
                         {srv.is_package && <span className="text-xs text-[var(--color-gold)] ml-1 border border-[var(--color-gold)] px-1 rounded">Package</span>}
                         {srv.is_deal && <span className="text-xs text-orange-400 ml-1 border border-orange-400 px-1 rounded">Deal</span>}
                       </span>
-                      <span className="text-gray-300">₨ {displayPrice}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-300">₨ {displayPrice * qty}</span>
+                        <button 
+                          onClick={() => {
+                            if (qty > 1) {
+                              setSelectedServices(selectedServices.map(s => s === srv ? { ...s, quantity: qty - 1 } : s));
+                            } else {
+                              setSelectedServices(selectedServices.filter(s => s !== srv));
+                            }
+                          }}
+                          className="text-red-500/70 hover:text-red-500 transition-colors p-1"
+                          title="Remove one"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
                     </div>
                     {(srv.is_package || srv.is_deal) && srv.active_sub_services && (
                       <div className="mt-2 ml-2 pl-2 border-l border-[var(--color-border)] space-y-1">
                         {srv.active_sub_services.map((sub: any) => (
-                          <div key={sub.id} className="flex items-center justify-between text-xs text-gray-400 group">
+                          <div key={sub.id} className="flex items-center justify-between text-xs text-gray-400 group/sub">
                             <span className="flex items-center gap-2">
                               <span className="w-1 h-1 rounded-full bg-gray-500"></span>
                               {sub.name}
                             </span>
                             <button 
                               onClick={() => removeSubService(srv.id, !!srv.is_package, !!srv.is_deal, sub.id)}
-                              className="text-red-500/70 hover:text-red-500 transition-colors"
+                              className="text-red-500/50 hover:text-red-500 transition-colors opacity-0 group-hover/sub:opacity-100"
                               title="Remove from package"
                             >
-                              <X size={14} />
+                              <X size={12} />
                             </button>
                           </div>
                         ))}
