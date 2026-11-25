@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Check, Printer, UserPlus, CreditCard, Banknote, Smartphone, X, Clock, Scissors, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity, Layers, Tag } from 'lucide-react';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
-import TodayEmployeeBillsWidget from '@/components/TodayEmployeeBillsWidget';
+import EmployeeFloatingTodayBills from '@/components/EmployeeFloatingTodayBills';
 
 const AVAILABLE_ICONS: Record<string, any> = {
   Scissors, Sparkles, Droplet, Wind, Zap, Star, Heart, Smile, Crown, Flower, Moon, Sun, Cloud, Flame, Gem, CircleDot, Activity
@@ -210,9 +210,7 @@ export default function QuickBilling() {
                 </div>
               ))}
             </div>
-            <div className="space-y-4 lg:sticky top-24 mt-4 lg:mt-0">
-              <div className="h-40 bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl animate-pulse" />
-            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-[calc(100vh-14rem)] shadow-2xl">
+            <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-[calc(100vh-6rem)] relative lg:sticky top-24 shadow-2xl mt-4 lg:mt-0">
               <div className="h-6 w-32 bg-white/10 animate-pulse rounded mx-auto mb-6"></div>
               <div className="space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -230,7 +228,6 @@ export default function QuickBilling() {
                   ))}
                 </div>
               </div>
-            </div>
             </div>
           </div>
         ) : (
@@ -680,10 +677,8 @@ export default function QuickBilling() {
             </div>
           </div>
 
-          {/* Right Column - Today's bills + Receipt Preview */}
-          <div className="space-y-4 lg:sticky top-24 mt-4 lg:mt-0">
-            <TodayEmployeeBillsWidget refreshKey={todayBillsRefreshKey} />
-          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 max-h-[calc(100vh-14rem)] overflow-y-auto shadow-2xl flex flex-col">
+          {/* Right Column - Receipt Preview */}
+          <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-xl p-4 md:p-6 h-[calc(100vh-6rem)] overflow-y-auto relative lg:sticky top-24 shadow-2xl flex flex-col mt-4 lg:mt-0">
             <h3 className="text-base sm:text-lg font-bold text-center border-b border-[var(--color-border)] pb-4 mb-4 shrink-0 uppercase tracking-widest text-gray-400">Bill Summary</h3>
 
             <div className="space-y-4 mb-4 shrink-0">
@@ -926,10 +921,13 @@ export default function QuickBilling() {
               </button>
             </div>
           </div>
-          </div>
         </div>
         )}
       </div>
+
+      {!isLoading && (
+        <EmployeeFloatingTodayBills employees={employees} refreshKey={todayBillsRefreshKey} />
+      )}
 
       {/* Print Options Modal */}
       {savedBill && (

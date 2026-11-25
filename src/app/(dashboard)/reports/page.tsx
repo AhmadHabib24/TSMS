@@ -1,10 +1,13 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FileText, Trophy, TrendingUp, TrendingDown, Users, DollarSign, Activity, Image as ImageIcon, Calendar, PieChart, Package, AlertTriangle, Lock, CreditCard, Clock } from 'lucide-react';
 import api from '@/lib/axios';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { usePermissions } from '@/hooks/usePermissions';
+import { billsDateRangeParams } from '@/lib/billQuery';
+
+const BILLS_PAGE_SIZE = 25;
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -61,6 +64,7 @@ export default function ReportsPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [billsPage, setBillsPage] = useState(1);
 
     // Calculate dates when dateFilter changes
   useEffect(() => {
@@ -91,14 +95,12 @@ export default function ReportsPage() {
     else if (activeTab === 'groom_customers') fetchGroomCustomersReport();
     else if (activeTab === 'bills') {
       setIsLoading(true);
-      let url = '/bills';
-      const params = new URLSearchParams();
-      params.append('start_date', startDate);
-      params.append('end_date', endDate);
+      const params = billsDateRangeParams(startDate, endDate);
       if (paymentMethod) params.append('payment_method', paymentMethod);
       
-      api.get(`${url}?${params.toString()}`).then(res => {
+      api.get(`/bills?${params.toString()}`).then(res => {
         setBills(res.data);
+        setBillsPage(1);
         setIsLoading(false);
       }).catch(() => setIsLoading(false));
     } else if (activeTab === 'staff') {
@@ -115,6 +117,18 @@ export default function ReportsPage() {
       }).catch(() => setIsLoading(false));
     }
   }, [activeTab, startDate, endDate, paymentMethod]);
+
+  const sortedBills = useMemo(() => {
+    return [...bills].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  }, [bills]);
+
+  const billsTotalPages = Math.max(1, Math.ceil(sortedBills.length / BILLS_PAGE_SIZE));
+  const paginatedBills = useMemo(() => {
+    const start = (billsPage - 1) * BILLS_PAGE_SIZE;
+    return sortedBills.slice(start, start + BILLS_PAGE_SIZE);
+  }, [sortedBills, billsPage]);
 
   const toLocalISODate = (date: Date) => {
     const y = date.getFullYear();
@@ -1053,7 +1067,7 @@ export default function ReportsPage() {
                     <td className="py-4"><div className="h-8 w-24 animate-pulse bg-[var(--color-gold)]/20 rounded"></div></td>
                   </tr>
                 ))
-              ) : bills.map((b: any) => (
+              ) : paginatedBills.map((b: any) => (
                 <tr key={b.id} className="hover:bg-[var(--color-background)]">
                   <td className="py-4 font-bold text-gray-300">#INV{String(b.id).padStart(4, '0')}</td>
                   <td className="py-4 text-gray-400 text-sm">{new Date(b.created_at).toLocaleString()}</td>
@@ -1071,6 +1085,34 @@ export default function ReportsPage() {
               {!isLoading && bills.length === 0 && <tr><td colSpan={7} className="py-12 text-center text-gray-500">No bills generated yet.</td></tr>}
             </tbody>
           </table>
+          {!isLoading && sortedBills.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 pt-4 border-t border-[var(--color-border)]">
+              <p className="text-sm text-gray-400">
+                Showing {(billsPage - 1) * BILLS_PAGE_SIZE + 1}–{Math.min(billsPage * BILLS_PAGE_SIZE, sortedBills.length)} of {sortedBills.length}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={billsPage <= 1}
+                  onClick={() => setBillsPage((p) => Math.max(1, p - 1))}
+                  className="px-4 py-2 rounded-lg text-sm font-bold border border-[var(--color-border)] disabled:opacity-40 hover:border-[var(--color-gold)] transition-colors"
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-gray-400 px-2">
+                  Page {billsPage} / {billsTotalPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={billsPage >= billsTotalPages}
+                  onClick={() => setBillsPage((p) => Math.min(billsTotalPages, p + 1))}
+                  className="px-4 py-2 rounded-lg text-sm font-bold border border-[var(--color-border)] disabled:opacity-40 hover:border-[var(--color-gold)] transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
